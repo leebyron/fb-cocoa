@@ -8,6 +8,7 @@
 #import "FBSession.h"
 #import "FBCrypto.h"
 #import "FBWebViewWindowController.h"
+#import "NSStringAdditions.h"
 
 #define kRESTServerURL @"http://www.facebook.com/restserver.php?"
 #define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@"
@@ -30,6 +31,7 @@ enum {
   kCreateToken,
   kGetSession,
   kFQLQuery,
+  kFQLMultiquery,
 } ProtocolState;
 
 
@@ -43,6 +45,7 @@ enum {
 - (void)createTokenResponseComplete;
 - (void)getSessionResponseComplete;
 - (void)FQLQueryResponseComplete;
+- (void)FQLMultiqueryResponseComplete;
 
 - (void)webViewWindowClosed;
 
@@ -112,6 +115,31 @@ enum {
   NSDictionary *dict = [NSDictionary dictionaryWithObject:query forKey:@"query"];
   state = kFQLQuery;
   [self sendRequestForMethod:@"Fql.query" args:dict];
+  return YES;
+}
+
+- (BOOL)sendFQLMultiquery:(NSDictionary *)queries
+{
+  if (state != kIdle) {
+    return NO;
+  }
+
+  // Encode the NSDictionary in JSON.
+  NSString *entryFormat = @"\"%@\" : \"%@\"";
+  NSMutableArray *entries = [NSMutableArray array];
+  for (NSString *key in queries) {
+    NSString *escapedKey = [key stringByEscapingQuotesAndBackslashes];
+    NSString *escapedVal = [[queries objectForKey:key] stringByEscapingQuotesAndBackslashes];
+    [entries addObject:[NSString stringWithFormat:entryFormat, escapedKey,
+                        escapedVal]];
+  }
+
+  NSString *finalString = [NSString stringWithFormat:@"{%@}",
+                           [entries componentsJoinedByString:@","]];
+
+  NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
+  state = kFQLMultiquery;
+  [self sendRequestForMethod:@"Fql.multiquery" args:dict];
   return YES;
 }
 
@@ -281,6 +309,21 @@ enum {
   [xml release];
 }
 
+- (void)FQLMultiqueryResponseComplete
+{
+  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
+                                                   options:0
+                                                     error:nil];
+  state = kIdle;
+  if ([[[xml rootElement] name] isEqualToString:@"Fql_multiquery_response"]) {
+    DELEGATE1(@selector(session:completedMultiquery:), xml);
+  } else {
+    NSError *err = [self errorForResponse:xml];
+    DELEGATE1(@selector(session:failedMultiquery:), err);
+  }
+  [xml release];
+}
+
 - (void)webViewWindowClosed
 {
   if (state == kCreateToken) {
@@ -313,6 +356,8 @@ enum {
     case kFQLQuery:
       [self FQLQueryResponseComplete];
       break;
+    case kFQLMultiquery:
+      [self FQLMultiqueryResponseComplete];
     default:
       break;
   }

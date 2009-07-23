@@ -56,6 +56,24 @@
  */
 - (void)session:(FBSession *)session failedQuery:(NSError *)error;
 
+/*!
+ * Called when a response has been received to a FQL multiquery.
+ * @param session The caller.
+ * @param response The full content of the response.
+ */
+- (void)session:(FBSession *)session completedMultiquery:(NSXMLDocument *)response;
+
+/*!
+ * Called when an FQL multiquery request returned failure.
+ * @param session The caller.
+ * @param error An NSError detailing why the query failed. The error code
+ * returned by Facebook can be obtained by calling [error code], and the error
+ * message returned by Facebook is under the key kFBErrorMessageKey in the
+ * error's userInfo dictionary.
+ */
+- (void)session:(FBSession *)session failedMultiquery:(NSError *)error;
+
+
 @end
 
 
@@ -132,6 +150,19 @@
  * a request in flight.
  */
 - (BOOL)sendFQLQuery:(NSString *)query;
+
+/*!
+ * Sends an FQL.multiquery request. See the Facebook Developer Wiki for
+ * information about FQL. This method is asynchronous; the receiver's delegate
+ * will receive a -session:receivedResponse: message when the process completes.
+ * See FBSessionDelegate.
+ *
+ * @param queries A dictionary mapping strings (query names) to strings
+ * (FQL query strings).
+ * @result Whether the request was sent. Returns NO if this session already has
+ * a request in flight.
+ */
+- (BOOL)sendFQLMultiquery:(NSDictionary *)queries;
 
 /*!
  * Returns whether the session currently has a session key. Note that the
