@@ -19,8 +19,10 @@
 		93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */; };
 		93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93207AE010162ED7006D15BB /* FBWebViewWindowController.m */; };
 		93207B3210164075006D15BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207B3110164075006D15BB /* WebKit.framework */; };
-		93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 93533FF41017E563002C6CBD /* NSStringAdditions.h */; };
+		93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 93533FF41017E563002C6CBD /* NSStringAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93533FF51017E563002C6CBD /* NSStringAdditions.m */; };
+		935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +45,8 @@
 		93207B3110164075006D15BB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		93533FF41017E563002C6CBD /* NSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringAdditions.h; sourceTree = "<group>"; };
 		93533FF51017E563002C6CBD /* NSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringAdditions.m; sourceTree = "<group>"; };
+		935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLNodeAdditions.h; sourceTree = "<group>"; };
+		935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLNodeAdditions.m; sourceTree = "<group>"; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -111,6 +115,8 @@
 				93207AE010162ED7006D15BB /* FBWebViewWindowController.m */,
 				93533FF41017E563002C6CBD /* NSStringAdditions.h */,
 				93533FF51017E563002C6CBD /* NSStringAdditions.m */,
+				935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */,
+				935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -155,6 +161,7 @@
 				93207A1710154FFE006D15BB /* FBCrypto.h in Headers */,
 				93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */,
 				93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */,
+				935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +226,7 @@
 				93207A1810154FFE006D15BB /* FBCrypto.m in Sources */,
 				93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */,
 				93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */,
+				935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
