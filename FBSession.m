@@ -14,6 +14,10 @@
 #define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
 #define kAPIVersion @"1.0"
 
+#define kSessionSecretDictKey @"kSessionSecretDictKey"
+#define kSessionKeyDictKey @"kSessionKeyDictKey"
+#define kSessionUIDDictKey @"kSessionUIDDictKey"
+
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
  * is a delegate and if the delegate responds to the selector passed as the
@@ -96,13 +100,40 @@ enum {
   [super dealloc];
 }
 
+- (void)setPersistentSessionUserDefaultsKey:(NSString *)key
+{
+  [key retain];
+  [userDefaultsKey release];
+  userDefaultsKey = key;
+}
+
+- (void)clearStoredPersistentSession
+{
+  if (userDefaultsKey) {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:userDefaultsKey];
+  }
+}
+
 - (BOOL)startLogin
 {
   if (state != kIdle) {
     return NO;
   }
-  state = kCreateToken;
-  [self sendRequestForMethod:@"Auth.createToken" args:nil];
+
+  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+  if (userDefaultsKey && [ud objectForKey:userDefaultsKey]) {
+    NSDictionary *dict = [ud objectForKey:userDefaultsKey];
+    [uid release];
+    [sessionKey release];
+    [sessionSecret release];
+    sessionKey = [[dict objectForKey:kSessionKeyDictKey] retain];
+    sessionSecret = [[dict objectForKey:kSessionSecretDictKey] retain];
+    uid = [[dict objectForKey:kSessionUIDDictKey] retain];
+    DELEGATE0(@selector(sessionCompletedLogin:));
+  } else {
+    state = kCreateToken;
+    [self sendRequestForMethod:@"Auth.createToken" args:nil];
+  }
   return YES;
 }
 
@@ -268,6 +299,7 @@ enum {
   NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
                                                    options:0
                                                      error:nil];
+  BOOL storeSession = NO;
   state = kIdle;
   if ([[[xml rootElement] name] isEqualToString:@"Auth_getSession_response"]) {
     [sessionSecret release];
@@ -283,9 +315,19 @@ enum {
         sessionSecret = [[node stringValue] retain];
       } else if ([[node name] isEqualToString:@"uid"]) {
         uid = [[node stringValue] retain];
+      } else if ([[node name] isEqualToString:@"expires"]) {
+        if ([[node stringValue] isEqualToString:@"0"] && userDefaultsKey) {
+          storeSession = YES;
+        }
       }
     }
 
+    if (storeSession) {
+      NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:sessionKey,
+                            kSessionKeyDictKey, sessionSecret,
+                            kSessionSecretDictKey, uid, kSessionUIDDictKey, nil];
+      [[NSUserDefaults standardUserDefaults] setObject:dict forKey:userDefaultsKey];
+    }
     DELEGATE0(@selector(sessionCompletedLogin:));
   } else {
     NSError *err = [self errorForResponse:xml];

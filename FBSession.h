@@ -90,6 +90,7 @@
   NSString *sessionKey;
   NSString *authToken;
   NSString *uid;
+  NSString *userDefaultsKey;
 
   id delegate;
 
@@ -123,6 +124,24 @@
 - (id)initWithAPIKey:(NSString *)key
               secret:(NSString *)secret
             delegate:(id)obj;
+
+/*!
+ * If a user defaults key has been set with this method, two things will change:
+ * - Before attempting a fresh login, the FBSession will check user defaults
+ *   under this key for a non-expiring login session, and if one exists, will
+ *   use it instead of logging in from scratch.
+ * - In the event of a successful login, if the user has selected "keep me
+ *   logged in", the FBSession will store the login session in user defaults
+ *   under this key, for future use.
+ * @param key The user defaults key to use.
+ */
+- (void)setPersistentSessionUserDefaultsKey:(NSString *)key;
+
+/*!
+ * Clears the login session information stored under the key set using
+ * -setPersistentSessionUserDefaultsKey:.
+ */
+- (void)clearStoredPersistentSession;
 
 /*!
  * Causes the session to start the login process. This method is asynchronous;
