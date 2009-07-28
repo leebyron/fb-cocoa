@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1" id="9"/>
+			<integer value="2"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -39,7 +39,7 @@
 			<object class="NSWindowTemplate" id="1005">
 				<int key="NSWindowStyleMask">15</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{841, 433}, {1020, 641}}</string>
+				<string key="NSWindowRect">{{841, 651}, {526, 423}}</string>
 				<int key="NSWTFlags">536870912</int>
 				<string key="NSWindowTitle">Facebook</string>
 				<string key="NSWindowClass">NSWindow</string>
@@ -74,7 +74,7 @@
 									<string>public.url-name</string>
 								</object>
 							</object>
-							<string key="NSFrameSize">{1020, 641}</string>
+							<string key="NSFrameSize">{526, 423}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<reference key="NSNextKeyView"/>
 							<string key="FrameName"/>
@@ -93,7 +93,7 @@
 										<bool key="EncodedWithXMLCoder">YES</bool>
 										<integer value="12" id="842746109"/>
 										<reference ref="842746109"/>
-										<reference ref="9"/>
+										<integer value="1"/>
 									</object>
 								</object>
 							</object>
@@ -101,7 +101,7 @@
 							<bool key="AllowsUndo">YES</bool>
 						</object>
 					</object>
-					<string key="NSFrameSize">{1020, 641}</string>
+					<string key="NSFrameSize">{526, 423}</string>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {2560, 1578}}</string>
@@ -211,9 +211,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilderKit</string>
 					<string>com.apple.InterfaceBuilderKit</string>
-					<string>{{628, 565}, {1020, 641}}</string>
+					<string>{{1038, 621}, {526, 423}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{628, 565}, {1020, 641}}</string>
+					<string>{{1038, 621}, {526, 423}}</string>
 					<boolean value="NO"/>
 					<string>{196, 240}</string>
 					<string>{{202, 428}, {480, 270}}</string>
@@ -265,6 +265,13 @@
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">FBWebViewWindowController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">FBSession.h</string>
 					</object>
 				</object>
 			</object>

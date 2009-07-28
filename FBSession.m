@@ -11,7 +11,7 @@
 #import "NSStringAdditions.h"
 
 #define kRESTServerURL @"http://www.facebook.com/restserver.php?"
-#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@"
+#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
 #define kAPIVersion @"1.0"
 
 /*
