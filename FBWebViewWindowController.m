@@ -44,4 +44,16 @@
   }
 }
 
+- (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
+{
+  [[self window] setTitle:@"Loading\u2026"];
+  [progressIndicator startAnimation:self];
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
+{
+  [[self window] setTitle:@"Facebook"];
+  [progressIndicator stopAnimation:self];
+}
+
 @end

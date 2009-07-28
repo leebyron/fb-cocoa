@@ -11,6 +11,7 @@
 
 @interface FBWebViewWindowController : NSWindowController {
   IBOutlet WebView *webView;
+  IBOutlet NSProgressIndicator *progressIndicator;
 
   id target;
   SEL selector;
