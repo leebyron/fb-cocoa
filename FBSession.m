@@ -17,6 +17,7 @@
 #define kSessionSecretDictKey @"kSessionSecretDictKey"
 #define kSessionKeyDictKey @"kSessionKeyDictKey"
 #define kSessionUIDDictKey @"kSessionUIDDictKey"
+#define kErrorCodeInvalidSession 102
 
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
@@ -30,12 +31,14 @@
 #define DELEGATE1(sel, arg) {if (delegate && [delegate respondsToSelector:(sel)]) {\
   [delegate performSelector:(sel) withObject:self withObject:(arg)];}}
 
-enum {
+typedef enum {
   kIdle,
   kCreateToken,
+  kWaitingForLoginWindow,
   kGetSession,
   kFQLQuery,
   kFQLMultiquery,
+  kExpireSession,
 } ProtocolState;
 
 
@@ -46,10 +49,11 @@ enum {
 - (void)sendRequestForMethod:(NSString *)method args:(NSDictionary *)dict;
 - (NSError *)errorForResponse:(NSXMLDocument *)xml;
 
-- (void)createTokenResponseComplete;
-- (void)getSessionResponseComplete;
-- (void)FQLQueryResponseComplete;
-- (void)FQLMultiqueryResponseComplete;
+- (void)createTokenResponseComplete:(NSXMLDocument *)xml;
+- (void)getSessionResponseComplete:(NSXMLDocument *)xml;
+- (void)FQLQueryResponseComplete:(NSXMLDocument *)xml;
+- (void)FQLMultiqueryResponseComplete:(NSXMLDocument *)xml;
+- (void)expireSessionResponseComplete:(NSXMLDocument *)xml;
 
 - (void)webViewWindowClosed;
 
@@ -76,6 +80,7 @@ enum {
   APIKey = [key retain];
   appSecret = [secret retain];
   delegate = obj;
+  usingSavedSession = NO;
 
   responseBuffer = [[NSMutableData alloc] init];
   state = kIdle;
@@ -129,11 +134,23 @@ enum {
     sessionKey = [[dict objectForKey:kSessionKeyDictKey] retain];
     sessionSecret = [[dict objectForKey:kSessionSecretDictKey] retain];
     uid = [[dict objectForKey:kSessionUIDDictKey] retain];
+    usingSavedSession = YES;
     DELEGATE0(@selector(sessionCompletedLogin:));
   } else {
     state = kCreateToken;
     [self sendRequestForMethod:@"Auth.createToken" args:nil];
   }
+  return YES;
+}
+
+- (BOOL)logout
+{
+  if (state != kIdle) {
+    return NO;
+  }
+
+  state = kExpireSession;
+  [self sendRequestForMethod:@"Auth.expireSession" args:nil];
   return YES;
 }
 
@@ -276,99 +293,73 @@ enum {
                                                               forKey:kFBErrorMessageKey]];
 }
 
-- (void)createTokenResponseComplete
+- (void)createTokenResponseComplete:(NSXMLDocument *)xml
 {
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
-  if ([[[xml rootElement] name] isEqualToString:@"Auth_createToken_response"]) {
-    [authToken release];
-    authToken = [[[xml rootElement] stringValue] retain];
+  [authToken release];
+  authToken = [[[xml rootElement] stringValue] retain];
+  state = kWaitingForLoginWindow;
 
-    NSString *url = [NSString stringWithFormat:kLoginURL, APIKey, authToken];
-    [windowController showWithURL:[NSURL URLWithString:url]];
-  } else {
-    NSError *err = [self errorForResponse:xml];
-    DELEGATE1(@selector(session:failedLogin:), err);
-  }
-  [xml release];
+  NSString *url = [NSString stringWithFormat:kLoginURL, APIKey, authToken];
+  [windowController showWithURL:[NSURL URLWithString:url]];
 }
 
-- (void)getSessionResponseComplete
+- (void)getSessionResponseComplete:(NSXMLDocument *)xml
 {
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
   BOOL storeSession = NO;
-  state = kIdle;
-  if ([[[xml rootElement] name] isEqualToString:@"Auth_getSession_response"]) {
-    [sessionSecret release];
-    [sessionKey release];
-    [uid release];
-    sessionSecret = nil;
-    sessionKey = nil;
-    uid = nil;
-    for (NSXMLNode *node in [[xml rootElement] children]) {
-      if ([[node name] isEqualToString:@"session_key"]) {
-        sessionKey = [[node stringValue] retain];
-      } else if ([[node name] isEqualToString:@"secret"]) {
-        sessionSecret = [[node stringValue] retain];
-      } else if ([[node name] isEqualToString:@"uid"]) {
-        uid = [[node stringValue] retain];
-      } else if ([[node name] isEqualToString:@"expires"]) {
-        if ([[node stringValue] isEqualToString:@"0"] && userDefaultsKey) {
-          storeSession = YES;
-        }
+  [sessionSecret release];
+  [sessionKey release];
+  [uid release];
+  sessionSecret = nil;
+  sessionKey = nil;
+  uid = nil;
+  for (NSXMLNode *node in [[xml rootElement] children]) {
+    if ([[node name] isEqualToString:@"session_key"]) {
+      sessionKey = [[node stringValue] retain];
+    } else if ([[node name] isEqualToString:@"secret"]) {
+      sessionSecret = [[node stringValue] retain];
+    } else if ([[node name] isEqualToString:@"uid"]) {
+      uid = [[node stringValue] retain];
+    } else if ([[node name] isEqualToString:@"expires"]) {
+      if ([[node stringValue] isEqualToString:@"0"] && userDefaultsKey) {
+        storeSession = YES;
       }
     }
-
-    if (storeSession) {
-      NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:sessionKey,
-                            kSessionKeyDictKey, sessionSecret,
-                            kSessionSecretDictKey, uid, kSessionUIDDictKey, nil];
-      [[NSUserDefaults standardUserDefaults] setObject:dict forKey:userDefaultsKey];
-    }
-    DELEGATE0(@selector(sessionCompletedLogin:));
-  } else {
-    NSError *err = [self errorForResponse:xml];
-    DELEGATE1(@selector(session:failedLogin:), err);
   }
-  [xml release];
+
+  if (storeSession) {
+    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:sessionKey,
+                          kSessionKeyDictKey, sessionSecret,
+                          kSessionSecretDictKey, uid, kSessionUIDDictKey, nil];
+    [[NSUserDefaults standardUserDefaults] setObject:dict forKey:userDefaultsKey];
+  }
+  DELEGATE0(@selector(sessionCompletedLogin:));
 }
 
-- (void)FQLQueryResponseComplete
+- (void)FQLQueryResponseComplete:(NSXMLDocument *)xml
 {
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
-  state = kIdle;
-  if ([[[xml rootElement] name] isEqualToString:@"Fql_query_response"]) {
-    DELEGATE1(@selector(session:completedQuery:), xml);
-  } else {
-    NSError *err = [self errorForResponse:xml];
-    DELEGATE1(@selector(session:failedQuery:), err);
-  }
-  [xml release];
+  DELEGATE1(@selector(session:completedQuery:), xml);
 }
 
-- (void)FQLMultiqueryResponseComplete
+- (void)FQLMultiqueryResponseComplete:(NSXMLDocument *)xml
 {
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
-  state = kIdle;
-  if ([[[xml rootElement] name] isEqualToString:@"Fql_multiquery_response"]) {
-    DELEGATE1(@selector(session:completedMultiquery:), xml);
-  } else {
-    NSError *err = [self errorForResponse:xml];
-    DELEGATE1(@selector(session:failedMultiquery:), err);
-  }
-  [xml release];
+  DELEGATE1(@selector(session:completedMultiquery:), xml);
+}
+
+- (void)expireSessionResponseComplete:(NSXMLDocument *)xml
+{
+  [sessionKey release];
+  sessionKey = nil;
+  [sessionSecret release];
+  sessionSecret = nil;
+  [uid release];
+  uid = nil;
+  [self clearStoredPersistentSession];
+  DELEGATE0(@selector(sessionCompletedLogout:));
 }
 
 - (void)webViewWindowClosed
 {
-  if (state == kCreateToken) {
+  if (state == kWaitingForLoginWindow) {
     // The login window just closed; try a getSession request
     state = kGetSession;
     NSDictionary *dict = [NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"];
@@ -388,21 +379,71 @@ enum {
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-  switch (state) {
-    case kCreateToken:
-      [self createTokenResponseComplete];
-      break;
-    case kGetSession:
-      [self getSessionResponseComplete];
-      break;
-    case kFQLQuery:
-      [self FQLQueryResponseComplete];
-      break;
-    case kFQLMultiquery:
-      [self FQLMultiqueryResponseComplete];
-    default:
-      break;
+  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
+                                                   options:0
+                                                     error:nil];
+  BOOL isError = ([[[xml rootElement] name] isEqualToString:@"error_response"]);
+  if (isError) {
+    NSError *err = [self errorForResponse:xml];
+    if (usingSavedSession && [err code] == kErrorCodeInvalidSession) {
+      // We were using a session key that we'd saved as permanent, and got
+      // back an error saying it was invalid. Throw away the saved session
+      // data and start a login from scratch.
+      [sessionKey release];
+      sessionKey = nil;
+      [sessionSecret release];
+      sessionSecret = nil;
+      [uid release];
+      uid = nil;
+      usingSavedSession = NO;
+      [self clearStoredPersistentSession];
+      state = kIdle;
+      [self startLogin];
+    } else {
+      switch (state) {
+        case kCreateToken:
+          DELEGATE1(@selector(session:failedLogin:), err);
+          break;
+        case kGetSession:
+          DELEGATE1(@selector(session:failedLogin:), err);
+          break;
+        case kFQLQuery:
+          DELEGATE1(@selector(session:failedQuery:), err);
+          break;
+        case kFQLMultiquery:
+          DELEGATE1(@selector(session:failedMultiquery:), err);
+          break;
+        case kExpireSession:
+          DELEGATE1(@selector(session:failedLogout:), err);
+        default:
+          break;
+      }
+      state = kIdle;
+    }
+  } else {
+    ProtocolState tempState = state;
+    state = kIdle;
+    switch (tempState) {
+      case kCreateToken:
+        [self createTokenResponseComplete:xml];
+        break;
+      case kGetSession:
+        [self getSessionResponseComplete:xml];
+        break;
+      case kFQLQuery:
+        [self FQLQueryResponseComplete:xml];
+        break;
+      case kFQLMultiquery:
+        [self FQLMultiqueryResponseComplete:xml];
+        break;
+      case kExpireSession:
+        [self expireSessionResponseComplete:xml];
+        break;
+      default:
+        break;
+    }
   }
+  [xml release];
 }
 
 @end

@@ -73,6 +73,21 @@
  */
 - (void)session:(FBSession *)session failedMultiquery:(NSError *)error;
 
+/*!
+ * Called when logout has completed successfully.
+ * @param session The caller.
+ */
+- (void)sessionCompletedQuery:(FBSession *)session;
+
+/*!
+ * Called when a logout request has failed.
+ * @param session The caller.
+ * @param error An NSError detailing why the logout failed. The error code
+ * returned by Facebook can be obtained by calling [error code], and the error
+ * message returned by Facebook is under the key kFBErrorMessageKey in the
+ * error's userInfo dictionary.
+ */
+- (void)session:(FBSession *)session failedLogout:(NSError *)error;
 
 @end
 
@@ -91,6 +106,7 @@
   NSString *authToken;
   NSString *uid;
   NSString *userDefaultsKey;
+  BOOL usingSavedSession;
 
   id delegate;
 
@@ -158,6 +174,15 @@
  * a request in flight.
  */
 - (BOOL)startLogin;
+
+/*!
+ * Logs out the current session. If a user defaults key for storing persistent
+ * sessions has been set, this method clears the stored session, if any.
+ *
+ * @result Whether the request was sent. Returns NO if this session already has
+ * a request in flight.
+ */
+- (BOOL)logout;
 
 /*!
  * Sends an FQL query within the session. See the Facebook Developer Wiki for
