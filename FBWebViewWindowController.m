@@ -56,4 +56,42 @@
   [progressIndicator stopAnimation:self];
 }
 
+-                (void)webView:(WebView *)webView
+decidePolicyForNewWindowAction:(NSDictionary *)actionInformation
+                       request:(NSURLRequest *)request
+                  newFrameName:(NSString *)frameName
+              decisionListener:(id < WebPolicyDecisionListener >)listener
+{
+  // This is a delegate method where we decide what to do when the WebView
+  // wants to open a new window, such as when a link that wants a new window
+  // is clicked. We want to show those in the user's web browser, not in the
+  // WebView. (Note this method also gets called on the initial -loadRequest:.)
+  if ([[actionInformation objectForKey:WebActionNavigationTypeKey] intValue]
+      == WebNavigationTypeLinkClicked) {
+    [listener ignore];
+    [[NSWorkspace sharedWorkspace] openURL:[request URL]];
+  } else {
+    [listener use];
+  }
+}
+
+-                 (void)webView:(WebView *)webView
+decidePolicyForNavigationAction:(NSDictionary *)actionInformation
+                        request:(NSURLRequest *)request
+                          frame:(WebFrame *)frame
+               decisionListener:(id < WebPolicyDecisionListener >)listener
+{
+  // This is a delegate method where we decide what to do when a navigation
+  // action occurs. The only reason the WebView should be going to another
+  // page is if a form (the login form) is submitted; if the user clicks a link,
+  // we want to take them there in their normal web browser.
+  if ([[actionInformation objectForKey:WebActionNavigationTypeKey] intValue]
+      == WebNavigationTypeLinkClicked) {
+    [listener ignore];
+    [[NSWorkspace sharedWorkspace] openURL:[request URL]];
+  } else {
+    [listener use];
+  }
+}
+
 @end
