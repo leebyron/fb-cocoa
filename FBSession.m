@@ -10,7 +10,7 @@
 #import "FBWebViewWindowController.h"
 #import "NSStringAdditions.h"
 
-#define kRESTServerURL @"http://www.facebook.com/restserver.php?"
+#define kRESTServerURL @"http://api.facebook.com/restserver.php?"
 #define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
 #define kAPIVersion @"1.0"
 
@@ -36,6 +36,7 @@ typedef enum {
   kCreateToken,
   kWaitingForLoginWindow,
   kGetSession,
+  kCallMethod,
   kFQLQuery,
   kFQLMultiquery,
   kExpireSession,
@@ -44,13 +45,18 @@ typedef enum {
 
 @interface FBSession (Private)
 
+- (id)initWithAPIKey:(NSString *)key
+              secret:(NSString *)secret
+            delegate:(id)obj;
+
 - (NSString *)sigForArguments:(NSDictionary *)dict;
 - (NSString *)urlEncodeArguments:(NSDictionary *)dict;
-- (void)sendRequestForMethod:(NSString *)method args:(NSDictionary *)dict;
 - (NSError *)errorForResponse:(NSXMLDocument *)xml;
 
+- (void)sendMethodRequest:(NSString *)method withArguments:(NSDictionary *)dict;
 - (void)createTokenResponseComplete:(NSXMLDocument *)xml;
 - (void)getSessionResponseComplete:(NSXMLDocument *)xml;
+- (void)callMethodResponseComplete:(NSXMLDocument *)xml;
 - (void)FQLQueryResponseComplete:(NSXMLDocument *)xml;
 - (void)FQLMultiqueryResponseComplete:(NSXMLDocument *)xml;
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml;
@@ -62,11 +68,19 @@ typedef enum {
 
 @implementation FBSession
 
+static FBSession *instance;
+
++ (FBSession *)session
+{
+  return instance;
+}
+
 + (FBSession *)sessionWithAPIKey:(NSString *)key
                           secret:(NSString *)secret
                         delegate:(id)obj
 {
-  return [[[self alloc] initWithAPIKey:key secret:secret delegate:obj] autorelease];
+  instance = [[self alloc] initWithAPIKey:key secret:secret delegate:obj];
+  return instance;
 }
 
 - (id)initWithAPIKey:(NSString *)key
@@ -138,7 +152,7 @@ typedef enum {
     DELEGATE0(@selector(sessionCompletedLogin:));
   } else {
     state = kCreateToken;
-    [self sendRequestForMethod:@"Auth.createToken" args:nil];
+    [self sendMethodRequest:@"Auth.createToken" withArguments:nil];
   }
   return YES;
 }
@@ -150,7 +164,18 @@ typedef enum {
   }
 
   state = kExpireSession;
-  [self sendRequestForMethod:@"Auth.expireSession" args:nil];
+  [self sendMethodRequest:@"Auth.expireSession" withArguments:nil];
+  return YES;
+}
+
+- (BOOL)callMethod:(NSString *)method withArguments:(NSDictionary *)dict
+{
+  if (state != kIdle) {
+    return NO;
+  }
+
+  state = kCallMethod;
+  [self sendMethodRequest:method withArguments:dict];
   return YES;
 }
 
@@ -162,7 +187,7 @@ typedef enum {
 
   NSDictionary *dict = [NSDictionary dictionaryWithObject:query forKey:@"query"];
   state = kFQLQuery;
-  [self sendRequestForMethod:@"Fql.query" args:dict];
+  [self sendMethodRequest:@"Fql.query" withArguments:dict];
   return YES;
 }
 
@@ -187,7 +212,7 @@ typedef enum {
 
   NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
   state = kFQLMultiquery;
-  [self sendRequestForMethod:@"Fql.multiquery" args:dict];
+  [self sendMethodRequest:@"Fql.multiquery" withArguments:dict];
   return YES;
 }
 
@@ -237,7 +262,7 @@ typedef enum {
   return result;
 }
 
-- (void)sendRequestForMethod:(NSString *)method args:(NSDictionary *)dict
+- (void)sendMethodRequest:(NSString *)method withArguments:(NSDictionary *)dict
 {
   NSMutableDictionary *args;
 
@@ -335,6 +360,11 @@ typedef enum {
   DELEGATE0(@selector(sessionCompletedLogin:));
 }
 
+- (void)callMethodResponseComplete:(NSXMLDocument *)xml
+{
+  DELEGATE1(@selector(session:completedCallMethod:), xml);
+}
+
 - (void)FQLQueryResponseComplete:(NSXMLDocument *)xml
 {
   DELEGATE1(@selector(session:completedQuery:), xml);
@@ -363,7 +393,7 @@ typedef enum {
     // The login window just closed; try a getSession request
     state = kGetSession;
     NSDictionary *dict = [NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"];
-    [self sendRequestForMethod:@"Auth.getSession" args:dict];
+    [self sendMethodRequest:@"Auth.getSession" withArguments:dict];
   }
 }
 
@@ -407,6 +437,9 @@ typedef enum {
         case kGetSession:
           DELEGATE1(@selector(session:failedLogin:), err);
           break;
+        case kCallMethod:
+          DELEGATE1(@selector(session:failedCallMethod:), err);
+          break;          
         case kFQLQuery:
           DELEGATE1(@selector(session:failedQuery:), err);
           break;
@@ -430,6 +463,9 @@ typedef enum {
       case kGetSession:
         [self getSessionResponseComplete:xml];
         break;
+      case kCallMethod:
+        [self callMethodResponseComplete:xml];
+        break;                  
       case kFQLQuery:
         [self FQLQueryResponseComplete:xml];
         break;

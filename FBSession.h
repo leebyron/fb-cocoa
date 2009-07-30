@@ -40,6 +40,23 @@
 - (void)session:(FBSession *)session failedLogin:(NSError *)error;
 
 /*!
+ * Called when a response has been received to a callMethod:
+ * @param session The caller.
+ * @param response The full content of the response.
+ */
+- (void)session:(FBSession *)session completedCallMethod:(NSXMLDocument *)response;
+
+/*!
+ * Called when callMethod: has failed
+ * @param session The caller.
+ * @param error An NSError detailing why the query failed. The error code
+ * returned by Facebook can be obtained by calling [error code], and the error
+ * message returned by Facebook is under the key kFBErrorMessageKey in the
+ * error's userInfo dictionary. 
+ */
+- (void)session:(FBSession *)session failedCallMethod:(NSError *)error;
+
+/*!
  * Called when a response has been received to a FQL query.
  * @param session The caller.
  * @param response The full content of the response.
@@ -117,6 +134,8 @@
   int state;
 }
 
++ (FBSession *)session;
+
 /*!
  * Convenience constructor for an FBSession.
  * @param key Your API key, provided by Facebook.
@@ -127,19 +146,6 @@
 + (FBSession *)sessionWithAPIKey:(NSString *)key
                           secret:(NSString *)secret
                         delegate:(id)obj;
-
-/*!
- * The designated initializer for FBSession. Initializes the receiver, but
- * does not initiate any network transactions. The session must be logged in
- * before being used further, by calling -startLogin.
- * @param key Your API key, provided by Facebook.
- * @param secret Your application secret, provided by Facebook.
- * @param delegate An object that will receive delegate method calls when
- * certain events happen in the session. See FBSessionDelegate.
- */
-- (id)initWithAPIKey:(NSString *)key
-              secret:(NSString *)secret
-            delegate:(id)obj;
 
 /*!
  * If a user defaults key has been set with this method, two things will change:
@@ -183,6 +189,11 @@
  * a request in flight.
  */
 - (BOOL)logout;
+
+/*!
+ * Sends an API request with a particular method.
+ */
+- (BOOL)callMethod:(NSString *)method withArguments:(NSDictionary *)dict;
 
 /*!
  * Sends an FQL query within the session. See the Facebook Developer Wiki for
