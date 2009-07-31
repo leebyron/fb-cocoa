@@ -46,13 +46,13 @@
 
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
-  [[self window] setTitle:@"Loading\u2026"];
+  [[self window] setTitle:@"Facebook Connect | Loading\u2026"];
   [progressIndicator startAnimation:self];
 }
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
-  [[self window] setTitle:@"Facebook"];
+  [[self window] setTitle:@"Facebook Connect"];
   [progressIndicator stopAnimation:self];
 }
 

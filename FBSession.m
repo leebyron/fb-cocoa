@@ -6,6 +6,7 @@
 //
 
 #import "FBSession.h"
+#import "FBQuery.h"
 #import "FBCrypto.h"
 #import "FBWebViewWindowController.h"
 #import "NSStringAdditions.h"
@@ -17,7 +18,6 @@
 #define kSessionSecretDictKey @"kSessionSecretDictKey"
 #define kSessionKeyDictKey @"kSessionKeyDictKey"
 #define kSessionUIDDictKey @"kSessionUIDDictKey"
-#define kErrorCodeInvalidSession 102
 
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
@@ -26,10 +26,8 @@
  * arguments beyond "self" (since delegate methods should have the delegating
  * object as the first parameter).
  */
-#define DELEGATE0(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
+#define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
   [delegate performSelector:(sel) withObject:self];}}
-#define DELEGATE1(sel, arg) {if (delegate && [delegate respondsToSelector:(sel)]) {\
-  [delegate performSelector:(sel) withObject:self withObject:(arg)];}}
 
 typedef enum {
   kIdle,
@@ -51,9 +49,7 @@ typedef enum {
 
 - (NSString *)sigForArguments:(NSDictionary *)dict;
 - (NSString *)urlEncodeArguments:(NSDictionary *)dict;
-- (NSError *)errorForResponse:(NSXMLDocument *)xml;
 
-- (void)sendMethodRequest:(NSString *)method withArguments:(NSDictionary *)dict;
 - (void)createTokenResponseComplete:(NSXMLDocument *)xml;
 - (void)getSessionResponseComplete:(NSXMLDocument *)xml;
 - (void)callMethodResponseComplete:(NSXMLDocument *)xml;
@@ -96,7 +92,6 @@ static FBSession *instance;
   delegate = obj;
   usingSavedSession = NO;
 
-  responseBuffer = [[NSMutableData alloc] init];
   state = kIdle;
 
   windowController =
@@ -114,9 +109,12 @@ static FBSession *instance;
   [sessionSecret release];
   [uid release];
   [authToken release];
-  [responseBuffer release];
-  [currentConnection release];
   [super dealloc];
+}
+
+- (BOOL)usingSavedSession
+{
+  return usingSavedSession;
 }
 
 - (void)setPersistentSessionUserDefaultsKey:(NSString *)key
@@ -133,12 +131,8 @@ static FBSession *instance;
   }
 }
 
-- (BOOL)startLogin
+- (void)startLogin
 {
-  if (state != kIdle) {
-    return NO;
-  }
-
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   if (userDefaultsKey && [ud objectForKey:userDefaultsKey]) {
     NSDictionary *dict = [ud objectForKey:userDefaultsKey];
@@ -149,54 +143,94 @@ static FBSession *instance;
     sessionSecret = [[dict objectForKey:kSessionSecretDictKey] retain];
     uid = [[dict objectForKey:kSessionUIDDictKey] retain];
     usingSavedSession = YES;
-    DELEGATE0(@selector(sessionCompletedLogin:));
+    DELEGATE(@selector(sessionCompletedLogin:));
   } else {
-    state = kCreateToken;
-    [self sendMethodRequest:@"Auth.createToken" withArguments:nil];
+    [self callMethod:@"Auth.createToken"
+              withArguments:nil
+                     target:self
+                   selector:@selector(createTokenResponseComplete:)
+                      error:@selector(failedLogin:)];
   }
-  return YES;
 }
 
-- (BOOL)logout
+- (void)logout
 {
-  if (state != kIdle) {
-    return NO;
-  }
-
-  state = kExpireSession;
-  [self sendMethodRequest:@"Auth.expireSession" withArguments:nil];
-  return YES;
+  [self callMethod:@"Auth.expireSession"
+            withArguments:nil
+                   target:self
+                 selector:@selector(expireSessionResponseComplete:)
+                    error:@selector(failedLogout:)];
+  [self clearStoredPersistentSession];
 }
 
-- (BOOL)callMethod:(NSString *)method withArguments:(NSDictionary *)dict
+- (BOOL)hasSessionKey
 {
-  if (state != kIdle) {
-    return NO;
-  }
-
-  state = kCallMethod;
-  [self sendMethodRequest:method withArguments:dict];
-  return YES;
+  return (sessionKey != nil);
 }
 
-- (BOOL)sendFQLQuery:(NSString *)query
+- (NSString *)uid
 {
-  if (state != kIdle) {
-    return NO;
-  }
+  return uid;
+}
 
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+- (void)callMethod:(NSString *)method
+     withArguments:(NSDictionary *)dict
+            target:(id)target
+          selector:(SEL)selector
+             error:(SEL)error
+{
+  NSMutableDictionary *args;
+  
+  if (dict) {
+    args = [NSMutableDictionary dictionaryWithDictionary:dict];
+  } else {
+    args = [NSMutableDictionary dictionary];
+  }
+  [args setObject:method forKey:@"method"];
+  [args setObject:APIKey forKey:@"api_key"];
+  [args setObject:kAPIVersion forKey:@"v"];
+  [args setObject:@"XML" forKey:@"format"];
+  [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
+           forKey:@"call_id"];
+  if (sessionKey) {
+    [args setObject:sessionKey forKey:@"session_key"];
+  }
+  
+  NSString *sig = [self sigForArguments:args];
+  [args setObject:sig forKey:@"sig"];
+  
+  NSString *server = kRESTServerURL;
+  NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[self urlEncodeArguments:args]]];
+  NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
+  [req setHTTPMethod:@"GET"];
+  [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+  
+  FBQuery *currentConnection = [[FBQuery alloc] initWithRequest:req target:target selector:selector error:error];
+  [currentConnection start];
+}
+
+- (void)sendFQLQuery:(NSString *)query
+              target:(id)target
+            selector:(SEL)selector
+               error:(SEL)error
+{
   NSDictionary *dict = [NSDictionary dictionaryWithObject:query forKey:@"query"];
-  state = kFQLQuery;
-  [self sendMethodRequest:@"Fql.query" withArguments:dict];
-  return YES;
+  [self callMethod:@"Fql.query"
+            withArguments:dict
+                   target:target
+                 selector:selector
+                    error:error];
 }
 
-- (BOOL)sendFQLMultiquery:(NSDictionary *)queries
+- (void)sendFQLMultiquery:(NSDictionary *)queries
+                   target:(id)target
+                 selector:(SEL)selector
+                    error:(SEL)error
 {
-  if (state != kIdle) {
-    return NO;
-  }
-
   // Encode the NSDictionary in JSON.
   NSString *entryFormat = @"\"%@\" : \"%@\"";
   NSMutableArray *entries = [NSMutableArray array];
@@ -211,21 +245,18 @@ static FBSession *instance;
                            [entries componentsJoinedByString:@","]];
 
   NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
-  state = kFQLMultiquery;
-  [self sendMethodRequest:@"Fql.multiquery" withArguments:dict];
-  return YES;
+  [self callMethod:@"Fql.multiquery"
+            withArguments:dict
+                   target:target
+                 selector:selector
+                    error:error];
 }
 
-- (BOOL)hasSessionKey
-{
-  return (sessionKey != nil);
-}
+//==============================================================================
+//==============================================================================
+//==============================================================================
 
-- (NSString *)uid
-{
-  return uid;
-}
-
+#pragma mark Private Methods
 - (NSString *)sigForArguments:(NSDictionary *)dict
 {
   NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
@@ -260,62 +291,6 @@ static FBSession *instance;
     [result appendString:encodedValue];
   }
   return result;
-}
-
-- (void)sendMethodRequest:(NSString *)method withArguments:(NSDictionary *)dict
-{
-  NSMutableDictionary *args;
-
-  if (dict) {
-    args = [NSMutableDictionary dictionaryWithDictionary:dict];
-  } else {
-    args = [NSMutableDictionary dictionary];
-  }
-  [args setObject:method forKey:@"method"];
-  [args setObject:APIKey forKey:@"api_key"];
-  [args setObject:kAPIVersion forKey:@"v"];
-  [args setObject:@"XML" forKey:@"format"];
-  [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
-           forKey:@"call_id"];
-  if (sessionKey) {
-    [args setObject:sessionKey forKey:@"session_key"];
-  }
-
-  NSString *sig = [self sigForArguments:args];
-  [args setObject:sig forKey:@"sig"];
-
-  NSString *server = kRESTServerURL;
-  NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[self urlEncodeArguments:args]]];
-  NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
-  [req setHTTPMethod:@"GET"];
-  [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-
-  [currentConnection release];
-  currentConnection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-  [responseBuffer setLength:0];
-  [currentConnection start];
-}
-
-- (NSError *)errorForResponse:(NSXMLDocument *)xml
-{
-  if (![[[xml rootElement] name] isEqualToString:@"error_response"]) {
-    return nil;
-  }
-
-  int code = -1;
-  NSString *message = nil;
-  for (NSXMLNode *node in [[xml rootElement] children]) {
-    if ([[node name] isEqualToString:@"error_code"]) {
-      code = [[node stringValue] intValue];
-    } else if ([[node name] isEqualToString:@"error_msg"]) {
-      message = [node stringValue];
-    }
-  }
-
-  return [NSError errorWithDomain:kFBErrorDomainKey
-                             code:code
-                         userInfo:[NSDictionary dictionaryWithObject:message
-                                                              forKey:kFBErrorMessageKey]];
 }
 
 - (void)createTokenResponseComplete:(NSXMLDocument *)xml
@@ -357,22 +332,7 @@ static FBSession *instance;
                           kSessionSecretDictKey, uid, kSessionUIDDictKey, nil];
     [[NSUserDefaults standardUserDefaults] setObject:dict forKey:userDefaultsKey];
   }
-  DELEGATE0(@selector(sessionCompletedLogin:));
-}
-
-- (void)callMethodResponseComplete:(NSXMLDocument *)xml
-{
-  DELEGATE1(@selector(session:completedCallMethod:), xml);
-}
-
-- (void)FQLQueryResponseComplete:(NSXMLDocument *)xml
-{
-  DELEGATE1(@selector(session:completedQuery:), xml);
-}
-
-- (void)FQLMultiqueryResponseComplete:(NSXMLDocument *)xml
-{
-  DELEGATE1(@selector(session:completedMultiquery:), xml);
+  DELEGATE(@selector(sessionCompletedLogin:));
 }
 
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml
@@ -384,103 +344,33 @@ static FBSession *instance;
   [uid release];
   uid = nil;
   [self clearStoredPersistentSession];
-  DELEGATE0(@selector(sessionCompletedLogout:));
+  DELEGATE(@selector(sessionCompletedLogout:));
 }
 
 - (void)webViewWindowClosed
 {
   if (state == kWaitingForLoginWindow) {
     // The login window just closed; try a getSession request
-    state = kGetSession;
-    NSDictionary *dict = [NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"];
-    [self sendMethodRequest:@"Auth.getSession" withArguments:dict];
+    [self callMethod:@"Auth.getSession"
+              withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
+                     target:self
+                   selector:@selector(getSessionResponseComplete:)
+                      error:@selector(failedLogin:)];
   }
 }
 
-@end
-
-
-@implementation FBSession (NSURLConnectionDelegate)
-
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)refreshSession
 {
-  [responseBuffer appendData:data];
-}
-
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
-{
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
-  BOOL isError = ([[[xml rootElement] name] isEqualToString:@"error_response"]);
-  if (isError) {
-    NSError *err = [self errorForResponse:xml];
-    if (usingSavedSession && [err code] == kErrorCodeInvalidSession) {
-      // We were using a session key that we'd saved as permanent, and got
-      // back an error saying it was invalid. Throw away the saved session
-      // data and start a login from scratch.
-      [sessionKey release];
-      sessionKey = nil;
-      [sessionSecret release];
-      sessionSecret = nil;
-      [uid release];
-      uid = nil;
-      usingSavedSession = NO;
-      [self clearStoredPersistentSession];
-      state = kIdle;
-      [self startLogin];
-    } else {
-      switch (state) {
-        case kCreateToken:
-          DELEGATE1(@selector(session:failedLogin:), err);
-          break;
-        case kGetSession:
-          DELEGATE1(@selector(session:failedLogin:), err);
-          break;
-        case kCallMethod:
-          DELEGATE1(@selector(session:failedCallMethod:), err);
-          break;          
-        case kFQLQuery:
-          DELEGATE1(@selector(session:failedQuery:), err);
-          break;
-        case kFQLMultiquery:
-          DELEGATE1(@selector(session:failedMultiquery:), err);
-          break;
-        case kExpireSession:
-          DELEGATE1(@selector(session:failedLogout:), err);
-        default:
-          break;
-      }
-      state = kIdle;
-    }
-  } else {
-    ProtocolState tempState = state;
-    state = kIdle;
-    switch (tempState) {
-      case kCreateToken:
-        [self createTokenResponseComplete:xml];
-        break;
-      case kGetSession:
-        [self getSessionResponseComplete:xml];
-        break;
-      case kCallMethod:
-        [self callMethodResponseComplete:xml];
-        break;                  
-      case kFQLQuery:
-        [self FQLQueryResponseComplete:xml];
-        break;
-      case kFQLMultiquery:
-        [self FQLMultiqueryResponseComplete:xml];
-        break;
-      case kExpireSession:
-        [self expireSessionResponseComplete:xml];
-        break;
-      default:
-        break;
-    }
-  }
-  [xml release];
+  [sessionKey release];
+  sessionKey = nil;
+  [sessionSecret release];
+  sessionSecret = nil;
+  [uid release];
+  uid = nil;
+  usingSavedSession = NO;
+  [self clearStoredPersistentSession];
+  state = kIdle;
+  [self startLogin];  
 }
 
 @end
-
