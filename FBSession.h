@@ -77,8 +77,6 @@
   id delegate;
 
   FBWebViewWindowController *windowController;
-
-  int state;
 }
 
 + (FBSession *)session;

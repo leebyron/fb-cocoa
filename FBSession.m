@@ -92,8 +92,6 @@ static FBSession *instance;
   delegate = obj;
   usingSavedSession = NO;
 
-  state = kIdle;
-
   windowController =
     [[FBWebViewWindowController alloc] initWithCloseTarget:self
                                                   selector:@selector(webViewWindowClosed)];
@@ -297,7 +295,6 @@ static FBSession *instance;
 {
   [authToken release];
   authToken = [[[xml rootElement] stringValue] retain];
-  state = kWaitingForLoginWindow;
 
   NSString *url = [NSString stringWithFormat:kLoginURL, APIKey, authToken];
   [windowController showWithURL:[NSURL URLWithString:url]];
@@ -349,14 +346,12 @@ static FBSession *instance;
 
 - (void)webViewWindowClosed
 {
-  if (state == kWaitingForLoginWindow) {
-    // The login window just closed; try a getSession request
-    [self callMethod:@"Auth.getSession"
-              withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
-                     target:self
-                   selector:@selector(getSessionResponseComplete:)
-                      error:@selector(failedLogin:)];
-  }
+  // The login window just closed; try a getSession request
+  [self callMethod:@"Auth.getSession"
+            withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
+                   target:self
+                 selector:@selector(getSessionResponseComplete:)
+                    error:@selector(failedLogin:)];
 }
 
 - (void)refreshSession
@@ -369,8 +364,7 @@ static FBSession *instance;
   uid = nil;
   usingSavedSession = NO;
   [self clearStoredPersistentSession];
-  state = kIdle;
-  [self startLogin];  
+  [self startLogin];
 }
 
 @end
