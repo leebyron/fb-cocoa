@@ -36,7 +36,6 @@
 
 -(void)dealloc
 {
-  NSLog(@"removing an FBQuery");
   [target release];
   [responseBuffer release];
   [super dealloc];
@@ -71,6 +70,10 @@
       [target performSelector:method withObject:xml];
     }
   }
+
+  // peace!
+  [xml release];
+  [self release];
 }
 
 
