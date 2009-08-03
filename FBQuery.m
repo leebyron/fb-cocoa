@@ -58,10 +58,10 @@
     if ([[FBSession session] usingSavedSession] && [err code] == kErrorCodeInvalidSession) {
       // We were using a session key that we'd saved as permanent, and got
       // back an error saying it was invalid. Throw away the saved session
-      // data and start a login from scratch.      
+      // data and start a login from scratch.
       [[FBSession session] refreshSession];
     }
-    
+
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {
       [target performSelector:errorMethod withObject:err];
     }
@@ -83,7 +83,7 @@
   if (![[[xml rootElement] name] isEqualToString:@"error_response"]) {
     return nil;
   }
-  
+
   int code = -1;
   NSString *message = nil;
   for (NSXMLNode *node in [[xml rootElement] children]) {
@@ -93,7 +93,7 @@
       message = [node stringValue];
     }
   }
-  
+
   return [NSError errorWithDomain:kFBErrorDomainKey
                              code:code
                          userInfo:[NSDictionary dictionaryWithObject:message

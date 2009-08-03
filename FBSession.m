@@ -182,7 +182,7 @@ static FBSession *instance;
              error:(SEL)error
 {
   NSMutableDictionary *args;
-  
+
   if (dict) {
     args = [NSMutableDictionary dictionaryWithDictionary:dict];
   } else {
@@ -197,16 +197,16 @@ static FBSession *instance;
   if (sessionKey) {
     [args setObject:sessionKey forKey:@"session_key"];
   }
-  
+
   NSString *sig = [self sigForArguments:args];
   [args setObject:sig forKey:@"sig"];
-  
+
   NSString *server = kRESTServerURL;
   NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[self urlEncodeArguments:args]]];
   NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
   [req setHTTPMethod:@"GET"];
   [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-  
+
   FBQuery *currentConnection = [[FBQuery alloc] initWithRequest:req target:target selector:selector error:error];
   [currentConnection start];
 }
