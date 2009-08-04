@@ -37,6 +37,16 @@
   [self showWindow:self];
 }
 
+- (void)keyDown:(NSEvent *)event
+{
+  if (([event modifierFlags] & NSCommandKeyMask) &&
+      [[event charactersIgnoringModifiers] isEqualToString:@"w"]) {
+    [[self window] performClose:self];
+  } else {
+    [super keyDown:event];
+  }
+}
+
 - (void)windowWillClose:(NSNotification *)notification
 {
   if (target && selector) {
