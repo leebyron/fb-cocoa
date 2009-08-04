@@ -30,15 +30,10 @@
   [delegate performSelector:(sel) withObject:self];}}
 
 typedef enum {
-  kIdle,
-  kCreateToken,
-  kWaitingForLoginWindow,
-  kGetSession,
-  kCallMethod,
-  kFQLQuery,
-  kFQLMultiquery,
-  kExpireSession,
-} ProtocolState;
+  kNothing,
+  kLoginWindow,
+  kExtendedPermissionsWindow,
+} WindowState;
 
 
 @interface FBSession (Private)
@@ -95,6 +90,7 @@ static FBSession *instance;
   windowController =
     [[FBWebViewWindowController alloc] initWithCloseTarget:self
                                                   selector:@selector(webViewWindowClosed)];
+  windowState = kNothing;
 
   return self;
 }
@@ -297,6 +293,7 @@ static FBSession *instance;
   authToken = [[[xml rootElement] stringValue] retain];
 
   NSString *url = [NSString stringWithFormat:kLoginURL, APIKey, authToken];
+  windowState = kLoginWindow;
   [windowController showWithURL:[NSURL URLWithString:url]];
 }
 
@@ -346,12 +343,15 @@ static FBSession *instance;
 
 - (void)webViewWindowClosed
 {
-  // The login window just closed; try a getSession request
-  [self callMethod:@"Auth.getSession"
-            withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
-                   target:self
-                 selector:@selector(getSessionResponseComplete:)
-                    error:@selector(failedLogin:)];
+  if (windowState == kLoginWindow) {
+    // The login window just closed; try a getSession request
+    [self callMethod:@"Auth.getSession"
+       withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
+              target:self
+            selector:@selector(getSessionResponseComplete:)
+               error:@selector(failedLogin:)];
+  }
+  windowState = kNothing;
 }
 
 - (void)refreshSession
