@@ -73,7 +73,10 @@
   NSString *uid;
   NSString *userDefaultsKey;
   BOOL usingSavedSession;
+  BOOL isLoggedIn;
 
+  NSDictionary *loginParams;
+  
   id delegate;
 
   FBWebViewWindowController *windowController;
@@ -130,7 +133,9 @@
  * @result Whether the request was sent. Returns NO if this session already has
  * a request in flight.
  */
-- (void)startLogin;
+- (void)loginWithParams:(NSDictionary *)params;
+
+- (void)validateSession;
 
 /*!
  * Logs out the current session. If a user defaults key for storing persistent
