@@ -80,7 +80,6 @@ static FBSession *instance;
   [APIKey      release];
   [appSecret   release];
   [session     release];
-  [loginParams release];
   [super dealloc];
 }
 
@@ -100,24 +99,26 @@ static FBSession *instance;
 
 - (void)login
 {
-  [self loginWithParams:nil];
+  [self loginWithPermissions:nil];
 }
 
-- (void)loginWithParams:(NSDictionary *)params
+- (void)loginWithPermissions:(NSArray *)perms
 {
-  [params retain];
-  [loginParams release];
-  loginParams = params;
   if ([session isValid]) {
     [self validateSession];
   } else {
-    NSMutableDictionary *allLoginParams = [[NSMutableDictionary alloc] initWithDictionary:loginParams];
-    [allLoginParams setObject:APIKey      forKey:@"api_key"];
-    [allLoginParams setObject:kAPIVersion forKey:@"v"];
+    NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+    if (perms) {
+      [session setPermissions:perms];
+      NSString *permsString = [perms componentsJoinedByString:@","];
+      [loginParams setObject:permsString forKey:@"req_perms"];
+    }
+    [loginParams setObject:APIKey      forKey:@"api_key"];
+    [loginParams setObject:kAPIVersion forKey:@"v"];
     windowController =
     [[FBWebViewWindowController alloc] initWithCloseTarget:self
                                                   selector:@selector(webViewWindowClosed)];
-    [windowController showWithParams:allLoginParams];
+    [windowController showWithParams:loginParams];
   }
 }
 
@@ -143,12 +144,12 @@ static FBSession *instance;
 {
   isLoggedIn = NO;
   [session clear];
-  [self loginWithParams:loginParams];
+  [self loginWithPermissions:[session permissions]];
 }
 
 - (BOOL)hasPermission:(NSString *)perm
 {
-  return NO; // return permissions.indexOf(perm) != -1;
+  return [[session permissions] containsObject:perm];
 }
 
 /*

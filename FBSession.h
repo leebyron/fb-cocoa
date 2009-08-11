@@ -54,7 +54,6 @@
   NSString *APIKey;
   NSString *appSecret;
   FBLoginSession *session;
-  NSDictionary *loginParams;
   
   BOOL isLoggedIn;
   id delegate;
@@ -95,7 +94,7 @@
  */
 - (void)login;
 
-- (void)loginWithParams:(NSDictionary *)params;
+- (void)loginWithPermissions:(NSArray *)perms;
 
 /*!
  * Tests to see if the user has accepted a particular permission

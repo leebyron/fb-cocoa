@@ -15,13 +15,16 @@
   NSString *signature;
   NSString *uid;
   NSDate   *expires;
+  NSArray  *permissions;
 }
 
 @property(retain) NSString *uid;
 @property(retain) NSString *key;
 @property(retain) NSString *secret;
+@property(retain) NSArray  *permissions;
 
 -(void)setWithDictionary:(NSDictionary *)dict;
+-(void)setPermissions:(NSArray *)perms;
 
 -(BOOL)isValid;
 

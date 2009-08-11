@@ -9,6 +9,7 @@
 #import "FBLoginSession.h"
 
 #define kFBSavedSessionKey @"FBSavedSession"
+#define kFBSavedPermissionsKey @"FBSavedPermisssions"
 
 @interface FBLoginSession (Private)
 
@@ -19,9 +20,7 @@
 
 @implementation FBLoginSession
 
-@synthesize uid;
-@synthesize key;
-@synthesize secret;
+@synthesize uid, key, secret, permissions;
 
 -(id)init
 {
@@ -34,6 +33,7 @@
   if ([ud dictionaryForKey:kFBSavedSessionKey]) {
     NSDictionary *dict = [ud dictionaryForKey:kFBSavedSessionKey];
     [self setDictionary:dict];
+    permissions = [[ud arrayForKey:kFBSavedPermissionsKey] retain];
   }
 
   return self;
@@ -41,11 +41,13 @@
 
 -(void)dealloc
 {
-  [secret release];
-  [key release];
-  [signature release];
-  [uid release];
-  [expires release];
+  [secret      release];
+  [key         release];
+  [signature   release];
+  [uid         release];
+  [expires     release];
+  [permissions release];
+
   [super dealloc];
 }
 
@@ -75,6 +77,19 @@
   [ud synchronize];
 }
 
+-(void)setPermissions:(NSArray *)perms
+{
+  [perms retain];
+  [permissions release];
+  permissions = perms;
+  
+  // save session forever
+  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+  [ud removeObjectForKey:kFBSavedPermissionsKey];
+  [ud setObject:permissions forKey:kFBSavedPermissionsKey];
+  [ud synchronize];
+}
+
 -(BOOL)isValid
 {
   return uid != nil && expires != nil && [expires compare:[NSDate date]] == NSOrderedDescending;
@@ -84,6 +99,7 @@
 {
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   [ud removeObjectForKey:kFBSavedSessionKey];
+  [ud removeObjectForKey:kFBSavedPermissionsKey];
   [ud synchronize];
   [uid release];
   uid = nil;
