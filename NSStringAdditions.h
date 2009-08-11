@@ -11,6 +11,12 @@
 
 @interface NSString (NSStringAdditions)
 
++ (NSString *)urlEncodeArguments:(NSDictionary *)dict;
+
 - (NSString *)stringByEscapingQuotesAndBackslashes;
+
+- (NSDictionary *)simpleJSONDecode;
+
+- (BOOL)containsString:(NSString *)string;
 
 @end

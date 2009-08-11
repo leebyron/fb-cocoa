@@ -6,9 +6,16 @@
 //
 
 #import "FBWebViewWindowController.h"
+#import "NSStringAdditions.h"
 
+//#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
+#define kLoginURL @"http://www.facebook.com/login.php?"
+#define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
+#define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
 
 @implementation FBWebViewWindowController
+
+@synthesize lastURL;
 
 - (id)initWithCloseTarget:(id)obj selector:(SEL)sel
 {
@@ -16,6 +23,7 @@
   if (self) {
     target = obj;
     selector = sel;
+    success = NO;
 
     // Force the window to be loaded
     [[self window] center];
@@ -24,14 +32,30 @@
   return self;
 }
 
+-(BOOL)success
+{
+  return success;
+}
+
 - (void)windowDidLoad
 {
   [[[webView mainFrame] frameView] setAllowsScrolling:NO];
 }
 
-- (void)showWithURL:(NSURL *)url
+- (void)showWithParams:(NSDictionary *)params
 {
-  NSURLRequest *req = [NSURLRequest requestWithURL:url];
+  NSMutableDictionary *allParams = [[NSMutableDictionary alloc] initWithDictionary:params];
+  [allParams setObject:@"true" forKey:@"fbconnect"];
+  [allParams setObject:@"true" forKey:@"nochome"];
+  [allParams setObject:@"popup" forKey:@"connect_display"];
+  [allParams setObject:@"popup" forKey:@"display"];
+
+  [allParams setObject:kLoginFailureURL forKey:@"cancel_url"];
+  [allParams setObject:kLoginSuccessURL forKey:@"next"];
+  [allParams setObject:@"true"          forKey:@"return_session"];
+
+  NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [NSString urlEncodeArguments:allParams]];
+  NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
   [[webView mainFrame] loadRequest:req];
   [[self window] center];
   [self showWindow:self];
@@ -49,14 +73,14 @@
 
 - (void)windowWillClose:(NSNotification *)notification
 {
-  if (target && selector) {
+  if (target && selector && [target respondsToSelector:selector]) {
     [target performSelector:selector withObject:nil];
   }
 }
 
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
-  [[self window] setTitle:@"Facebook Connect | Loading\u2026"];
+  [[self window] setTitle:@"Facebook Connect — Loading\u2026"];
   [progressIndicator startAnimation:self];
 }
 
@@ -99,6 +123,31 @@ decidePolicyForNavigationAction:(NSDictionary *)actionInformation
       == WebNavigationTypeLinkClicked) {
     [listener ignore];
     [[NSWorkspace sharedWorkspace] openURL:[request URL]];
+    return;
+  }
+  
+  NSLog(@"navigationaction: %@", request);
+  [lastURL release];
+  lastURL = [[[request URL] copy] retain];
+
+  // We want to detect when we've come across the success or failure URLs and act
+  // accordingly
+  if ([[[request URL] absoluteString] containsString:kLoginURL]) {
+    [listener use];
+  } else if ([[[request URL] absoluteString] containsString:kLoginSuccessURL]) {
+    // this is the case where we have found success.
+    NSLog(@"you win!");
+    success = YES;
+    [listener ignore];
+    [[self window] close];
+  } else if ([[[request URL] absoluteString] containsString:kLoginFailureURL] ||
+             [[[request URL] absoluteString] containsString:@"home.php"]) {
+    // this is the case where something went wrong.
+    // Sometimes we get kicked to home.php, which is basically failure
+    NSLog(@"you lose!");
+    success = NO;
+    [listener ignore];
+    [[self window] close];
   } else {
     [listener use];
   }

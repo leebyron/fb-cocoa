@@ -11,6 +11,7 @@
 #define kFBErrorMessageKey @"kFBErrorMessageKey"
 
 @class FBSession;
+@class FBLoginSession;
 @class FBWebViewWindowController;
 
 /*!
@@ -21,39 +22,24 @@
 @interface NSObject (FBSessionDelegate)
 
 /*!
- * Called when the FBSession has completed logging into Facebook. This means
- * that it has obtained a valid session key and session secret, and that a
- * meaningful value will be returned from -uid.
- * @param session The caller.
+ * Called when the FBSession has completed logging in to Facebook.
  */
-- (void)sessionCompletedLogin:(FBSession *)session;
+- (void)fbConnectLoggedIn;
+
+/*!
+ * Called when a login request has failed.
+ */
+- (void)fbConnectErrorLoggingIn;
 
 /*!
  * Called when the FBSession has completed logging out of Facebook.
- * @param session The caller.
  */
-- (void)sessionCompletedLogout:(FBSession *)session;
-
-/*!
- * Called when login has failed. The reason for failure is encapsulated in the
- * NSError passed.
- * @param session The caller.
- * @param error An NSError detailing why the login failed. The error code
- * returned by Facebook can be obtained by calling [error code], and the error
- * message returned by Facebook is under the key kFBErrorMessageKey in the
- * error's userInfo dictionary.
- */
-- (void)session:(FBSession *)session failedLogin:(NSError *)error;
+- (void)fbConnectLoggedOut;
 
 /*!
  * Called when a logout request has failed.
- * @param session The caller.
- * @param error An NSError detailing why the logout failed. The error code
- * returned by Facebook can be obtained by calling [error code], and the error
- * message returned by Facebook is under the key kFBErrorMessageKey in the
- * error's userInfo dictionary.
  */
-- (void)session:(FBSession *)session failedLogout:(NSError *)error;
+- (void)fbConnectErrorLoggingOut;
 
 @end
 
@@ -67,23 +53,16 @@
 @interface FBSession : NSObject {
   NSString *APIKey;
   NSString *appSecret;
-  NSString *sessionSecret;
-  NSString *sessionKey;
-  NSString *authToken;
-  NSString *uid;
-  NSString *userDefaultsKey;
-  BOOL usingSavedSession;
-  BOOL isLoggedIn;
-
+  FBLoginSession *session;
   NSDictionary *loginParams;
   
+  BOOL isLoggedIn;
   id delegate;
 
   FBWebViewWindowController *windowController;
-  int windowState;
 }
 
-+ (FBSession *)session;
++ (FBSession *)instance;
 
 /*!
  * Convenience constructor for an FBSession.
@@ -97,27 +76,11 @@
                         delegate:(id)obj;
 
 /*!
- * @result true if the active session has been saved
+ * Returns the logged-in user's uid as a string. If the session has not been
+ * logged in, returns nil. Note that this may return a non-nil value despite
+ * the session key being expired.
  */
-- (BOOL)usingSavedSession;
-
-/*!
- * If a user defaults key has been set with this method, two things will change:
- * - Before attempting a fresh login, the FBSession will check user defaults
- *   under this key for a non-expiring login session, and if one exists, will
- *   use it instead of logging in from scratch.
- * - In the event of a successful login, if the user has selected "keep me
- *   logged in", the FBSession will store the login session in user defaults
- *   under this key, for future use.
- * @param key The user defaults key to use.
- */
-- (void)setPersistentSessionUserDefaultsKey:(NSString *)key;
-
-/*!
- * Clears the login session information stored under the key set using
- * -setPersistentSessionUserDefaultsKey:.
- */
-- (void)clearStoredPersistentSession;
+- (NSString *)uid;
 
 /*!
  * Causes the session to start the login process. This method is asynchronous;
@@ -129,13 +92,17 @@
  * Note that in the process of logging in, FBSession may cause a window to
  * appear onscreen, displaying a Facebook webpage where the user must enter
  * their login credentials.
- *
- * @result Whether the request was sent. Returns NO if this session already has
- * a request in flight.
  */
+- (void)login;
+
 - (void)loginWithParams:(NSDictionary *)params;
 
-- (void)validateSession;
+/*!
+ * Tests to see if the user has accepted a particular permission
+ *
+ * @result Whether the permission has been accepted
+ */
+- (BOOL)hasPermission:(NSString *)perm;
 
 /*!
  * Logs out the current session. If a user defaults key for storing persistent
@@ -179,22 +146,5 @@
                    target:(id)target
                  selector:(SEL)selector
                     error:(SEL)error;
-
-/*!
- * Returns whether the session currently has a session key. Note that the
- * session key may have expired, in which case any operation requiring a
- * session key will fail, and a new one will have to be obtained by calling
- * -startLogin again.
- */
-- (BOOL)hasSessionKey;
-
-/*!
- * Returns the logged-in user's uid as a string. If the session has not been
- * logged in, returns nil. Note that this may return a non-nil value despite
- * the session key being expired.
- */
-- (NSString *)uid;
-
-- (void)refreshSession;
 
 @end

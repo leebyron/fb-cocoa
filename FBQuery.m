@@ -9,11 +9,16 @@
 #import "FBQuery.h"
 #import "FBSession.h"
 
-#define kErrorCodeInvalidSession 102
-
 @interface FBQuery (Private)
 
 - (NSError *)errorForResponse:(NSXMLDocument *)xml;
+
+@end
+
+
+@interface FBSession (FBQueryResults)
+
+- (void)failedQuery:(FBQuery *)query withError:(NSError *)err;
 
 @end
 
@@ -54,13 +59,8 @@
   BOOL isError = ([[[xml rootElement] name] isEqualToString:@"error_response"]);
   if (isError) {
     NSError *err = [self errorForResponse:xml];
-
-    if ([[FBSession session] usingSavedSession] && [err code] == kErrorCodeInvalidSession) {
-      // We were using a session key that we'd saved as permanent, and got
-      // back an error saying it was invalid. Throw away the saved session
-      // data and start a login from scratch.
-      [[FBSession session] refreshSession];
-    }
+    
+    [[FBSession instance] failedQuery:self withError:err];
 
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {
       [target performSelector:errorMethod withObject:err];

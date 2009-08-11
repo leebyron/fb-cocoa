@@ -16,6 +16,9 @@
   NSMutableData *responseBuffer;
 }
 
--(id)initWithRequest:(NSURLRequest *)req target:(id)tar selector:(SEL)sel error:(SEL)err;
+-(id)initWithRequest:(NSURLRequest *)req
+              target:(id)tar
+            selector:(SEL)sel
+               error:(SEL)err;
 
 @end

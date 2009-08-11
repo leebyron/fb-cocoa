@@ -15,9 +15,16 @@
 
   id target;
   SEL selector;
+
+  BOOL success;
+  NSURL *lastURL;
 }
 
+@property(retain) NSURL *lastURL;
+
+-(BOOL)success;
+
 - (id)initWithCloseTarget:(id)obj selector:(SEL)sel;
-- (void)showWithURL:(NSURL *)url;
+- (void)showWithParams:(NSDictionary *)params;
 
 @end

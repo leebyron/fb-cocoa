@@ -9,19 +9,12 @@
 #import "FBQuery.h"
 #import "FBCrypto.h"
 #import "FBWebViewWindowController.h"
+#import "FBLoginSession.h"
 #import "NSStringAdditions.h"
 
 #define kRESTServerURL @"http://api.facebook.com/restserver.php?"
-//#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
-#define kLoginURL @"http://www.facebook.com/login.php?"
-#define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
-#define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
-
 #define kAPIVersion @"1.0"
-
-#define kSessionSecretDictKey @"kSessionSecretDictKey"
-#define kSessionKeyDictKey @"kSessionKeyDictKey"
-#define kSessionUIDDictKey @"kSessionUIDDictKey"
+#define kErrorCodeInvalidSession 102
 
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
@@ -31,13 +24,7 @@
  * object as the first parameter).
  */
 #define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
-  [delegate performSelector:(sel) withObject:self];}}
-
-typedef enum {
-  kNothing,
-  kLoginWindow,
-  kExtendedPermissionsWindow,
-} WindowState;
+  [delegate performSelector:(sel)];}}
 
 
 @interface FBSession (Private)
@@ -47,13 +34,9 @@ typedef enum {
             delegate:(id)obj;
 
 - (NSString *)sigForArguments:(NSDictionary *)dict;
-- (NSString *)urlEncodeArguments:(NSDictionary *)dict;
 
-- (void)createTokenResponseComplete:(NSXMLDocument *)xml;
-- (void)getSessionResponseComplete:(NSXMLDocument *)xml;
-- (void)expireSessionResponseComplete:(NSXMLDocument *)xml;
-
-- (void)webViewWindowClosed;
+- (void)validateSession;
+- (void)refreshSession;
 
 @end
 
@@ -62,7 +45,7 @@ typedef enum {
 
 static FBSession *instance;
 
-+ (FBSession *)session
++ (FBSession *)instance
 {
   return instance;
 }
@@ -83,53 +66,41 @@ static FBSession *instance;
     return nil;
   }
 
-  APIKey = [key retain];
-  appSecret = [secret retain];
-  delegate = obj;
-  usingSavedSession = NO;
+  APIKey     = [key retain];
+  appSecret  = [secret retain];
+  session    = [[FBLoginSession alloc] init];
+  delegate   = obj;
   isLoggedIn = NO;
-
-  windowController =
-    [[FBWebViewWindowController alloc] initWithCloseTarget:self
-                                                  selector:@selector(webViewWindowClosed)];
-  windowState = kNothing;
 
   return self;
 }
 
 - (void)dealloc
 {
-  [APIKey release];
-  [appSecret release];
-  [sessionKey release];
-  [sessionSecret release];
-  [uid release];
-  [authToken release];
+  [APIKey      release];
+  [appSecret   release];
+  [session     release];
+  [loginParams release];
   [super dealloc];
 }
 
-- (BOOL)usingSavedSession
-{
-  return usingSavedSession;
-}
+//==============================================================================
+//==============================================================================
+//==============================================================================
 
 - (BOOL)isLoggedIn
 {
   return isLoggedIn;
 }
 
-- (void)setPersistentSessionUserDefaultsKey:(NSString *)key
+- (NSString *)uid
 {
-  [key retain];
-  [userDefaultsKey release];
-  userDefaultsKey = key;
+  return [session uid];
 }
 
-- (void)clearStoredPersistentSession
+- (void)login
 {
-  if (userDefaultsKey) {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:userDefaultsKey];
-  }
+  [self loginWithParams:nil];
 }
 
 - (void)loginWithParams:(NSDictionary *)params
@@ -137,71 +108,18 @@ static FBSession *instance;
   [params retain];
   [loginParams release];
   loginParams = params;
-  if (usingSavedSession) {
+  if ([session isValid]) {
     [self validateSession];
-  } else {    
+  } else {
     NSMutableDictionary *allLoginParams = [[NSMutableDictionary alloc] initWithDictionary:loginParams];
-    [allLoginParams setObject:APIKey forKey:@"api_key"];
-    [allLoginParams setObject:@"1.0" forKey:@"v"];
-    [allLoginParams setObject:@"true" forKey:@"return_session"];
-    [allLoginParams setObject:kLoginFailureURL forKey:@"cancel_url"];
-    [allLoginParams setObject:kLoginSuccessURL forKey:@"next"];
-    
-    NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [self urlEncodeArguments:allLoginParams]];
-    [windowController showWithURL:[NSURL URLWithString:url]];
+    [allLoginParams setObject:APIKey      forKey:@"api_key"];
+    [allLoginParams setObject:kAPIVersion forKey:@"v"];
+    windowController =
+    [[FBWebViewWindowController alloc] initWithCloseTarget:self
+                                                  selector:@selector(webViewWindowClosed)];
+    [windowController showWithParams:allLoginParams];
   }
 }
-
-- (void)validateSession
-{
-  [self callMethod:@"users.isAppUser"
-     withArguments:nil
-            target:self
-          selector:@selector(gotLoggedInUser:)
-             error:@selector(noLoggedInUser:)]
-}
-
-- (void)gotLoggedInUser:(NSXMLDocument *)xml
-{
-  if ([xml rootElement] != nil) {
-    isLoggedIn = YES;
-  } else {
-    [self noLoggedInUser];
-  }
-}
-
-- (void)noLoggedInUser:(NSXMLDocument *)xml
-{
-  [self refreshSession];
-}
-
-//TODOTODOTODO
-// I stopped about here, adding new session/login functions. nothing has been tested yet. this is probably really half baked
-
-
-/* some of this shit surely needs to be copied over?
-- (void)startLogin
-{
-  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-  if (userDefaultsKey && [ud objectForKey:userDefaultsKey]) {
-    NSDictionary *dict = [ud objectForKey:userDefaultsKey];
-    [uid release];
-    [sessionKey release];
-    [sessionSecret release];
-    sessionKey = [[dict objectForKey:kSessionKeyDictKey] retain];
-    sessionSecret = [[dict objectForKey:kSessionSecretDictKey] retain];
-    uid = [[dict objectForKey:kSessionUIDDictKey] retain];
-    usingSavedSession = YES;
-    DELEGATE(@selector(sessionCompletedLogin:));
-  } else {
-    [self callMethod:@"Auth.createToken"
-       withArguments:nil
-              target:self
-            selector:@selector(createTokenResponseComplete:)
-               error:@selector(failedLogin:)];
-  }
-}
- */
 
 - (void)logout
 {
@@ -210,23 +128,39 @@ static FBSession *instance;
             target:self
           selector:@selector(expireSessionResponseComplete:)
              error:@selector(failedLogout:)];
-  [self clearStoredPersistentSession];
 }
 
-- (BOOL)hasSessionKey
+- (void)validateSession
 {
-  return (sessionKey != nil);
+  [self callMethod:@"users.isAppUser"
+     withArguments:nil
+            target:self
+          selector:@selector(gotLoggedInUser:)
+             error:@selector(noLoggedInUser:)];
 }
 
-- (NSString *)uid
+- (void)refreshSession
 {
-  return uid;
+  isLoggedIn = NO;
+  [session clear];
+  [self loginWithParams:loginParams];
 }
 
+- (BOOL)hasPermission:(NSString *)perm
+{
+  return NO; // return permissions.indexOf(perm) != -1;
+}
+
+/*
+ need to implement:
+ -(void)requirePermissions:(NSArray *)perms
+*/
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
 
+#pragma mark Connect Methods
 - (void)callMethod:(NSString *)method
      withArguments:(NSDictionary *)dict
             target:(id)target
@@ -246,20 +180,23 @@ static FBSession *instance;
   [args setObject:@"XML" forKey:@"format"];
   [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
            forKey:@"call_id"];
-  if (sessionKey) {
-    [args setObject:sessionKey forKey:@"session_key"];
+  if ([session isValid]) {
+    [args setObject:[session key] forKey:@"session_key"];
   }
 
   NSString *sig = [self sigForArguments:args];
   [args setObject:sig forKey:@"sig"];
 
   NSString *server = kRESTServerURL;
-  NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[self urlEncodeArguments:args]]];
+  NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
   NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
   [req setHTTPMethod:@"GET"];
   [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
 
-  FBQuery *currentConnection = [[FBQuery alloc] initWithRequest:req target:target selector:selector error:error];
+  FBQuery *currentConnection = [[FBQuery alloc] initWithRequest:req
+                                                         target:target
+                                                       selector:selector
+                                                          error:error];
   [currentConnection start];
 }
 
@@ -302,6 +239,75 @@ static FBSession *instance;
              error:error];
 }
 
+- (void)failedQuery:(FBQuery *)query withError:(NSError *)err
+{
+  if ([session isValid] && [err code] == kErrorCodeInvalidSession) {
+    // We were using a session key that we'd saved as permanent, and got
+    // back an error saying it was invalid. Throw away the saved session
+    // data and start a login from scratch.
+    [self refreshSession];
+  }
+  
+}
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+#pragma mark Callbacks
+- (void)gotLoggedInUser:(NSXMLDocument *)xml
+{
+  if ([xml rootElement] != nil) {
+    isLoggedIn = YES;
+    DELEGATE(@selector(fbConnectLoggedIn));
+  } else {
+    [self refreshSession];
+  }
+}
+
+- (void)noLoggedInUser:(NSXMLDocument *)xml
+{
+  [self refreshSession];
+}
+
+- (void)expireSessionResponseComplete:(NSXMLDocument *)xml
+{
+  [session clear];
+  DELEGATE(@selector(fbConnectLoggedOut));
+}
+
+- (void)failedLogout:(NSError *)error
+{
+  NSLog(@"fbConnect logout failed: %@", [[error userInfo] objectForKey:kFBErrorMessageKey]);
+  DELEGATE(@selector(fbConnectErrorLoggingOut));
+}
+
+- (void)webViewWindowClosed
+{
+  if ([windowController success]) {
+    isLoggedIn = YES;
+
+    NSString *url = [[windowController lastURL] absoluteString];
+    NSRange startSession = [url rangeOfString:@"session="];
+    if (startSession.location != NSNotFound) {
+      NSString *rawSession = [url substringFromIndex:(startSession.location + startSession.length)];
+      NSDictionary *sessDict = [[rawSession stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] simpleJSONDecode];
+      [session setWithDictionary:sessDict];
+    } else {
+      isLoggedIn = NO;
+    }
+  } else {
+    isLoggedIn = NO;
+  }
+  [windowController release];
+
+  if (isLoggedIn) {
+    DELEGATE(@selector(fbConnectLoggedIn));
+  } else {
+    DELEGATE(@selector(fbConnectErrorLoggingIn));
+  }
+}
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -316,115 +322,13 @@ static FBSession *instance;
     [args appendString:@"="];
     [args appendString:[dict objectForKey:key]];
   }
-
-  if (sessionKey) {
-    [args appendString:sessionSecret];
+  
+  if ([session isValid]) {
+    [args appendString:[session secret]];
   } else {
     [args appendString:appSecret];
   }
   return [FBCrypto hexMD5:args];
-}
-
-- (NSString *)urlEncodeArguments:(NSDictionary *)dict
-{
-  NSMutableString *result = [NSMutableString string];
-
-  for (NSString *key in dict) {
-    if ([result length] > 0) {
-      [result appendString:@"&"];
-    }
-    NSString *encodedKey = [key stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSString *encodedValue =
-      [[dict objectForKey:key] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    [result appendString:encodedKey];
-    [result appendString:@"="];
-    [result appendString:encodedValue];
-  }
-  return result;
-}
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-
-- (void)createTokenResponseComplete:(NSXMLDocument *)xml
-{
-  [authToken release];
-  authToken = [[[xml rootElement] stringValue] retain];
-
-  NSString *url = [NSString stringWithFormat:kLoginURL, APIKey, authToken];
-  windowState = kLoginWindow;
-  [windowController showWithURL:[NSURL URLWithString:url]];
-}
-
-- (void)getSessionResponseComplete:(NSXMLDocument *)xml
-{
-  BOOL storeSession = NO;
-  [sessionSecret release];
-  [sessionKey release];
-  [uid release];
-  sessionSecret = nil;
-  sessionKey = nil;
-  uid = nil;
-  for (NSXMLNode *node in [[xml rootElement] children]) {
-    if ([[node name] isEqualToString:@"session_key"]) {
-      sessionKey = [[node stringValue] retain];
-    } else if ([[node name] isEqualToString:@"secret"]) {
-      sessionSecret = [[node stringValue] retain];
-    } else if ([[node name] isEqualToString:@"uid"]) {
-      uid = [[node stringValue] retain];
-    } else if ([[node name] isEqualToString:@"expires"]) {
-      if ([[node stringValue] isEqualToString:@"0"] && userDefaultsKey) {
-        storeSession = YES;
-      }
-    }
-  }
-
-  if (storeSession) {
-    NSDictionary *dict = [NSDictionary dictionaryWithObjectsAndKeys:sessionKey,
-                          kSessionKeyDictKey, sessionSecret,
-                          kSessionSecretDictKey, uid, kSessionUIDDictKey, nil];
-    [[NSUserDefaults standardUserDefaults] setObject:dict forKey:userDefaultsKey];
-  }
-  DELEGATE(@selector(sessionCompletedLogin:));
-}
-
-- (void)expireSessionResponseComplete:(NSXMLDocument *)xml
-{
-  [sessionKey release];
-  sessionKey = nil;
-  [sessionSecret release];
-  sessionSecret = nil;
-  [uid release];
-  uid = nil;
-  [self clearStoredPersistentSession];
-  DELEGATE(@selector(sessionCompletedLogout:));
-}
-
-- (void)webViewWindowClosed
-{
-  if (windowState == kLoginWindow) {
-    // The login window just closed; try a getSession request
-    [self callMethod:@"Auth.getSession"
-       withArguments:[NSDictionary dictionaryWithObject:authToken forKey:@"auth_token"]
-              target:self
-            selector:@selector(getSessionResponseComplete:)
-               error:@selector(failedLogin:)];
-  }
-  windowState = kNothing;
-}
-
-- (void)refreshSession
-{
-  [sessionKey release];
-  sessionKey = nil;
-  [sessionSecret release];
-  sessionSecret = nil;
-  [uid release];
-  uid = nil;
-  usingSavedSession = NO;
-  [self clearStoredPersistentSession];
-  [self loginWithParams:loginParams];
 }
 
 @end
