@@ -97,6 +97,9 @@ static FBWebViewWindowController *windowController;
 
 + (NSString *)uid
 {
+  if (![session isValid]) {
+    return nil;
+  }
   return [session uid];
 }
 
