@@ -50,36 +50,25 @@
  * FBConnect handles all transactions with the Facebook API: logging in and
  * sending FQL queries.
  */
-@interface FBConnect : NSObject {
-  NSString *APIKey;
-  NSString *appSecret;
-  FBSession *session;
-  
-  BOOL isLoggedIn;
-  id delegate;
-  
-  FBWebViewWindowController *windowController;
-}
-
-+ (FBConnect *)instance;
+@interface FBConnect : NSObject
 
 /*!
- * Convenience constructor for an FBConnect.
+ * Must be called before any login or queries
  * @param key Your API key, provided by Facebook.
  * @param secret Your application secret, provided by Facebook.
  * @param delegate An object that will receive delegate method calls when
  * certain events happen in the session. See FBConnectDelegate.
  */
-+ (FBConnect *)sessionWithAPIKey:(NSString *)key
-                          secret:(NSString *)secret
-                        delegate:(id)obj;
++ (void)setupWithAPIKey:(NSString *)key
+                 secret:(NSString *)secret
+               delegate:(id)obj;
 
 /*!
  * Returns the logged-in user's uid as a string. If the session has not been
  * logged in, returns nil. Note that this may return a non-nil value despite
  * the session key being expired.
  */
-- (NSString *)uid;
++ (NSString *)uid;
 
 /*!
  * Causes the session to start the login process. This method is asynchronous;
@@ -92,16 +81,16 @@
  * appear onscreen, displaying a Facebook webpage where the user must enter
  * their login credentials.
  */
-- (void)login;
++ (void)login;
 
-- (void)loginWithPermissions:(NSArray *)perms;
++ (void)loginWithPermissions:(NSArray *)perms;
 
 /*!
  * Tests to see if the user has accepted a particular permission
  *
  * @result Whether the permission has been accepted
  */
-- (BOOL)hasPermission:(NSString *)perm;
++ (BOOL)hasPermission:(NSString *)perm;
 
 /*!
  * Logs out the current session. If a user defaults key for storing persistent
@@ -110,12 +99,12 @@
  * @result Whether the request was sent. Returns NO if this session already has
  * a request in flight.
  */
-- (void)logout;
++ (void)logout;
 
 /*!
  * Sends an API request with a particular method.
  */
-- (void)callMethod:(NSString *)method
++ (void)callMethod:(NSString *)method
      withArguments:(NSDictionary *)dict
             target:(id)target
           selector:(SEL)selector
@@ -127,7 +116,7 @@
  * will receive a -session:receivedResponse: message when the process completes.
  * See FBConnectDelegate.
  */
-- (void)sendFQLQuery:(NSString *)query
++ (void)sendFQLQuery:(NSString *)query
               target:(id)target
             selector:(SEL)selector
                error:(SEL)error;
@@ -141,7 +130,7 @@
  * @param queries A dictionary mapping strings (query names) to strings
  * (FQL query strings).
  */
-- (void)sendFQLMultiquery:(NSDictionary *)queries
++ (void)sendFQLMultiquery:(NSDictionary *)queries
                    target:(id)target
                  selector:(SEL)selector
                     error:(SEL)error;

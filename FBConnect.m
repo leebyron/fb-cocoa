@@ -33,10 +33,10 @@
               secret:(NSString *)secret
             delegate:(id)obj;
 
-- (NSString *)sigForArguments:(NSDictionary *)dict;
++ (NSString *)sigForArguments:(NSDictionary *)dict;
 
-- (void)validateSession;
-- (void)refreshSession;
++ (void)validateSession;
++ (void)refreshSession;
 
 @end
 
@@ -45,17 +45,20 @@
 
 static FBConnect *instance;
 
-+ (FBConnect *)instance
-{
-  return instance;
-}
+static NSString *APIKey;
+static NSString *appSecret;
+static FBSession *session;
 
-+ (FBConnect *)sessionWithAPIKey:(NSString *)key
-                          secret:(NSString *)secret
-                        delegate:(id)obj
+static BOOL isLoggedIn;
+static id delegate;
+
+static FBWebViewWindowController *windowController;
+
++ (void)setupWithAPIKey:(NSString *)key
+                 secret:(NSString *)secret
+               delegate:(id)obj
 {
   instance = [[self alloc] initWithAPIKey:key secret:secret delegate:obj];
-  return instance;
 }
 
 - (id)initWithAPIKey:(NSString *)key
@@ -65,13 +68,13 @@ static FBConnect *instance;
   if (!(self = [super init])) {
     return nil;
   }
-  
+
   APIKey     = [key retain];
   appSecret  = [secret retain];
   session    = [[FBSession alloc] init];
   delegate   = obj;
   isLoggedIn = NO;
-  
+
   return self;
 }
 
@@ -87,25 +90,25 @@ static FBConnect *instance;
 //==============================================================================
 //==============================================================================
 
-- (BOOL)isLoggedIn
++ (BOOL)isLoggedIn
 {
   return isLoggedIn;
 }
 
-- (NSString *)uid
++ (NSString *)uid
 {
   return [session uid];
 }
 
-- (void)login
++ (void)login
 {
-  [self loginWithPermissions:nil];
+  [FBConnect loginWithPermissions:nil];
 }
 
-- (void)loginWithPermissions:(NSArray *)permissions
++ (void)loginWithPermissions:(NSArray *)permissions
 {
   if ([session isValid]) {
-    [self validateSession];
+    [FBConnect validateSession];
   } else {
     NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
     if (permissions) {
@@ -116,40 +119,40 @@ static FBConnect *instance;
     [loginParams setObject:APIKey      forKey:@"api_key"];
     [loginParams setObject:kAPIVersion forKey:@"v"];
     windowController =
-    [[FBWebViewWindowController alloc] initWithCloseTarget:self
+    [[FBWebViewWindowController alloc] initWithCloseTarget:instance
                                                   selector:@selector(webViewWindowClosed)];
     [windowController showWithParams:loginParams];
   }
 }
 
-- (void)logout
++ (void)logout
 {
-  [self callMethod:@"Auth.expireSession"
+  [FBConnect callMethod:@"Auth.expireSession"
      withArguments:nil
-            target:self
+            target:instance
           selector:@selector(expireSessionResponseComplete:)
              error:@selector(failedLogout:)];
 }
 
-- (void)validateSession
++ (void)validateSession
 {
-  [self callMethod:@"users.isAppUser"
+  [FBConnect callMethod:@"users.isAppUser"
      withArguments:nil
-            target:self
+            target:instance
           selector:@selector(gotLoggedInUser:)
              error:nil];
 }
 
-- (void)refreshSession
++ (void)refreshSession
 {
   isLoggedIn = NO;
   NSArray *permissions = [[session permissions] retain];
   [session clear];
-  [self loginWithPermissions:permissions];
+  [FBConnect loginWithPermissions:permissions];
   [permissions release];
 }
 
-- (BOOL)hasPermission:(NSString *)perm
++ (BOOL)hasPermission:(NSString *)perm
 {
   return [[session permissions] containsObject:perm];
 }
@@ -159,14 +162,14 @@ static FBConnect *instance;
 //==============================================================================
 
 #pragma mark Connect Methods
-- (void)callMethod:(NSString *)method
++ (void)callMethod:(NSString *)method
      withArguments:(NSDictionary *)dict
             target:(id)target
           selector:(SEL)selector
              error:(SEL)error
 {
   NSMutableDictionary *args;
-  
+
   if (dict) {
     args = [NSMutableDictionary dictionaryWithDictionary:dict];
   } else {
@@ -181,16 +184,16 @@ static FBConnect *instance;
   if ([session isValid]) {
     [args setObject:[session key] forKey:@"session_key"];
   }
-  
+
   NSString *sig = [self sigForArguments:args];
   [args setObject:sig forKey:@"sig"];
-  
+
   NSString *server = kRESTServerURL;
   NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
   NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
   [req setHTTPMethod:@"GET"];
   [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-  
+
   FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
                                                              target:target
                                                            selector:selector
@@ -198,20 +201,20 @@ static FBConnect *instance;
   [currentConnection start];
 }
 
-- (void)sendFQLQuery:(NSString *)query
++ (void)sendFQLQuery:(NSString *)query
               target:(id)target
             selector:(SEL)selector
                error:(SEL)error
 {
   NSDictionary *dict = [NSDictionary dictionaryWithObject:query forKey:@"query"];
-  [self callMethod:@"Fql.query"
+  [FBConnect callMethod:@"Fql.query"
      withArguments:dict
             target:target
           selector:selector
              error:error];
 }
 
-- (void)sendFQLMultiquery:(NSDictionary *)queries
++ (void)sendFQLMultiquery:(NSDictionary *)queries
                    target:(id)target
                  selector:(SEL)selector
                     error:(SEL)error
@@ -225,27 +228,27 @@ static FBConnect *instance;
     [entries addObject:[NSString stringWithFormat:entryFormat, escapedKey,
                         escapedVal]];
   }
-  
+
   NSString *finalString = [NSString stringWithFormat:@"{%@}",
                            [entries componentsJoinedByString:@","]];
-  
+
   NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
-  [self callMethod:@"Fql.multiquery"
+  [FBConnect callMethod:@"Fql.multiquery"
      withArguments:dict
             target:target
           selector:selector
              error:error];
 }
 
-- (void)failedQuery:(FBRequest *)query withError:(NSError *)err
++ (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
   if ([session isValid] && [err code] == kErrorCodeInvalidSession) {
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
     // data and start a login from scratch.
-    [self refreshSession];
+    [FBConnect refreshSession];
   }
-  
+
 }
 
 //==============================================================================
@@ -259,7 +262,7 @@ static FBConnect *instance;
     isLoggedIn = YES;
     DELEGATE(@selector(fbConnectLoggedIn));
   } else {
-    [self refreshSession];
+    [FBConnect refreshSession];
   }
 }
 
@@ -279,7 +282,7 @@ static FBConnect *instance;
 {
   if ([windowController success]) {
     isLoggedIn = YES;
-    
+
     NSString *url = [[windowController lastURL] absoluteString];
     NSRange startSession = [url rangeOfString:@"session="];
     if (startSession.location != NSNotFound) {
@@ -293,7 +296,7 @@ static FBConnect *instance;
     isLoggedIn = NO;
   }
   [windowController release];
-  
+
   if (isLoggedIn) {
     DELEGATE(@selector(fbConnectLoggedIn));
   } else {
@@ -306,7 +309,7 @@ static FBConnect *instance;
 //==============================================================================
 
 #pragma mark Private Methods
-- (NSString *)sigForArguments:(NSDictionary *)dict
++ (NSString *)sigForArguments:(NSDictionary *)dict
 {
   NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
   NSMutableString *args = [NSMutableString string];
@@ -315,7 +318,7 @@ static FBConnect *instance;
     [args appendString:@"="];
     [args appendString:[dict objectForKey:key]];
   }
-  
+
   if ([session isValid]) {
     [args appendString:[session secret]];
   } else {
