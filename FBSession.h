@@ -54,7 +54,7 @@
   NSString *APIKey;
   NSString *appSecret;
   FBLoginSession *session;
-  
+
   BOOL isLoggedIn;
   id delegate;
 

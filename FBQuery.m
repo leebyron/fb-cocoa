@@ -59,7 +59,7 @@
   BOOL isError = ([[[xml rootElement] name] isEqualToString:@"error_response"]);
   if (isError) {
     NSError *err = [self errorForResponse:xml];
-    
+
     [[FBSession instance] failedQuery:self withError:err];
 
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {

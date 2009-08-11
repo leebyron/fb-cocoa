@@ -27,7 +27,7 @@
   if (!(self = [super init])) {
     return nil;
   }
-  
+
   // read in stored session if it exists
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   if ([ud dictionaryForKey:kFBSavedSessionKey]) {
@@ -58,7 +58,7 @@
   [signature release];
   [uid release];
   [expires release];
-  
+
   secret = [[dict valueForKey:@"secret"] retain];
   key = [[dict valueForKey:@"session_key"] retain];
   signature = [[dict valueForKey:@"sig"] retain];
@@ -82,7 +82,7 @@
   [perms retain];
   [permissions release];
   permissions = perms;
-  
+
   // save session forever
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   [ud removeObjectForKey:kFBSavedPermissionsKey];

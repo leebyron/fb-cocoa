@@ -125,8 +125,7 @@ decidePolicyForNavigationAction:(NSDictionary *)actionInformation
     [[NSWorkspace sharedWorkspace] openURL:[request URL]];
     return;
   }
-  
-  NSLog(@"navigationaction: %@", request);
+
   [lastURL release];
   lastURL = [[[request URL] copy] retain];
 
@@ -135,16 +134,12 @@ decidePolicyForNavigationAction:(NSDictionary *)actionInformation
   if ([[[request URL] absoluteString] containsString:kLoginURL]) {
     [listener use];
   } else if ([[[request URL] absoluteString] containsString:kLoginSuccessURL]) {
-    // this is the case where we have found success.
-    NSLog(@"you win!");
     success = YES;
     [listener ignore];
     [[self window] close];
   } else if ([[[request URL] absoluteString] containsString:kLoginFailureURL] ||
              [[[request URL] absoluteString] containsString:@"home.php"]) {
-    // this is the case where something went wrong.
     // Sometimes we get kicked to home.php, which is basically failure
-    NSLog(@"you lose!");
     success = NO;
     [listener ignore];
     [[self window] close];

@@ -14,7 +14,7 @@
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict
 {
   NSMutableString *result = [NSMutableString string];
-  
+
   for (NSString *key in dict) {
     if ([result length] > 0) {
       [result appendString:@"&"];

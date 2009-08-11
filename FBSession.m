@@ -102,16 +102,16 @@ static FBSession *instance;
   [self loginWithPermissions:nil];
 }
 
-- (void)loginWithPermissions:(NSArray *)perms
+- (void)loginWithPermissions:(NSArray *)permissions
 {
   if ([session isValid]) {
     [self validateSession];
   } else {
     NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
-    if (perms) {
-      [session setPermissions:perms];
-      NSString *permsString = [perms componentsJoinedByString:@","];
-      [loginParams setObject:permsString forKey:@"req_perms"];
+    if (permissions) {
+      [session setPermissions:permissions];
+      NSString *permissionsString = [permissions componentsJoinedByString:@","];
+      [loginParams setObject:permissionsString forKey:@"req_perms"];
     }
     [loginParams setObject:APIKey      forKey:@"api_key"];
     [loginParams setObject:kAPIVersion forKey:@"v"];
@@ -137,25 +137,22 @@ static FBSession *instance;
      withArguments:nil
             target:self
           selector:@selector(gotLoggedInUser:)
-             error:@selector(noLoggedInUser:)];
+             error:nil];
 }
 
 - (void)refreshSession
 {
   isLoggedIn = NO;
+  NSArray *permissions = [[session permissions] retain];
   [session clear];
-  [self loginWithPermissions:[session permissions]];
+  [self loginWithPermissions:permissions];
+  [permissions release];
 }
 
 - (BOOL)hasPermission:(NSString *)perm
 {
   return [[session permissions] containsObject:perm];
 }
-
-/*
- need to implement:
- -(void)requirePermissions:(NSArray *)perms
-*/
 
 //==============================================================================
 //==============================================================================
@@ -248,7 +245,7 @@ static FBSession *instance;
     // data and start a login from scratch.
     [self refreshSession];
   }
-  
+
 }
 
 //==============================================================================
@@ -264,11 +261,6 @@ static FBSession *instance;
   } else {
     [self refreshSession];
   }
-}
-
-- (void)noLoggedInUser:(NSXMLDocument *)xml
-{
-  [self refreshSession];
 }
 
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml
@@ -323,7 +315,7 @@ static FBSession *instance;
     [args appendString:@"="];
     [args appendString:[dict objectForKey:key]];
   }
-  
+
   if ([session isValid]) {
     [args appendString:[session secret]];
   } else {
