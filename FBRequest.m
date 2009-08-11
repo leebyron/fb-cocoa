@@ -1,29 +1,29 @@
 //
-//  FBQuery.m
+//  FBRequest.m
 //  FBCocoa
 //
 //  Created by Lee Byron on 7/30/09.
 //  Copyright 2009 Facebook. All rights reserved.
 //
 
-#import "FBQuery.h"
-#import "FBSession.h"
+#import "FBRequest.h"
+#import "FBConnect.h"
 
-@interface FBQuery (Private)
+@interface FBRequest (Private)
 
 - (NSError *)errorForResponse:(NSXMLDocument *)xml;
 
 @end
 
 
-@interface FBSession (FBQueryResults)
+@interface FBConnect (FBRequestResults)
 
-- (void)failedQuery:(FBQuery *)query withError:(NSError *)err;
+- (void)failedQuery:(FBRequest *)query withError:(NSError *)err;
 
 @end
 
 
-@implementation FBQuery
+@implementation FBRequest
 
 -(id)initWithRequest:(NSURLRequest *)req target:(id)tar selector:(SEL)sel error:(SEL)err
 {
@@ -60,7 +60,7 @@
   if (isError) {
     NSError *err = [self errorForResponse:xml];
 
-    [[FBSession instance] failedQuery:self withError:err];
+    [[FBConnect instance] failedQuery:self withError:err];
 
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {
       [target performSelector:errorMethod withObject:err];

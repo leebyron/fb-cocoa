@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		53BBB4021030C4F000C4E9E2 /* FBLoginSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB4001030C4F000C4E9E2 /* FBLoginSession.h */; };
-		53BBB4031030C4F000C4E9E2 /* FBLoginSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB4011030C4F000C4E9E2 /* FBLoginSession.m */; };
-		53F605411022931B00CAE806 /* FBQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 53F6053F1022931B00CAE806 /* FBQuery.h */; };
-		53F605421022931B00CAE806 /* FBQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F605401022931B00CAE806 /* FBQuery.m */; };
+		53184684103151A200C0FFA4 /* FBCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* FBCocoa.framework */; };
+		53BBB7331031237000C4E9E2 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB72F1031237000C4E9E2 /* FBRequest.h */; };
+		53BBB7351031237000C4E9E2 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB7311031237000C4E9E2 /* FBRequest.m */; };
+		53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB75310314D9600C4E9E2 /* FBConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB75410314D9600C4E9E2 /* FBConnect.m */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		932079B710151128006D15BB /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -35,10 +36,10 @@
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		32DBCF5E0370ADEE00C91783 /* FBCocoa_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa_Prefix.pch; sourceTree = "<group>"; };
-		53BBB4001030C4F000C4E9E2 /* FBLoginSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBLoginSession.h; sourceTree = "<group>"; };
-		53BBB4011030C4F000C4E9E2 /* FBLoginSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBLoginSession.m; sourceTree = "<group>"; };
-		53F6053F1022931B00CAE806 /* FBQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBQuery.h; sourceTree = "<group>"; };
-		53F605401022931B00CAE806 /* FBQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBQuery.m; sourceTree = "<group>"; };
+		53BBB72F1031237000C4E9E2 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRequest.h; sourceTree = "<group>"; };
+		53BBB7311031237000C4E9E2 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRequest.m; sourceTree = "<group>"; };
+		53BBB75310314D9600C4E9E2 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBConnect.h; sourceTree = "<group>"; };
+		53BBB75410314D9600C4E9E2 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBConnect.m; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		932079B510151128006D15BB /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSession.h; sourceTree = "<group>"; };
@@ -66,6 +67,7 @@
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
 				93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */,
 				93207B3210164075006D15BB /* WebKit.framework in Frameworks */,
+				53184684103151A200C0FFA4 /* FBCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +116,9 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				53BBB75310314D9600C4E9E2 /* FBConnect.h */,
+				53BBB72F1031237000C4E9E2 /* FBRequest.h */,
+				53BBB7311031237000C4E9E2 /* FBRequest.m */,
 				932079C71015477C006D15BB /* FBCocoa.h */,
 				932079B510151128006D15BB /* FBSession.h */,
 				932079B610151128006D15BB /* FBSession.m */,
@@ -125,10 +130,7 @@
 				93533FF51017E563002C6CBD /* NSStringAdditions.m */,
 				935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */,
 				935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */,
-				53F6053F1022931B00CAE806 /* FBQuery.h */,
-				53F605401022931B00CAE806 /* FBQuery.m */,
-				53BBB4001030C4F000C4E9E2 /* FBLoginSession.h */,
-				53BBB4011030C4F000C4E9E2 /* FBLoginSession.m */,
+				53BBB75410314D9600C4E9E2 /* FBConnect.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -168,14 +170,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				932079B710151128006D15BB /* FBSession.h in Headers */,
 				932079C81015477C006D15BB /* FBCocoa.h in Headers */,
+				53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */,
+				932079B710151128006D15BB /* FBSession.h in Headers */,
 				93207A1710154FFE006D15BB /* FBCrypto.h in Headers */,
 				93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */,
 				93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */,
 				935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */,
-				53F605411022931B00CAE806 /* FBQuery.h in Headers */,
-				53BBB4021030C4F000C4E9E2 /* FBLoginSession.h in Headers */,
+				53BBB7331031237000C4E9E2 /* FBRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -241,8 +243,8 @@
 				93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */,
 				93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */,
 				935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */,
-				53F605421022931B00CAE806 /* FBQuery.m in Sources */,
-				53BBB4031030C4F000C4E9E2 /* FBLoginSession.m in Sources */,
+				53BBB7351031237000C4E9E2 /* FBRequest.m in Sources */,
+				53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

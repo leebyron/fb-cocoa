@@ -1,5 +1,5 @@
 //
-//  FBQuery.h
+//  FBRequest.h
 //  FBCocoa
 //
 //  Created by Lee Byron on 7/30/09.
@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface FBQuery : NSURLConnection {
+@interface FBRequest : NSURLConnection {
   id  target;
   SEL method;
   SEL errorMethod;
