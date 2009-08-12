@@ -7,18 +7,20 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "FBConnect.h"
 
 @interface FBRequest : NSURLConnection {
   id  target;
   SEL method;
   SEL errorMethod;
   NSMutableData *responseBuffer;
+  FBConnect *parentConnect;
 }
 
 -(id)initWithRequest:(NSURLRequest *)req
               target:(id)tar
             selector:(SEL)sel
+              parent:(FBConnect *)parent
                error:(SEL)err;
 
 @end

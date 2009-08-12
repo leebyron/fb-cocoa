@@ -25,7 +25,11 @@
 
 @implementation FBRequest
 
--(id)initWithRequest:(NSURLRequest *)req target:(id)tar selector:(SEL)sel error:(SEL)err
+-(id)initWithRequest:(NSURLRequest *)req
+              target:(id)tar
+            selector:(SEL)sel
+              parent:(FBConnect *)parent
+               error:(SEL)err
 {
   if (!(self = [super initWithRequest:req delegate:self])) {
     return nil;
@@ -33,6 +37,7 @@
 
   target = [tar retain];
   method = sel;
+  parentConnect = parent;
   errorMethod = err;
   responseBuffer = [[NSMutableData alloc] init];
 
@@ -60,7 +65,7 @@
   if (isError) {
     NSError *err = [self errorForResponse:xml];
 
-    [[FBConnect instance] failedQuery:self withError:err];
+    [parentConnect failedQuery:self withError:err];
 
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {
       [target performSelector:errorMethod withObject:err];

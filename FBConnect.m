@@ -185,6 +185,7 @@
   FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
                                                              target:target
                                                            selector:selector
+                                                             parent:self
                                                               error:error];
   [currentConnection start];
 }
