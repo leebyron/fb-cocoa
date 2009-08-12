@@ -18,7 +18,7 @@
 
 @interface FBConnect (FBRequestResults)
 
-+ (void)failedQuery:(FBRequest *)query withError:(NSError *)err;
+- (void)failedQuery:(FBRequest *)query withError:(NSError *)err;
 
 @end
 
@@ -60,7 +60,7 @@
   if (isError) {
     NSError *err = [self errorForResponse:xml];
 
-    [FBConnect failedQuery:self withError:err];
+    [[FBConnect instance] failedQuery:self withError:err];
 
     if (target && errorMethod && [target respondsToSelector:errorMethod]) {
       [target performSelector:errorMethod withObject:err];
