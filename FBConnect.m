@@ -327,7 +327,7 @@ static FBWebViewWindowController *windowController;
   } else {
     [args appendString:appSecret];
   }
-  return [FBCrypto hexMD5:args];
+  return [args hexMD5];
 }
 
 @end

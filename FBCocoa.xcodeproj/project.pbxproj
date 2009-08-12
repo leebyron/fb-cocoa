@@ -17,8 +17,6 @@
 		932079B710151128006D15BB /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		932079B810151128006D15BB /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 932079B610151128006D15BB /* FBSession.m */; };
 		932079C81015477C006D15BB /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079C71015477C006D15BB /* FBCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		93207A1710154FFE006D15BB /* FBCrypto.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207A1510154FFE006D15BB /* FBCrypto.h */; };
-		93207A1810154FFE006D15BB /* FBCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 93207A1610154FFE006D15BB /* FBCrypto.m */; };
 		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
 		93207ADC10162DEF006D15BB /* FBWebViewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93207ADB10162DEF006D15BB /* FBWebViewWindow.xib */; };
 		93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */; };
@@ -45,8 +43,6 @@
 		932079B510151128006D15BB /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSession.h; sourceTree = "<group>"; };
 		932079B610151128006D15BB /* FBSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSession.m; sourceTree = "<group>"; };
 		932079C71015477C006D15BB /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa.h; sourceTree = "<group>"; };
-		93207A1510154FFE006D15BB /* FBCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCrypto.h; sourceTree = "<group>"; };
-		93207A1610154FFE006D15BB /* FBCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBCrypto.m; sourceTree = "<group>"; };
 		93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = usr/lib/libcrypto.0.9.7.dylib; sourceTree = SDKROOT; };
 		93207ADB10162DEF006D15BB /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FBWebViewWindow.xib; sourceTree = "<group>"; };
 		93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBWebViewWindowController.h; sourceTree = "<group>"; };
@@ -122,8 +118,6 @@
 				932079C71015477C006D15BB /* FBCocoa.h */,
 				932079B510151128006D15BB /* FBSession.h */,
 				932079B610151128006D15BB /* FBSession.m */,
-				93207A1510154FFE006D15BB /* FBCrypto.h */,
-				93207A1610154FFE006D15BB /* FBCrypto.m */,
 				93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */,
 				93207AE010162ED7006D15BB /* FBWebViewWindowController.m */,
 				93533FF41017E563002C6CBD /* NSStringAdditions.h */,
@@ -173,7 +167,6 @@
 				932079C81015477C006D15BB /* FBCocoa.h in Headers */,
 				53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */,
 				932079B710151128006D15BB /* FBSession.h in Headers */,
-				93207A1710154FFE006D15BB /* FBCrypto.h in Headers */,
 				93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */,
 				93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */,
 				935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */,
@@ -239,7 +232,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				932079B810151128006D15BB /* FBSession.m in Sources */,
-				93207A1810154FFE006D15BB /* FBCrypto.m in Sources */,
 				93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */,
 				93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */,
 				935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */,
