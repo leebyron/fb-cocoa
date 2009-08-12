@@ -9,7 +9,7 @@
 #import "FBRequest.h"
 #import "FBCrypto.h"
 #import "FBWebViewWindowController.h"
-#import "FBSession.h"
+#import "FBSessionState.h"
 #import "NSStringAdditions.h"
 
 #define kRESTServerURL @"http://api.facebook.com/restserver.php?"
@@ -29,10 +29,6 @@
 
 @interface FBConnect (Private)
 
-- (id)initWithAPIKey:(NSString *)key
-              secret:(NSString *)secret
-            delegate:(id)obj;
-
 - (NSString *)sigForArguments:(NSDictionary *)dict;
 
 - (void)validateSession;
@@ -43,19 +39,11 @@
 
 @implementation FBConnect
 
-static FBConnect *instance;
-
-+ (FBConnect *)instance
-{
-  return instance;
-}
-
 + (FBConnect *)sessionWithAPIKey:(NSString *)key
                           secret:(NSString *)secret
                         delegate:(id)obj
 {
-  instance = [[self alloc] initWithAPIKey:key secret:secret delegate:obj];
-  return instance;
+  return [[self alloc] initWithAPIKey:key secret:secret delegate:obj];
 }
 
 - (id)initWithAPIKey:(NSString *)key
@@ -68,7 +56,7 @@ static FBConnect *instance;
   
   APIKey     = [key retain];
   appSecret  = [secret retain];
-  session    = [[FBSession alloc] init];
+  sessionState    = [[FBSessionState alloc] init];
   delegate   = obj;
   isLoggedIn = NO;
   
@@ -79,7 +67,7 @@ static FBConnect *instance;
 {
   [APIKey      release];
   [appSecret   release];
-  [session     release];
+  [sessionState     release];
   [super dealloc];
 }
 
@@ -94,10 +82,10 @@ static FBConnect *instance;
 
 - (NSString *)uid
 {
-  if (![session isValid]) {
+  if (![sessionState isValid]) {
     return nil;
   }
-  return [session uid];
+  return [sessionState uid];
 }
 
 - (void)login
@@ -107,12 +95,12 @@ static FBConnect *instance;
 
 - (void)loginWithPermissions:(NSArray *)permissions
 {
-  if ([session isValid]) {
+  if ([sessionState isValid]) {
     [self validateSession];
   } else {
     NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
     if (permissions) {
-      [session setPermissions:permissions];
+      [sessionState setPermissions:permissions];
       NSString *permissionsString = [permissions componentsJoinedByString:@","];
       [loginParams setObject:permissionsString forKey:@"req_perms"];
     }
@@ -146,15 +134,15 @@ static FBConnect *instance;
 - (void)refreshSession
 {
   isLoggedIn = NO;
-  NSArray *permissions = [[session permissions] retain];
-  [session clear];
+  NSArray *permissions = [[sessionState permissions] retain];
+  [sessionState clear];
   [self loginWithPermissions:permissions];
   [permissions release];
 }
 
 - (BOOL)hasPermission:(NSString *)perm
 {
-  return [[session permissions] containsObject:perm];
+  return [[sessionState permissions] containsObject:perm];
 }
 
 //==============================================================================
@@ -181,8 +169,8 @@ static FBConnect *instance;
   [args setObject:@"XML" forKey:@"format"];
   [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
            forKey:@"call_id"];
-  if ([session isValid]) {
-    [args setObject:[session key] forKey:@"session_key"];
+  if ([sessionState isValid]) {
+    [args setObject:[sessionState key] forKey:@"session_key"];
   }
   
   NSString *sig = [self sigForArguments:args];
@@ -242,7 +230,7 @@ static FBConnect *instance;
 
 - (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
-  if ([session isValid] && [err code] == kErrorCodeInvalidSession) {
+  if ([sessionState isValid] && [err code] == kErrorCodeInvalidSession) {
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
     // data and start a login from scratch.
@@ -268,7 +256,7 @@ static FBConnect *instance;
 
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml
 {
-  [session clear];
+  [sessionState clear];
   DELEGATE(@selector(fbConnectLoggedOut));
 }
 
@@ -288,7 +276,7 @@ static FBConnect *instance;
     if (startSession.location != NSNotFound) {
       NSString *rawSession = [url substringFromIndex:(startSession.location + startSession.length)];
       NSDictionary *sessDict = [[rawSession stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] simpleJSONDecode];
-      [session setWithDictionary:sessDict];
+      [sessionState setWithDictionary:sessDict];
     } else {
       isLoggedIn = NO;
     }
@@ -319,8 +307,8 @@ static FBConnect *instance;
     [args appendString:[dict objectForKey:key]];
   }
   
-  if ([session isValid]) {
-    [args appendString:[session secret]];
+  if ([sessionState isValid]) {
+    [args appendString:[sessionState secret]];
   } else {
     [args appendString:appSecret];
   }

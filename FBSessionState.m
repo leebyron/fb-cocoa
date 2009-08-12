@@ -6,19 +6,19 @@
 //  Copyright 2009 Facebook. All rights reserved.
 //
 
-#import "FBSession.h"
+#import "FBSessionState.h"
 
 #define kFBSavedSessionKey @"FBSavedSession"
 #define kFBSavedPermissionsKey @"FBSavedPermisssions"
 
-@interface FBSession (Private)
+@interface FBSessionState (Private)
 
 - (void)setDictionary:(NSDictionary *)dict;
 
 @end
 
 
-@implementation FBSession
+@implementation FBSessionState
 
 @synthesize uid, key, secret, permissions;
 

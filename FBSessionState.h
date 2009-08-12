@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface FBSession : NSObject {
+@interface FBSessionState : NSObject {
   NSString *secret;
   NSString *key;
   NSString *signature;

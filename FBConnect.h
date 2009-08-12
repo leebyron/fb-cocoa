@@ -11,7 +11,7 @@
 #define kFBErrorMessageKey @"kFBErrorMessageKey"
 
 @class FBConnect;
-@class FBSession;
+@class FBSessionState;
 @class FBWebViewWindowController;
 
 /*!
@@ -53,15 +53,13 @@
 @interface FBConnect : NSObject {
   NSString *APIKey;
   NSString *appSecret;
-  FBSession *session;
+  FBSessionState *sessionState;
   
   BOOL isLoggedIn;
   id delegate;
   
   FBWebViewWindowController *windowController;
 }
-
-+ (FBConnect *)instance;
 
 /*!
  * Convenience constructor for an FBConnect.
@@ -73,6 +71,10 @@
 + (FBConnect *)sessionWithAPIKey:(NSString *)key
                           secret:(NSString *)secret
                         delegate:(id)obj;
+
+- (id)initWithAPIKey:(NSString *)key
+              secret:(NSString *)secret
+            delegate:(id)obj;
 
 /*!
  * Returns the logged-in user's uid as a string. If the session has not been

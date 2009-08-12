@@ -14,8 +14,8 @@
 		53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB75410314D9600C4E9E2 /* FBConnect.m */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		932079B710151128006D15BB /* FBSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		932079B810151128006D15BB /* FBSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 932079B610151128006D15BB /* FBSession.m */; };
+		932079B710151128006D15BB /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSessionState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		932079B810151128006D15BB /* FBSessionState.m in Sources */ = {isa = PBXBuildFile; fileRef = 932079B610151128006D15BB /* FBSessionState.m */; };
 		932079C81015477C006D15BB /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079C71015477C006D15BB /* FBCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		93207A1710154FFE006D15BB /* FBCrypto.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207A1510154FFE006D15BB /* FBCrypto.h */; };
 		93207A1810154FFE006D15BB /* FBCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 93207A1610154FFE006D15BB /* FBCrypto.m */; };
@@ -42,8 +42,8 @@
 		53BBB75410314D9600C4E9E2 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBConnect.m; sourceTree = "<group>"; };
 		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		932079B510151128006D15BB /* FBSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSession.h; sourceTree = "<group>"; };
-		932079B610151128006D15BB /* FBSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSession.m; sourceTree = "<group>"; };
+		932079B510151128006D15BB /* FBSessionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSessionState.h; sourceTree = "<group>"; };
+		932079B610151128006D15BB /* FBSessionState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSessionState.m; sourceTree = "<group>"; };
 		932079C71015477C006D15BB /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa.h; sourceTree = "<group>"; };
 		93207A1510154FFE006D15BB /* FBCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCrypto.h; sourceTree = "<group>"; };
 		93207A1610154FFE006D15BB /* FBCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBCrypto.m; sourceTree = "<group>"; };
@@ -116,12 +116,13 @@
 		08FB77AEFE84172EC02AAC07 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				932079C71015477C006D15BB /* FBCocoa.h */,
 				53BBB75310314D9600C4E9E2 /* FBConnect.h */,
+				53BBB75410314D9600C4E9E2 /* FBConnect.m */,
 				53BBB72F1031237000C4E9E2 /* FBRequest.h */,
 				53BBB7311031237000C4E9E2 /* FBRequest.m */,
-				932079C71015477C006D15BB /* FBCocoa.h */,
-				932079B510151128006D15BB /* FBSession.h */,
-				932079B610151128006D15BB /* FBSession.m */,
+				932079B510151128006D15BB /* FBSessionState.h */,
+				932079B610151128006D15BB /* FBSessionState.m */,
 				93207A1510154FFE006D15BB /* FBCrypto.h */,
 				93207A1610154FFE006D15BB /* FBCrypto.m */,
 				93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */,
@@ -130,7 +131,6 @@
 				93533FF51017E563002C6CBD /* NSStringAdditions.m */,
 				935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */,
 				935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */,
-				53BBB75410314D9600C4E9E2 /* FBConnect.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -172,7 +172,7 @@
 			files = (
 				932079C81015477C006D15BB /* FBCocoa.h in Headers */,
 				53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */,
-				932079B710151128006D15BB /* FBSession.h in Headers */,
+				932079B710151128006D15BB /* FBSessionState.h in Headers */,
 				93207A1710154FFE006D15BB /* FBCrypto.h in Headers */,
 				93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */,
 				93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */,
@@ -238,7 +238,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				932079B810151128006D15BB /* FBSession.m in Sources */,
+				932079B810151128006D15BB /* FBSessionState.m in Sources */,
 				93207A1810154FFE006D15BB /* FBCrypto.m in Sources */,
 				93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */,
 				93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */,
