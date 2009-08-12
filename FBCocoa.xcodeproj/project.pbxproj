@@ -7,14 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		53184684103151A200C0FFA4 /* FBCocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC2EF5B0486A6940098B216 /* FBCocoa.framework */; };
 		53BBB7331031237000C4E9E2 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB72F1031237000C4E9E2 /* FBRequest.h */; };
 		53BBB7351031237000C4E9E2 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB7311031237000C4E9E2 /* FBRequest.m */; };
 		53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB75310314D9600C4E9E2 /* FBConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB75410314D9600C4E9E2 /* FBConnect.m */; };
 		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		932079B710151128006D15BB /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSessionState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		932079B710151128006D15BB /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSessionState.h */; settings = {ATTRIBUTES = (); }; };
 		932079B810151128006D15BB /* FBSessionState.m in Sources */ = {isa = PBXBuildFile; fileRef = 932079B610151128006D15BB /* FBSessionState.m */; };
 		932079C81015477C006D15BB /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079C71015477C006D15BB /* FBCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		93207A1710154FFE006D15BB /* FBCrypto.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207A1510154FFE006D15BB /* FBCrypto.h */; };
@@ -67,7 +66,6 @@
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
 				93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */,
 				93207B3210164075006D15BB /* WebKit.framework in Frameworks */,
-				53184684103151A200C0FFA4 /* FBCocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
