@@ -24,7 +24,7 @@
  * object as the first parameter).
  */
 #define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
-[delegate performSelector:(sel)];}}
+[delegate performSelector:(sel) withObject:self];}}
 
 
 @interface FBConnect (Private)
@@ -249,7 +249,7 @@
 {
   if ([xml rootElement] != nil) {
     isLoggedIn = YES;
-    DELEGATE(@selector(fbConnectLoggedIn));
+    DELEGATE(@selector(FBConnectLoggedIn:));
   } else {
     [self refreshSession];
   }
@@ -258,13 +258,13 @@
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml
 {
   [sessionState clear];
-  DELEGATE(@selector(fbConnectLoggedOut));
+  DELEGATE(@selector(FBConnectLoggedOut:));
 }
 
 - (void)failedLogout:(NSError *)error
 {
   NSLog(@"fbConnect logout failed: %@", [[error userInfo] objectForKey:kFBErrorMessageKey]);
-  DELEGATE(@selector(fbConnectErrorLoggingOut));
+  DELEGATE(@selector(FBConnectErrorLoggingOut:));
 }
 
 - (void)webViewWindowClosed
@@ -287,9 +287,9 @@
   [windowController release];
   
   if (isLoggedIn) {
-    DELEGATE(@selector(fbConnectLoggedIn));
+    DELEGATE(@selector(FBConnectLoggedIn:));
   } else {
-    DELEGATE(@selector(fbConnectErrorLoggingIn));
+    DELEGATE(@selector(FBConnectErrorLoggingIn:));
   }
 }
 

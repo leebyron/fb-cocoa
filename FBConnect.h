@@ -24,22 +24,22 @@
 /*!
  * Called when the FBConnect has completed logging in to Facebook.
  */
-- (void)fbConnectLoggedIn;
+- (void)FBConnectLoggedIn:(FBConnect *)fbc;
 
 /*!
  * Called when a login request has failed.
  */
-- (void)fbConnectErrorLoggingIn;
+- (void)FBConnectErrorLoggingIn:(FBConnect *)fbc;
 
 /*!
  * Called when the FBConnect has completed logging out of Facebook.
  */
-- (void)fbConnectLoggedOut;
+- (void)FBConnectLoggedOut:(FBConnect *)fbc ;
 
 /*!
  * Called when a logout request has failed.
  */
-- (void)fbConnectErrorLoggingOut;
+- (void)FBConnectErrorLoggingOut:(FBConnect *)fbc ;
 
 @end
 
