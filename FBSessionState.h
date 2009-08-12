@@ -18,10 +18,13 @@
   NSArray  *permissions;
 }
 
-@property(retain) NSString *uid;
-@property(retain) NSString *key;
-@property(retain) NSString *secret;
-@property(retain) NSArray  *permissions;
+- (NSString *)uid;
+- (void)setUID:(NSString *)aString;
+- (NSString *)key;
+- (void)setKey:(NSString *)aString;
+- (NSString *)secret;
+- (void)setSecret:(NSString *)aString;
+- (NSArray *)permissions;
 
 -(void)setWithDictionary:(NSDictionary *)dict;
 -(void)setPermissions:(NSArray *)perms;

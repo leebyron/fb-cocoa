@@ -20,8 +20,6 @@
 
 @implementation FBSessionState
 
-@synthesize uid, key, secret, permissions;
-
 -(id)init
 {
   if (!(self = [super init])) {
@@ -50,6 +48,45 @@
 
   [super dealloc];
 }
+
+- (NSString *)uid
+{
+  return uid;
+}
+- (void)setUID:(NSString *)aString
+{
+  [aString retain];
+  [uid release];
+  uid = aString;
+}
+
+- (NSString *)key
+{
+  return key;
+}
+- (void)setKey:(NSString *)aString
+{
+  [aString retain];
+  [key release];
+  key = aString;
+}
+
+- (NSString *)secret
+{
+  return secret;
+}
+- (void)setSecret:(NSString *)aString
+{
+  [aString retain];
+  [secret release];
+  secret = aString;
+}
+
+- (NSArray *)permissions
+{
+  return permissions;
+}
+
 
 -(void)setDictionary:(NSDictionary *)dict
 {
