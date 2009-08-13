@@ -83,6 +83,8 @@
  */
 - (NSString *)uid;
 
+- (BOOL)isLoggedIn;
+
 /*!
  * Causes the session to start the login process. This method is asynchronous;
  * i.e. it returns immediately, and the session is not necessarily logged in
