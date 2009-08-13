@@ -17,6 +17,8 @@
 
 - (NSDictionary *)simpleJSONDecode;
 
+- (NSString *)hexMD5;
+
 - (BOOL)containsString:(NSString *)string;
 
 @end

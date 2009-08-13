@@ -7,7 +7,6 @@
 
 #import "FBConnect.h"
 #import "FBRequest.h"
-#import "FBCrypto.h"
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
 #import "NSStringAdditions.h"
@@ -313,7 +312,7 @@
   } else {
     [args appendString:appSecret];
   }
-  return [FBCrypto hexMD5:args];
+  return [args hexMD5];
 }
 
 @end

@@ -7,7 +7,7 @@
 //
 
 #import "NSStringAdditions.h"
-
+#include <openssl/md5.h>
 
 @implementation NSString (NSStringAdditions)
 
@@ -50,6 +50,23 @@
     [dict setValue:value forKey:key];
   }
   return dict;
+}
+
+- (NSString *)hexMD5
+{
+  const unsigned char *data = (unsigned char *)[self UTF8String];
+  unsigned long length = [self length];
+  unsigned char hash[MD5_DIGEST_LENGTH];
+  
+  MD5(data, length, hash);
+  
+  NSMutableString *result = [NSMutableString string];
+  int i;
+  for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
+    [result appendFormat:@"%02x", hash[i]];
+  }
+  
+  return result;
 }
 
 - (BOOL)containsString:(NSString *)string
