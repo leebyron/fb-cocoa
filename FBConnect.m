@@ -94,7 +94,14 @@
 
 - (void)loginWithPermissions:(NSArray *)permissions
 {
-  if ([sessionState isValid]) {
+  BOOL needsNewPermissions = NO;
+  for (NSString *perm in permissions) {
+    if (![self hasPermission:perm]) {
+      needsNewPermissions = YES;
+      break;
+    }
+  }
+  if ([sessionState isValid] && !needsNewPermissions) {
     [self validateSession];
   } else {
     NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
