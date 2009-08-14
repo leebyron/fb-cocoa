@@ -40,7 +40,9 @@
 - (void)windowDidLoad
 {
   [[[webView mainFrame] frameView] setAllowsScrolling:NO];
-  [[self window] orderFrontRegardless];
+
+  [[self window] makeKeyAndOrderFront:self];
+  [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (void)showWithParams:(NSDictionary *)params
