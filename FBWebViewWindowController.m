@@ -57,6 +57,11 @@
   [allParams setObject:kLoginSuccessURL forKey:@"next"];
   [allParams setObject:@"true"          forKey:@"return_session"];
 
+  // adding this parameter keeps us from reading Safari's cookie when performing
+  // a login. Sessions are still cached and persistant so subsequent application
+  // launches will use their own session cookie and not Safari's
+  [allParams setObject:@"true"          forKey:@"skipcookie"];
+
   NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [NSString urlEncodeArguments:allParams]];
   NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
   [[webView mainFrame] loadRequest:req];

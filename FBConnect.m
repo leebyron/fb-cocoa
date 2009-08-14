@@ -237,6 +237,7 @@
 
 - (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
+  NSLog(@"failed -> %@", [[err userInfo] objectForKey:kFBErrorMessageKey]);
   if ([sessionState isValid] && [err code] == kErrorCodeInvalidSession) {
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
