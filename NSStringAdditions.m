@@ -21,7 +21,7 @@
     }
     NSString *encodedKey = [key stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString *encodedValue =
-    [[dict objectForKey:key] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    [[[dict objectForKey:key] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
     [result appendString:encodedKey];
     [result appendString:@"="];
     [result appendString:encodedValue];
@@ -54,18 +54,18 @@
 
 - (NSString *)hexMD5
 {
-  const unsigned char *data = (unsigned char *)[self UTF8String];
-  unsigned long length = [self length];
+  NSData *digest = [self dataUsingEncoding:NSUTF8StringEncoding];
+  unsigned long length = [digest length];
   unsigned char hash[MD5_DIGEST_LENGTH];
-  
-  MD5(data, length, hash);
-  
+
+  MD5([digest bytes], length, hash);
+
   NSMutableString *result = [NSMutableString string];
   int i;
   for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
     [result appendFormat:@"%02x", hash[i]];
   }
-  
+
   return result;
 }
 

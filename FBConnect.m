@@ -173,12 +173,13 @@
   [args setObject:APIKey forKey:@"api_key"];
   [args setObject:kAPIVersion forKey:@"v"];
   [args setObject:@"XML" forKey:@"format"];
+  [args setObject:@"true" forKey:@"ss"];
   [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
            forKey:@"call_id"];
   if ([sessionState isValid]) {
     [args setObject:[sessionState key] forKey:@"session_key"];
   }
-  
+
   NSString *sig = [self sigForArguments:args];
   [args setObject:sig forKey:@"sig"];
   
@@ -187,6 +188,7 @@
   NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
   [req setHTTPMethod:@"GET"];
   [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+  [req setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
   
   FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
                                                              target:target
