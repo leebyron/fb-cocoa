@@ -127,9 +127,14 @@
   [ud synchronize];
 }
 
+-(BOOL)exists
+{
+  return uid != nil;
+}
+
 -(BOOL)isValid
 {
-  return uid != nil && expires != nil && [expires compare:[NSDate date]] == NSOrderedDescending;
+  return [self exists] && expires != nil && [expires compare:[NSDate date]] == NSOrderedDescending;
 }
 
 -(void)clear
@@ -140,6 +145,11 @@
   [ud synchronize];
   [uid release];
   uid = nil;
+}
+
+-(void)invalidate
+{
+  expires = nil;
 }
 
 @end

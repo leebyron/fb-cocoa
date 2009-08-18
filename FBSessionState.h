@@ -29,8 +29,10 @@
 -(void)setWithDictionary:(NSDictionary *)dict;
 -(void)setPermissions:(NSArray *)perms;
 
+-(BOOL)exists;
 -(BOOL)isValid;
 
 -(void)clear;
+-(void)invalidate;
 
 @end

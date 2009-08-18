@@ -10,10 +10,10 @@
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
 #import "NSStringAdditions.h"
+#import "FBCocoa.h"
 
 #define kRESTServerURL @"http://api.facebook.com/restserver.php?"
 #define kAPIVersion @"1.0"
-#define kErrorCodeInvalidSession 102
 
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
@@ -112,6 +112,14 @@
     }
     [loginParams setObject:APIKey      forKey:@"api_key"];
     [loginParams setObject:kAPIVersion forKey:@"v"];
+
+    if ([sessionState exists]) {
+      // adding this parameter keeps us from reading Safari's cookie when performing
+      // a login. Sessions are still cached and persistant so subsequent application
+      // launches will use their own session cookie and not Safari's
+      [loginParams setObject:@"true" forKey:@"skipcookie"];
+    }
+
     windowController =
     [[FBWebViewWindowController alloc] initWithCloseTarget:self
                                                   selector:@selector(webViewWindowClosed)];
@@ -139,9 +147,10 @@
 
 - (void)refreshSession
 {
+  NSLog(@"asking for refreshed session");
   isLoggedIn = NO;
   NSArray *permissions = [[sessionState permissions] retain];
-  [sessionState clear];
+  [sessionState invalidate];
   [self loginWithPermissions:permissions];
   [permissions release];
 }
@@ -239,8 +248,14 @@
 
 - (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
+  int errorCode = [err code];
   NSLog(@"failed -> %@", [[err userInfo] objectForKey:kFBErrorMessageKey]);
-  if ([sessionState isValid] && [err code] == kErrorCodeInvalidSession) {
+  if ([sessionState exists] &&
+      (errorCode == FBParamSessionKeyError ||
+       errorCode == FBPermissionError ||
+       errorCode == FBSessionExpiredError ||
+       errorCode == FBSessionInvalidError ||
+       errorCode == FBSessionRequiredError)) {
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
     // data and start a login from scratch.
