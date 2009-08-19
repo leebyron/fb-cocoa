@@ -9,18 +9,18 @@
 /* Begin PBXBuildFile section */
 		5306F953103B8E6D0061C722 /* FBWebViewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */; };
 		5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F967103B8F210061C722 /* FBWebViewWindowController.m */; };
-		5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F968103B8F210061C722 /* FBWebViewWindowController.h */; };
-		5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96B103B8FB40061C722 /* NSXMLNode+.h */; };
+		5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F968103B8F210061C722 /* FBWebViewWindowController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96B103B8FB40061C722 /* NSXMLNode+.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5306F970103B8FB40061C722 /* NSString+.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F96C103B8FB40061C722 /* NSString+.m */; };
 		5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F96D103B8FB40061C722 /* NSXMLNode+.m */; };
-		5306F972103B8FB40061C722 /* NSString+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96E103B8FB40061C722 /* NSString+.h */; };
-		5306FB68103B90270061C722 /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB66103B90270061C722 /* FBCocoa.h */; };
+		5306F972103B8FB40061C722 /* NSString+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96E103B8FB40061C722 /* NSString+.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		5306FB68103B90270061C722 /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB66103B90270061C722 /* FBCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5306FB73103B906A0061C722 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB6D103B906A0061C722 /* FBRequest.m */; };
-		5306FB74103B906A0061C722 /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB6E103B906A0061C722 /* FBSessionState.h */; };
+		5306FB74103B906A0061C722 /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB6E103B906A0061C722 /* FBSessionState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5306FB75103B906A0061C722 /* FBSessionState.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB6F103B906A0061C722 /* FBSessionState.m */; };
-		5306FB76103B906A0061C722 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB70103B906A0061C722 /* FBConnect.h */; };
+		5306FB76103B906A0061C722 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB70103B906A0061C722 /* FBConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5306FB77103B906A0061C722 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB71103B906A0061C722 /* FBConnect.m */; };
-		5306FB78103B906A0061C722 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB72103B906A0061C722 /* FBRequest.h */; };
+		5306FB78103B906A0061C722 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB72103B906A0061C722 /* FBRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		5306FB7E103B90D10061C722 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5306FB7C103B90D10061C722 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
@@ -186,13 +186,13 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */,
-				5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */,
-				5306F972103B8FB40061C722 /* NSString+.h in Headers */,
 				5306FB68103B90270061C722 /* FBCocoa.h in Headers */,
-				5306FB74103B906A0061C722 /* FBSessionState.h in Headers */,
+				5306F972103B8FB40061C722 /* NSString+.h in Headers */,
+				5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */,
 				5306FB76103B906A0061C722 /* FBConnect.h in Headers */,
 				5306FB78103B906A0061C722 /* FBRequest.h in Headers */,
+				5306FB74103B906A0061C722 /* FBSessionState.h in Headers */,
+				5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,12 +253,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */,
 				5306F970103B8FB40061C722 /* NSString+.m in Sources */,
 				5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */,
+				5306FB77103B906A0061C722 /* FBConnect.m in Sources */,
 				5306FB73103B906A0061C722 /* FBRequest.m in Sources */,
 				5306FB75103B906A0061C722 /* FBSessionState.m in Sources */,
-				5306FB77103B906A0061C722 /* FBConnect.m in Sources */,
+				5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
