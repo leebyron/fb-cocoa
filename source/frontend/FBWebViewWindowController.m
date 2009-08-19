@@ -6,7 +6,7 @@
 //
 
 #import "FBWebViewWindowController.h"
-#import "NSStringAdditions.h"
+#import "NSString+.h"
 
 //#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
 #define kLoginURL @"http://www.facebook.com/login.php?"

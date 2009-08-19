@@ -7,50 +7,50 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		53BBB7331031237000C4E9E2 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB72F1031237000C4E9E2 /* FBRequest.h */; };
-		53BBB7351031237000C4E9E2 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB7311031237000C4E9E2 /* FBRequest.m */; };
-		53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 53BBB75310314D9600C4E9E2 /* FBConnect.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BBB75410314D9600C4E9E2 /* FBConnect.m */; };
-		8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
+		5306F953103B8E6D0061C722 /* FBWebViewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */; };
+		5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F967103B8F210061C722 /* FBWebViewWindowController.m */; };
+		5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F968103B8F210061C722 /* FBWebViewWindowController.h */; };
+		5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96B103B8FB40061C722 /* NSXMLNode+.h */; };
+		5306F970103B8FB40061C722 /* NSString+.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F96C103B8FB40061C722 /* NSString+.m */; };
+		5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F96D103B8FB40061C722 /* NSXMLNode+.m */; };
+		5306F972103B8FB40061C722 /* NSString+.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306F96E103B8FB40061C722 /* NSString+.h */; };
+		5306FB68103B90270061C722 /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB66103B90270061C722 /* FBCocoa.h */; };
+		5306FB73103B906A0061C722 /* FBRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB6D103B906A0061C722 /* FBRequest.m */; };
+		5306FB74103B906A0061C722 /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB6E103B906A0061C722 /* FBSessionState.h */; };
+		5306FB75103B906A0061C722 /* FBSessionState.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB6F103B906A0061C722 /* FBSessionState.m */; };
+		5306FB76103B906A0061C722 /* FBConnect.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB70103B906A0061C722 /* FBConnect.h */; };
+		5306FB77103B906A0061C722 /* FBConnect.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306FB71103B906A0061C722 /* FBConnect.m */; };
+		5306FB78103B906A0061C722 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5306FB72103B906A0061C722 /* FBRequest.h */; };
+		5306FB7E103B90D10061C722 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5306FB7C103B90D10061C722 /* InfoPlist.strings */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		932079B710151128006D15BB /* FBSessionState.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079B510151128006D15BB /* FBSessionState.h */; settings = {ATTRIBUTES = (); }; };
-		932079B810151128006D15BB /* FBSessionState.m in Sources */ = {isa = PBXBuildFile; fileRef = 932079B610151128006D15BB /* FBSessionState.m */; };
-		932079C81015477C006D15BB /* FBCocoa.h in Headers */ = {isa = PBXBuildFile; fileRef = 932079C71015477C006D15BB /* FBCocoa.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
-		93207ADC10162DEF006D15BB /* FBWebViewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 93207ADB10162DEF006D15BB /* FBWebViewWindow.xib */; };
-		93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */; };
-		93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 93207AE010162ED7006D15BB /* FBWebViewWindowController.m */; };
 		93207B3210164075006D15BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207B3110164075006D15BB /* WebKit.framework */; };
-		93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 93533FF41017E563002C6CBD /* NSStringAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93533FF51017E563002C6CBD /* NSStringAdditions.m */; };
-		935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */ = {isa = PBXBuildFile; fileRef = 935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
-		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		32DBCF5E0370ADEE00C91783 /* FBCocoa_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa_Prefix.pch; sourceTree = "<group>"; };
-		53BBB72F1031237000C4E9E2 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRequest.h; sourceTree = "<group>"; };
-		53BBB7311031237000C4E9E2 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRequest.m; sourceTree = "<group>"; };
-		53BBB75310314D9600C4E9E2 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBConnect.h; sourceTree = "<group>"; };
-		53BBB75410314D9600C4E9E2 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBConnect.m; sourceTree = "<group>"; };
-		8DC2EF5A0486A6940098B216 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5306F945103B8E010061C722 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
+		5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = FBWebViewWindow.xib; path = resources/FBWebViewWindow.xib; sourceTree = "<group>"; };
+		5306F967103B8F210061C722 /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBWebViewWindowController.m; path = source/frontend/FBWebViewWindowController.m; sourceTree = "<group>"; };
+		5306F968103B8F210061C722 /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBWebViewWindowController.h; path = source/frontend/FBWebViewWindowController.h; sourceTree = "<group>"; };
+		5306F96B103B8FB40061C722 /* NSXMLNode+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSXMLNode+.h"; path = "source/additions/NSXMLNode+.h"; sourceTree = "<group>"; };
+		5306F96C103B8FB40061C722 /* NSString+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+.m"; path = "source/additions/NSString+.m"; sourceTree = "<group>"; };
+		5306F96D103B8FB40061C722 /* NSXMLNode+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSXMLNode+.m"; path = "source/additions/NSXMLNode+.m"; sourceTree = "<group>"; };
+		5306F96E103B8FB40061C722 /* NSString+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+.h"; path = "source/additions/NSString+.h"; sourceTree = "<group>"; };
+		5306FB65103B90270061C722 /* FBCocoa_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCocoa_Prefix.pch; path = source/fbcocoa/FBCocoa_Prefix.pch; sourceTree = "<group>"; };
+		5306FB66103B90270061C722 /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCocoa.h; path = source/fbcocoa/FBCocoa.h; sourceTree = "<group>"; };
+		5306FB6D103B906A0061C722 /* FBRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBRequest.m; path = source/backend/FBRequest.m; sourceTree = "<group>"; };
+		5306FB6E103B906A0061C722 /* FBSessionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBSessionState.h; path = source/backend/FBSessionState.h; sourceTree = "<group>"; };
+		5306FB6F103B906A0061C722 /* FBSessionState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBSessionState.m; path = source/backend/FBSessionState.m; sourceTree = "<group>"; };
+		5306FB70103B906A0061C722 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = source/backend/FBConnect.h; sourceTree = "<group>"; };
+		5306FB71103B906A0061C722 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBConnect.m; path = source/backend/FBConnect.m; sourceTree = "<group>"; };
+		5306FB72103B906A0061C722 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = source/backend/FBRequest.h; sourceTree = "<group>"; };
+		5306FB7D103B90D10061C722 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		932079B510151128006D15BB /* FBSessionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSessionState.h; sourceTree = "<group>"; };
-		932079B610151128006D15BB /* FBSessionState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSessionState.m; sourceTree = "<group>"; };
-		932079C71015477C006D15BB /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa.h; sourceTree = "<group>"; };
 		93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = usr/lib/libcrypto.0.9.7.dylib; sourceTree = SDKROOT; };
-		93207ADB10162DEF006D15BB /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FBWebViewWindow.xib; sourceTree = "<group>"; };
-		93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBWebViewWindowController.h; sourceTree = "<group>"; };
-		93207AE010162ED7006D15BB /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBWebViewWindowController.m; sourceTree = "<group>"; };
 		93207B3110164075006D15BB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		93533FF41017E563002C6CBD /* NSStringAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStringAdditions.h; sourceTree = "<group>"; };
-		93533FF51017E563002C6CBD /* NSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringAdditions.m; sourceTree = "<group>"; };
-		935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSXMLNodeAdditions.h; sourceTree = "<group>"; };
-		935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSXMLNodeAdditions.m; sourceTree = "<group>"; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -79,8 +79,7 @@
 		0867D691FE84028FC02AAC07 /* FBCocoa */ = {
 			isa = PBXGroup;
 			children = (
-				08FB77AEFE84172EC02AAC07 /* Classes */,
-				32C88DFF0371C24200C91783 /* Other Sources */,
+				5306F955103B8E820061C722 /* Source */,
 				089C1665FE841158C02AAC07 /* Resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
 				034768DFFF38A50411DB9C8B /* Products */,
@@ -100,31 +99,11 @@
 		089C1665FE841158C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8DC2EF5A0486A6940098B216 /* Info.plist */,
-				089C1666FE841158C02AAC07 /* InfoPlist.strings */,
-				93207ADB10162DEF006D15BB /* FBWebViewWindow.xib */,
+				5306FB7C103B90D10061C722 /* InfoPlist.strings */,
+				5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */,
+				5306F945103B8E010061C722 /* Info.plist */,
 			);
 			name = Resources;
-			sourceTree = "<group>";
-		};
-		08FB77AEFE84172EC02AAC07 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				932079C71015477C006D15BB /* FBCocoa.h */,
-				53BBB75310314D9600C4E9E2 /* FBConnect.h */,
-				53BBB75410314D9600C4E9E2 /* FBConnect.m */,
-				53BBB72F1031237000C4E9E2 /* FBRequest.h */,
-				53BBB7311031237000C4E9E2 /* FBRequest.m */,
-				932079B510151128006D15BB /* FBSessionState.h */,
-				932079B610151128006D15BB /* FBSessionState.m */,
-				93207ADF10162ED7006D15BB /* FBWebViewWindowController.h */,
-				93207AE010162ED7006D15BB /* FBWebViewWindowController.m */,
-				93533FF41017E563002C6CBD /* NSStringAdditions.h */,
-				93533FF51017E563002C6CBD /* NSStringAdditions.m */,
-				935342721018EB19002C6CBD /* NSXMLNodeAdditions.h */,
-				935342731018EB19002C6CBD /* NSXMLNodeAdditions.m */,
-			);
-			name = Classes;
 			sourceTree = "<group>";
 		};
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
@@ -147,12 +126,57 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		32C88DFF0371C24200C91783 /* Other Sources */ = {
+		5306F955103B8E820061C722 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				32DBCF5E0370ADEE00C91783 /* FBCocoa_Prefix.pch */,
+				5306F95A103B8EA50061C722 /* FBCocoa */,
+				5306F957103B8E8A0061C722 /* Additions */,
+				5306F958103B8E900061C722 /* Backend */,
+				5306F959103B8E980061C722 /* Frontend */,
 			);
-			name = "Other Sources";
+			name = Source;
+			sourceTree = "<group>";
+		};
+		5306F957103B8E8A0061C722 /* Additions */ = {
+			isa = PBXGroup;
+			children = (
+				5306F96B103B8FB40061C722 /* NSXMLNode+.h */,
+				5306F96C103B8FB40061C722 /* NSString+.m */,
+				5306F96D103B8FB40061C722 /* NSXMLNode+.m */,
+				5306F96E103B8FB40061C722 /* NSString+.h */,
+			);
+			name = Additions;
+			sourceTree = "<group>";
+		};
+		5306F958103B8E900061C722 /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				5306FB6D103B906A0061C722 /* FBRequest.m */,
+				5306FB6E103B906A0061C722 /* FBSessionState.h */,
+				5306FB6F103B906A0061C722 /* FBSessionState.m */,
+				5306FB70103B906A0061C722 /* FBConnect.h */,
+				5306FB71103B906A0061C722 /* FBConnect.m */,
+				5306FB72103B906A0061C722 /* FBRequest.h */,
+			);
+			name = Backend;
+			sourceTree = "<group>";
+		};
+		5306F959103B8E980061C722 /* Frontend */ = {
+			isa = PBXGroup;
+			children = (
+				5306F967103B8F210061C722 /* FBWebViewWindowController.m */,
+				5306F968103B8F210061C722 /* FBWebViewWindowController.h */,
+			);
+			name = Frontend;
+			sourceTree = "<group>";
+		};
+		5306F95A103B8EA50061C722 /* FBCocoa */ = {
+			isa = PBXGroup;
+			children = (
+				5306FB65103B90270061C722 /* FBCocoa_Prefix.pch */,
+				5306FB66103B90270061C722 /* FBCocoa.h */,
+			);
+			name = FBCocoa;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -162,13 +186,13 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				932079C81015477C006D15BB /* FBCocoa.h in Headers */,
-				53BBB75510314D9600C4E9E2 /* FBConnect.h in Headers */,
-				932079B710151128006D15BB /* FBSessionState.h in Headers */,
-				93207AE110162ED7006D15BB /* FBWebViewWindowController.h in Headers */,
-				93533FF61017E563002C6CBD /* NSStringAdditions.h in Headers */,
-				935342741018EB19002C6CBD /* NSXMLNodeAdditions.h in Headers */,
-				53BBB7331031237000C4E9E2 /* FBRequest.h in Headers */,
+				5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */,
+				5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */,
+				5306F972103B8FB40061C722 /* NSString+.h in Headers */,
+				5306FB68103B90270061C722 /* FBCocoa.h in Headers */,
+				5306FB74103B906A0061C722 /* FBSessionState.h in Headers */,
+				5306FB76103B906A0061C722 /* FBConnect.h in Headers */,
+				5306FB78103B906A0061C722 /* FBRequest.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -217,8 +241,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DC2EF530486A6940098B216 /* InfoPlist.strings in Resources */,
-				93207ADC10162DEF006D15BB /* FBWebViewWindow.xib in Resources */,
+				5306F953103B8E6D0061C722 /* FBWebViewWindow.xib in Resources */,
+				5306FB7E103B90D10061C722 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -229,24 +253,25 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				932079B810151128006D15BB /* FBSessionState.m in Sources */,
-				93207AE210162ED7006D15BB /* FBWebViewWindowController.m in Sources */,
-				93533FF71017E563002C6CBD /* NSStringAdditions.m in Sources */,
-				935342751018EB19002C6CBD /* NSXMLNodeAdditions.m in Sources */,
-				53BBB7351031237000C4E9E2 /* FBRequest.m in Sources */,
-				53BBB75610314D9600C4E9E2 /* FBConnect.m in Sources */,
+				5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */,
+				5306F970103B8FB40061C722 /* NSString+.m in Sources */,
+				5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */,
+				5306FB73103B906A0061C722 /* FBRequest.m in Sources */,
+				5306FB75103B906A0061C722 /* FBSessionState.m in Sources */,
+				5306FB77103B906A0061C722 /* FBConnect.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXVariantGroup section */
-		089C1666FE841158C02AAC07 /* InfoPlist.strings */ = {
+		5306FB7C103B90D10061C722 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				089C1667FE841158C02AAC07 /* English */,
+				5306FB7D103B90D10061C722 /* English */,
 			);
 			name = InfoPlist.strings;
+			path = resources/English.lproj;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -265,8 +290,8 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = FBCocoa_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				GCC_PREFIX_HEADER = source/fbcocoa/FBCocoa_Prefix.pch;
+				INFOPLIST_FILE = resources/Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = FBCocoa;
 				WRAPPER_EXTENSION = framework;
@@ -283,8 +308,8 @@
 				FRAMEWORK_VERSION = A;
 				GCC_MODEL_TUNING = G5;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = FBCocoa_Prefix.pch;
-				INFOPLIST_FILE = Info.plist;
+				GCC_PREFIX_HEADER = source/fbcocoa/FBCocoa_Prefix.pch;
+				INFOPLIST_FILE = resources/Info.plist;
 				INSTALL_PATH = "@executable_path/../Frameworks";
 				PRODUCT_NAME = FBCocoa;
 				WRAPPER_EXTENSION = framework;

@@ -9,7 +9,7 @@
 #import "FBRequest.h"
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
-#import "NSStringAdditions.h"
+#import "NSString+.h"
 #import "FBCocoa.h"
 
 #define kRESTServerURL @"http://api.facebook.com/restserver.php?"

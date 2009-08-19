@@ -1,5 +1,5 @@
 //
-//  NSStringAdditions.h
+//  NSString+.h
 //  FBCocoa
 //
 //  Created by Owen Yamauchi on 7/22/09.
@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface NSString (NSStringAdditions)
+@interface NSString (Additions)
 
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict;
 

@@ -1,5 +1,5 @@
 //
-//  NSXMLNodeAdditions.h
+//  NSXMLNode+.h
 //  FBCocoa
 //
 //  Copyright 2009 Facebook Inc. All rights reserved.
@@ -8,7 +8,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface NSXMLNode (NSXMLNodeAdditions)
+@interface NSXMLNode (Additions)
 
 - (NSXMLNode *)childWithName:(NSString *)childName;
 

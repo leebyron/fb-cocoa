@@ -1,15 +1,15 @@
 //
-//  NSStringAdditions.m
+//  NSString+.m
 //  FBCocoa
 //
 //  Created by Owen Yamauchi on 7/22/09.
 //  Copyright 2009 Facebook Inc. All rights reserved.
 //
 
-#import "NSStringAdditions.h"
+#import "NSString+.h"
 #include <openssl/md5.h>
 
-@implementation NSString (NSStringAdditions)
+@implementation NSString (Additions)
 
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict
 {
