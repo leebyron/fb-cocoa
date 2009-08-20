@@ -164,8 +164,8 @@
 		5306F959103B8E980061C722 /* Frontend */ = {
 			isa = PBXGroup;
 			children = (
-				5306F967103B8F210061C722 /* FBWebViewWindowController.m */,
 				5306F968103B8F210061C722 /* FBWebViewWindowController.h */,
+				5306F967103B8F210061C722 /* FBWebViewWindowController.m */,
 			);
 			name = Frontend;
 			sourceTree = "<group>";

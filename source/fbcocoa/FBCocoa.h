@@ -93,4 +93,3 @@ enum { // Facebook Connect Error Codes
 #import <FBCocoa/FBConnect.h>
 #import <FBCocoa/NSString+.h>
 #import <FBCocoa/NSXMLNode+.h>
-#import <FBCocoa/NSXMLDocument+.h>
