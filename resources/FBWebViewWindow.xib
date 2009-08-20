@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1" id="9"/>
+			<integer value="13"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -93,7 +93,7 @@
 										<bool key="EncodedWithXMLCoder">YES</bool>
 										<integer value="12" id="842746109"/>
 										<reference ref="842746109"/>
-										<reference ref="9"/>
+										<integer value="1"/>
 									</object>
 								</object>
 							</object>
@@ -102,9 +102,9 @@
 						</object>
 						<object class="NSProgressIndicator" id="891610037">
 							<reference key="NSNextResponder" ref="1006"/>
-							<int key="NSvFlags">1292</int>
+							<int key="NSvFlags">1289</int>
 							<object class="NSPSMatrix" key="NSDrawMatrix"/>
-							<string key="NSFrame">{{255, 203}, {16, 16}}</string>
+							<string key="NSFrame">{{500, 399}, {16, 16}}</string>
 							<reference key="NSSuperview" ref="1006"/>
 							<int key="NSpiFlags">28938</int>
 							<double key="NSMinValue">1.600000e+01</double>
@@ -252,9 +252,9 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilderKit</string>
 					<string>com.apple.InterfaceBuilderKit</string>
-					<string>{{1018, 676}, {526, 423}}</string>
+					<string>{{471, 371}, {526, 423}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{1018, 676}, {526, 423}}</string>
+					<string>{{471, 371}, {526, 423}}</string>
 					<boolean value="NO"/>
 					<string>{196, 240}</string>
 					<string>{{202, 428}, {480, 270}}</string>
