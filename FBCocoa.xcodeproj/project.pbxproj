@@ -151,12 +151,12 @@
 		5306F958103B8E900061C722 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
-				5306FB6D103B906A0061C722 /* FBRequest.m */,
 				5306FB6E103B906A0061C722 /* FBSessionState.h */,
 				5306FB6F103B906A0061C722 /* FBSessionState.m */,
 				5306FB70103B906A0061C722 /* FBConnect.h */,
 				5306FB71103B906A0061C722 /* FBConnect.m */,
 				5306FB72103B906A0061C722 /* FBRequest.h */,
+				5306FB6D103B906A0061C722 /* FBRequest.m */,
 			);
 			name = Backend;
 			sourceTree = "<group>";

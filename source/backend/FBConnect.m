@@ -249,7 +249,15 @@
 - (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
   int errorCode = [err code];
-  NSLog(@"failed -> %@", [[err userInfo] objectForKey:kFBErrorMessageKey]);
+  
+  if ([[err userInfo] objectForKey:kFBErrorMessageKey]) {
+    NSLog(@"failed -> %@", [[err userInfo] objectForKey:kFBErrorMessageKey]);
+  }
+
+  if ([[err userInfo] objectForKey:NSErrorFailingURLStringKey]) {
+    NSLog(@"web failed -> %@", [[err userInfo] objectForKey:NSErrorFailingURLStringKey]);
+  }
+
   if ([sessionState exists] &&
       (errorCode == FBParamSessionKeyError ||
        errorCode == FBPermissionError ||

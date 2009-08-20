@@ -81,6 +81,17 @@
   [self release];
 }
 
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)err
+{
+  [parentConnect failedQuery:self withError:err];
+
+  if (target && errorMethod && [target respondsToSelector:errorMethod]) {
+    [target performSelector:errorMethod withObject:err];
+  }
+
+  // laaater!
+  [self release];
+}
 
 #pragma mark Private Methods
 - (NSError *)errorForResponse:(NSXMLDocument *)xml
