@@ -200,9 +200,9 @@
   [req setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
   
   FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
+                                                             parent:self
                                                              target:target
                                                            selector:selector
-                                                             parent:self
                                                               error:error];
   [currentConnection start];
 }

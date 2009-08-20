@@ -18,9 +18,9 @@
 }
 
 -(id)initWithRequest:(NSURLRequest *)req
+              parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
-              parent:(FBConnect *)parent
                error:(SEL)err;
 
 @end

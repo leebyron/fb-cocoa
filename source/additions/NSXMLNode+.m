@@ -21,4 +21,25 @@
   return nil;
 }
 
+- (NSDictionary *)parseMultiqueryResponse
+{
+  NSMutableDictionary *responses = [[[NSMutableDictionary alloc] init] autorelease];
+
+  // get the fql result
+  NSXMLNode *node = self;
+  while (node != nil && ![[node name] isEqualToString:@"fql_result"]) {
+    node = [node nextNode];
+  }
+
+  // add each response to the dictionary
+  while (node) {
+    NSXMLNode *nameNode = [node childWithName:@"name"];
+    NSXMLNode *resultSetNode = [node childWithName:@"fql_result_set"];
+    [responses setObject:resultSetNode forKey:[nameNode stringValue]];
+    node = [node nextSibling];
+  }
+
+  return responses;
+}
+
 @end

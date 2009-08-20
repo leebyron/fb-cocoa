@@ -140,10 +140,10 @@
 		5306F957103B8E8A0061C722 /* Additions */ = {
 			isa = PBXGroup;
 			children = (
-				5306F96B103B8FB40061C722 /* NSXMLNode+.h */,
-				5306F96C103B8FB40061C722 /* NSString+.m */,
-				5306F96D103B8FB40061C722 /* NSXMLNode+.m */,
 				5306F96E103B8FB40061C722 /* NSString+.h */,
+				5306F96C103B8FB40061C722 /* NSString+.m */,
+				5306F96B103B8FB40061C722 /* NSXMLNode+.h */,
+				5306F96D103B8FB40061C722 /* NSXMLNode+.m */,
 			);
 			name = Additions;
 			sourceTree = "<group>";
@@ -187,12 +187,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				5306FB68103B90270061C722 /* FBCocoa.h in Headers */,
-				5306F972103B8FB40061C722 /* NSString+.h in Headers */,
-				5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */,
 				5306FB76103B906A0061C722 /* FBConnect.h in Headers */,
 				5306FB78103B906A0061C722 /* FBRequest.h in Headers */,
 				5306FB74103B906A0061C722 /* FBSessionState.h in Headers */,
 				5306F96A103B8F210061C722 /* FBWebViewWindowController.h in Headers */,
+				5306F972103B8FB40061C722 /* NSString+.h in Headers */,
+				5306F96F103B8FB40061C722 /* NSXMLNode+.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,12 +253,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5306F970103B8FB40061C722 /* NSString+.m in Sources */,
-				5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */,
 				5306FB77103B906A0061C722 /* FBConnect.m in Sources */,
 				5306FB73103B906A0061C722 /* FBRequest.m in Sources */,
 				5306FB75103B906A0061C722 /* FBSessionState.m in Sources */,
 				5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */,
+				5306F970103B8FB40061C722 /* NSString+.m in Sources */,
+				5306F971103B8FB40061C722 /* NSXMLNode+.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

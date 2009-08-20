@@ -26,9 +26,9 @@
 @implementation FBRequest
 
 -(id)initWithRequest:(NSURLRequest *)req
+              parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
-              parent:(FBConnect *)parent
                error:(SEL)err
 {
   if (!(self = [super initWithRequest:req delegate:self])) {
