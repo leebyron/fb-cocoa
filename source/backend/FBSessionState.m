@@ -129,7 +129,7 @@
 
 -(BOOL)exists
 {
-  return uid != nil;
+  return uid != nil && uid != @"0";
 }
 
 -(BOOL)isValid

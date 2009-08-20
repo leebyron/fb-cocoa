@@ -113,10 +113,11 @@
     [loginParams setObject:APIKey      forKey:@"api_key"];
     [loginParams setObject:kAPIVersion forKey:@"v"];
 
-    if ([sessionState exists]) {
-      // adding this parameter keeps us from reading Safari's cookie when performing
-      // a login. Sessions are still cached and persistant so subsequent application
-      // launches will use their own session cookie and not Safari's
+    if (![sessionState exists]) {
+      // adding this parameter keeps us from reading Safari's cookie when
+      // performing a login for the first time. Sessions are still cached and
+      // persistant so subsequent application launches will use their own
+      // session cookie and not Safari's
       [loginParams setObject:@"true" forKey:@"skipcookie"];
     }
 
