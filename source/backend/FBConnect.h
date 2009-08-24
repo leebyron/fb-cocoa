@@ -54,10 +54,10 @@
   NSString *APIKey;
   NSString *appSecret;
   FBSessionState *sessionState;
-  
+
   BOOL isLoggedIn;
   id delegate;
-  
+
   FBWebViewWindowController *windowController;
 }
 
@@ -69,12 +69,18 @@
  * certain events happen in the session. See FBConnectDelegate.
  */
 + (FBConnect *)sessionWithAPIKey:(NSString *)key
-                          secret:(NSString *)secret
                         delegate:(id)obj;
 
 - (id)initWithAPIKey:(NSString *)key
-              secret:(NSString *)secret
             delegate:(id)obj;
+
+/*!
+ * If your application is going to call methods which require an application
+ * secret, you must specify it here. Otherwise it is best to not include it in
+ * your application so that it can not be compromised.
+ * http://wiki.developers.facebook.com/index.php/Session_Secret_and_API_Methods
+ */
+- (void)setSecret:(NSString *)secret;
 
 /*!
  * Returns the logged-in user's uid as a string. If the session has not been

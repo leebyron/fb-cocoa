@@ -14,6 +14,7 @@
 
 #define kRESTServerURL @"http://api.facebook.com/restserver.php?"
 #define kAPIVersion @"1.0"
+#define kRequestTimeout 60
 
 /*
  * These are shortcuts for calling delegate methods. They check to see if there
@@ -39,26 +40,23 @@
 @implementation FBConnect
 
 + (FBConnect *)sessionWithAPIKey:(NSString *)key
-                          secret:(NSString *)secret
                         delegate:(id)obj
 {
-  return [[self alloc] initWithAPIKey:key secret:secret delegate:obj];
+  return [[self alloc] initWithAPIKey:key delegate:obj];
 }
 
 - (id)initWithAPIKey:(NSString *)key
-              secret:(NSString *)secret
             delegate:(id)obj
 {
   if (!(self = [super init])) {
     return nil;
   }
-  
+
   APIKey     = [key retain];
-  appSecret  = [secret retain];
   sessionState    = [[FBSessionState alloc] init];
   delegate   = obj;
   isLoggedIn = NO;
-  
+
   return self;
 }
 
@@ -73,6 +71,13 @@
 //==============================================================================
 //==============================================================================
 //==============================================================================
+
+- (void)setSecret:(NSString *)secret
+{
+  [secret retain];
+  [appSecret release];
+  appSecret = secret;
+}
 
 - (BOOL)isLoggedIn
 {
@@ -173,7 +178,7 @@
              error:(SEL)error
 {
   NSMutableDictionary *args;
-  
+
   if (dict) {
     args = [NSMutableDictionary dictionaryWithDictionary:dict];
   } else {
@@ -192,14 +197,16 @@
 
   NSString *sig = [self sigForArguments:args];
   [args setObject:sig forKey:@"sig"];
-  
+
   NSString *server = kRESTServerURL;
   NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
-  NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url];
+  NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
+                                                     cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                 timeoutInterval:kRequestTimeout];
   [req setHTTPMethod:@"GET"];
   [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-  [req setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
-  
+  [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
+
   FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
                                                              parent:self
                                                              target:target
@@ -235,10 +242,10 @@
     [entries addObject:[NSString stringWithFormat:entryFormat, escapedKey,
                         escapedVal]];
   }
-  
+
   NSString *finalString = [NSString stringWithFormat:@"{%@}",
                            [entries componentsJoinedByString:@","]];
-  
+
   NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
   [self callMethod:@"Fql.multiquery"
      withArguments:dict
@@ -255,13 +262,14 @@
        errorCode == FBPermissionError ||
        errorCode == FBSessionExpiredError ||
        errorCode == FBSessionInvalidError ||
-       errorCode == FBSessionRequiredError)) {
+       errorCode == FBSessionRequiredError ||
+       errorCode == FBSessionRequiredForSecretError)) {
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
     // data and start a login from scratch.
     [self refreshSession];
   }
-  
+
 }
 
 //==============================================================================
@@ -294,7 +302,7 @@
 {
   if ([windowController success]) {
     isLoggedIn = YES;
-    
+
     NSString *url = [[windowController lastURL] absoluteString];
     NSRange startSession = [url rangeOfString:@"session="];
     if (startSession.location != NSNotFound) {
@@ -308,7 +316,7 @@
     isLoggedIn = NO;
   }
   [windowController release];
-  
+
   if (isLoggedIn) {
     DELEGATE(@selector(FBConnectLoggedIn:));
   } else {
@@ -330,7 +338,7 @@
     [args appendString:@"="];
     [args appendString:[dict objectForKey:key]];
   }
-  
+
   if ([sessionState isValid]) {
     [args appendString:[sessionState secret]];
   } else {
