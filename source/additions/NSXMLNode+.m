@@ -23,7 +23,7 @@
 
 - (NSDictionary *)parseMultiqueryResponse
 {
-  NSMutableDictionary *responses = [[[NSMutableDictionary alloc] init] autorelease];
+  NSMutableDictionary *responses = [[NSMutableDictionary alloc] init];
 
   // get the fql result
   NSXMLNode *node = self;
