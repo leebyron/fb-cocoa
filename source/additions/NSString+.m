@@ -22,9 +22,11 @@
     NSString *encodedKey = [key stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
     NSString *encodedValue =
     [[[dict objectForKey:key] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
-    [result appendString:encodedKey];
-    [result appendString:@"="];
-    [result appendString:encodedValue];
+    if (encodedKey != nil && encodedValue != nil) {
+      [result appendString:encodedKey];
+      [result appendString:@"="];
+      [result appendString:encodedValue];
+    }
   }
   return result;
 }

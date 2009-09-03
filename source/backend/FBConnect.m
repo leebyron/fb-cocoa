@@ -126,10 +126,14 @@
       [loginParams setObject:@"true" forKey:@"skipcookie"];
     }
 
-    windowController =
-    [[FBWebViewWindowController alloc] initWithCloseTarget:self
-                                                  selector:@selector(webViewWindowClosed)];
-    [windowController showWithParams:loginParams];
+    if (windowController) {
+      [[windowController window] makeKeyAndOrderFront:self];
+    } else {
+      windowController =
+      [[FBWebViewWindowController alloc] initWithCloseTarget:self
+                                                    selector:@selector(webViewWindowClosed)];
+      [windowController showWithParams:loginParams];
+    }
   }
 }
 
@@ -177,42 +181,52 @@
           selector:(SEL)selector
              error:(SEL)error
 {
-  NSMutableDictionary *args;
+  @try {
+    NSMutableDictionary *args;
 
-  if (dict) {
-    args = [NSMutableDictionary dictionaryWithDictionary:dict];
-  } else {
-    args = [NSMutableDictionary dictionary];
+    if (dict) {
+      args = [NSMutableDictionary dictionaryWithDictionary:dict];
+    } else {
+      args = [NSMutableDictionary dictionary];
+    }
+    [args setObject:method forKey:@"method"];
+    [args setObject:APIKey forKey:@"api_key"];
+    [args setObject:kAPIVersion forKey:@"v"];
+    [args setObject:@"XML" forKey:@"format"];
+    [args setObject:@"true" forKey:@"ss"];
+    [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
+             forKey:@"call_id"];
+    if ([sessionState isValid]) {
+      [args setObject:[sessionState key] forKey:@"session_key"];
+    }
+
+    NSString *sig = [self sigForArguments:args];
+    [args setObject:sig forKey:@"sig"];
+
+    NSString *server = kRESTServerURL;
+    NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
+                                                       cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                   timeoutInterval:kRequestTimeout];
+    [req setHTTPMethod:@"GET"];
+    [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+    [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
+
+    FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
+                                                               parent:self
+                                                               target:target
+                                                             selector:selector
+                                                                error:error];
+    [currentConnection start];
   }
-  [args setObject:method forKey:@"method"];
-  [args setObject:APIKey forKey:@"api_key"];
-  [args setObject:kAPIVersion forKey:@"v"];
-  [args setObject:@"XML" forKey:@"format"];
-  [args setObject:@"true" forKey:@"ss"];
-  [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
-           forKey:@"call_id"];
-  if ([sessionState isValid]) {
-    [args setObject:[sessionState key] forKey:@"session_key"];
+  @catch (NSException *exception) {
+    NSString* message = [NSString stringWithFormat:@"%@: %@", [exception name], [exception reason]];
+    NSLog(@"Caught %@", message);
+    NSError* e = [NSError errorWithDomain:kFBErrorDomainKey
+                                     code:FBAPIUnknownError
+                                 userInfo:[NSDictionary dictionaryWithObject:message forKey:kFBErrorMessageKey]];
+    [target performSelector:error withObject:e];
   }
-
-  NSString *sig = [self sigForArguments:args];
-  [args setObject:sig forKey:@"sig"];
-
-  NSString *server = kRESTServerURL;
-  NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
-  NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
-                                                     cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                 timeoutInterval:kRequestTimeout];
-  [req setHTTPMethod:@"GET"];
-  [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-  [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
-
-  FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
-                                                             parent:self
-                                                             target:target
-                                                           selector:selector
-                                                              error:error];
-  [currentConnection start];
 }
 
 - (void)sendFQLQuery:(NSString *)query
@@ -316,6 +330,7 @@
     isLoggedIn = NO;
   }
   [windowController release];
+  windowController = nil;
 
   if (isLoggedIn) {
     DELEGATE(@selector(FBConnectLoggedIn:));
@@ -334,14 +349,17 @@
   NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
   NSMutableString *args = [NSMutableString string];
   for (NSString *key in sortedKeys) {
-    [args appendString:key];
-    [args appendString:@"="];
-    [args appendString:[dict objectForKey:key]];
+    NSString *value = [dict objectForKey:key];
+    if (key != nil && value != nil) {
+      [args appendString:key];
+      [args appendString:@"="];
+      [args appendString:value];
+    }
   }
 
-  if ([sessionState isValid]) {
+  if ([sessionState isValid] && [sessionState secret] != nil) {
     [args appendString:[sessionState secret]];
-  } else {
+  } else if (appSecret != nil) {
     [args appendString:appSecret];
   }
   return [args hexMD5];
