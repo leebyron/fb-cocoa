@@ -25,7 +25,6 @@
   if (!(self = [super init])) {
     return nil;
   }
-
   // read in stored session if it exists
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   if ([ud dictionaryForKey:kFBSavedSessionKey]) {
@@ -134,7 +133,10 @@
 
 -(BOOL)isValid
 {
-  return [self exists] && expires != nil && [expires compare:[NSDate date]] == NSOrderedDescending;
+  // expires == 0 iff an infinite session has been granted
+  return [self exists] && expires != nil &&
+         ([expires compare:[NSDate dateWithTimeIntervalSince1970:0]] == NSOrderedSame ||
+          [expires compare:[NSDate date]] == NSOrderedDescending);
 }
 
 -(void)clear
