@@ -148,11 +148,11 @@
 
 - (void)validateSession
 {
-  [self callMethod:@"users.isAppUser"
+  [self callMethod:@"users.getLoggedInUser"
      withArguments:nil
             target:self
           selector:@selector(gotLoggedInUser:)
-             error:nil];
+             error:@selector(failedValidateSession:)];
 }
 
 - (void)refreshSession
@@ -293,12 +293,20 @@
 #pragma mark Callbacks
 - (void)gotLoggedInUser:(NSXMLDocument *)xml
 {
-  if ([xml rootElement] != nil) {
+  if ([[[xml rootElement] stringValue] isEqual:[self uid]]) {
     isLoggedIn = YES;
     DELEGATE(@selector(FBConnectLoggedIn:));
   } else {
     [self refreshSession];
   }
+}
+
+- (void)failedValidateSession:(NSError *)error
+{
+  // if we fail, get back up and try again
+  [self performSelector:@selector(validateSession)
+             withObject:nil
+             afterDelay:60.0];
 }
 
 - (void)expireSessionResponseComplete:(NSXMLDocument *)xml
