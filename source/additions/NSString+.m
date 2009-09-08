@@ -11,6 +11,11 @@
 
 @implementation NSString (Additions)
 
++ (BOOL)exists:(NSString *)string
+{
+  return string != nil && [string isKindOfClass:[NSString class]] && [string length] > 0;
+}
+
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict
 {
   NSMutableString *result = [NSMutableString string];

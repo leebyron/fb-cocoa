@@ -11,6 +11,8 @@
 
 @interface NSString (Additions)
 
++ (BOOL)exists:(NSString *)string;
+
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict;
 
 - (NSString *)urlEncode;
