@@ -134,8 +134,12 @@
   secret = [[dict valueForKey:@"secret"] retain];
   key = [[dict valueForKey:@"session_key"] retain];
   signature = [[dict valueForKey:@"sig"] retain];
-  uid = [[[dict valueForKey:@"uid"] stringValue] retain];
   expires = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
+  uid = [dict valueForKey:@"uid"];
+  if (![uid isKindOfClass:[NSString class]]) {
+    uid = [(id)uid stringValue];
+  }
+  [uid retain];
 }
 
 -(BOOL)exists
