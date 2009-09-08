@@ -6,6 +6,10 @@
  *
  */
 
+#define kRESTServerURL @"http://api.facebook.com/restserver.php?"
+#define kAPIVersion @"1.0"
+#define kRequestTimeout 60
+
 enum { // Facebook Connect Error Codes
 
   // Not Really an Error
@@ -91,5 +95,5 @@ enum { // Facebook Connect Error Codes
 
 
 #import <FBCocoa/FBConnect.h>
+#import <FBCocoa/JSON.h>
 #import <FBCocoa/NSString+.h>
-#import <FBCocoa/NSXMLNode+.h>

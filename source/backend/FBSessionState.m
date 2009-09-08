@@ -8,8 +8,9 @@
 
 #import "FBSessionState.h"
 
+
 #define kFBSavedSessionKey @"FBSavedSession"
-#define kFBSavedPermissionsKey @"FBSavedPermisssions"
+
 
 @interface FBSessionState (Private)
 
@@ -25,12 +26,13 @@
   if (!(self = [super init])) {
     return nil;
   }
+
+  permissions = [[NSMutableArray alloc] init];
   // read in stored session if it exists
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   if ([ud dictionaryForKey:kFBSavedSessionKey]) {
     NSDictionary *dict = [ud dictionaryForKey:kFBSavedSessionKey];
     [self setDictionary:dict];
-    permissions = [[ud arrayForKey:kFBSavedPermissionsKey] retain];
   }
 
   return self;
@@ -52,6 +54,7 @@
 {
   return uid;
 }
+
 - (void)setUID:(NSString *)aString
 {
   [aString retain];
@@ -63,6 +66,7 @@
 {
   return key;
 }
+
 - (void)setKey:(NSString *)aString
 {
   [aString retain];
@@ -74,6 +78,7 @@
 {
   return secret;
 }
+
 - (void)setSecret:(NSString *)aString
 {
   [aString retain];
@@ -86,20 +91,25 @@
   return permissions;
 }
 
-
--(void)setDictionary:(NSDictionary *)dict
+-(void)setPermissions:(NSArray *)perms
 {
-  [secret release];
-  [key release];
-  [signature release];
-  [uid release];
-  [expires release];
+  NSMutableArray* newPerms = [[perms mutableCopy] retain];
+  [permissions release];
+  permissions = newPerms;
+}
 
-  secret = [[dict valueForKey:@"secret"] retain];
-  key = [[dict valueForKey:@"session_key"] retain];
-  signature = [[dict valueForKey:@"sig"] retain];
-  uid = [[dict valueForKey:@"uid"] retain];
-  expires = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
+- (void)addPermission:(NSString *)perm
+{
+  if (![permissions containsObject:perm]) {
+    [permissions addObject:perm];
+  }
+}
+
+- (void)addPermissions:(NSArray *)perms
+{
+  for (NSString* perm in perms) {
+    [self addPermission:perm];
+  }
 }
 
 -(void) setWithDictionary:(NSDictionary *)dict
@@ -113,17 +123,19 @@
   [ud synchronize];
 }
 
--(void)setPermissions:(NSArray *)perms
+-(void)setDictionary:(NSDictionary *)dict
 {
-  [perms retain];
-  [permissions release];
-  permissions = perms;
+  [secret release];
+  [key release];
+  [signature release];
+  [uid release];
+  [expires release];
 
-  // save session forever
-  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-  [ud removeObjectForKey:kFBSavedPermissionsKey];
-  [ud setObject:permissions forKey:kFBSavedPermissionsKey];
-  [ud synchronize];
+  secret = [[dict valueForKey:@"secret"] retain];
+  key = [[dict valueForKey:@"session_key"] retain];
+  signature = [[dict valueForKey:@"sig"] retain];
+  uid = [[[dict valueForKey:@"uid"] stringValue] retain];
+  expires = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
 }
 
 -(BOOL)exists
@@ -139,19 +151,18 @@
           [expires compare:[NSDate date]] == NSOrderedDescending);
 }
 
+-(void)invalidate
+{
+  expires = nil;
+}
+
 -(void)clear
 {
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   [ud removeObjectForKey:kFBSavedSessionKey];
-  [ud removeObjectForKey:kFBSavedPermissionsKey];
   [ud synchronize];
   [uid release];
   uid = nil;
-}
-
--(void)invalidate
-{
-  expires = nil;
 }
 
 @end

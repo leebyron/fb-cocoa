@@ -7,11 +7,14 @@
 //
 
 #import "FBRequest.h"
-#import "FBConnect.h"
+#import "FBCocoa.h"
+#import "JSON.h"
+
 
 @interface FBRequest (Private)
 
-- (NSError *)errorForResponse:(NSXMLDocument *)xml;
+- (NSError *)errorForResponse:(id)json;
+- (NSError *)errorForException:(NSException *)exception;
 
 @end
 
@@ -25,16 +28,17 @@
 
 @implementation FBRequest
 
--(id)initWithRequest:(NSURLRequest *)req
+-(id)initWithRequest:(NSString *)requestString
               parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
                error:(SEL)err
 {
-  if (!(self = [super initWithRequest:req delegate:self])) {
+  if (!(self = [super init])) {
     return nil;
   }
 
+  request = [requestString retain];
   target = [tar retain];
   method = sel;
   parentConnect = parent;
@@ -46,9 +50,28 @@
 
 -(void)dealloc
 {
+  [request release];
   [target release];
   [responseBuffer release];
+  [connection release];
   [super dealloc];
+}
+
+- (void)start
+{
+  @try {
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", kRESTServerURL, request]];
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
+                                                       cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                   timeoutInterval:kRequestTimeout];
+    [req setHTTPMethod:@"GET"];
+    [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+    [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
+
+    connection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
+  } @catch (NSException *exception) {
+    [self requestFailure:[self errorForException:exception]];
+  }
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
@@ -58,62 +81,88 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-  NSXMLDocument *xml = [[NSXMLDocument alloc] initWithData:responseBuffer
-                                                   options:0
-                                                     error:nil];
-  BOOL isError = ([[[xml rootElement] name] isEqualToString:@"error_response"]);
-  if (isError) {
-    NSError *err = [self errorForResponse:xml];
-
-    [parentConnect failedQuery:self withError:err];
-
-    if (target && errorMethod && [target respondsToSelector:errorMethod]) {
-      [target performSelector:errorMethod withObject:err];
-    }
-  } else {
-    if (target && method && [target respondsToSelector:method]) {
-      [target performSelector:method withObject:xml];
-    }
+  NSString* jsonString = [[[NSString alloc] initWithData:responseBuffer encoding:NSUTF8StringEncoding] autorelease];
+  SBJsonParser* jsonParser = [SBJsonParser new];
+  id json = [jsonParser fragmentWithString:jsonString];
+  if (!json) {
+    NSError* jsonError = [NSString stringWithFormat:@"JSON Parsing error: %@", [jsonParser errorTrace]];
+    [self requestFailure:[NSError errorWithDomain:kFBErrorDomainKey
+                                             code:FBAPIUnknownError
+                                         userInfo:[NSDictionary dictionaryWithObject:jsonError
+                                                                              forKey:kFBErrorMessageKey]]];
   }
+  [jsonParser release];
+
+  [self evaluateResponse:json];
 
   // peace!
-  [xml release];
   [self release];
 }
 
+- (void)evaluateResponse:(id)json
+{
+  if (json == nil || ([json isKindOfClass:[NSDictionary class]] && [json objectForKey:@"error_code"] != nil)) {
+    NSError *err = [self errorForResponse:json];
+    [self requestFailure:err];
+  } else {
+    [self requestSuccess:json];
+  }
+}
+
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)err
+{
+  [self requestFailure:err];
+
+  // laaater!
+  [self release];
+}
+
+- (void)requestSuccess:(id)json
+{
+  if (target && method && [target respondsToSelector:method]) {
+    [target performSelector:method withObject:json];
+  }
+}
+
+- (void)requestFailure:(NSError *)err
 {
   [parentConnect failedQuery:self withError:err];
 
   if (target && errorMethod && [target respondsToSelector:errorMethod]) {
     [target performSelector:errorMethod withObject:err];
   }
-
-  // laaater!
-  [self release];
 }
 
 #pragma mark Private Methods
-- (NSError *)errorForResponse:(NSXMLDocument *)xml
+- (NSError *)errorForResponse:(id)json
 {
-  if (![[[xml rootElement] name] isEqualToString:@"error_response"]) {
-    return nil;
+  if (json == nil || ![json isKindOfClass:[NSDictionary class]] || [json objectForKey:@"error_code"] == nil) {
+    return [NSError errorWithDomain:kFBErrorDomainKey
+                               code:FBAPIUnknownError
+                           userInfo:[NSDictionary dictionaryWithObject:@"nil response"
+                                                                forKey:kFBErrorMessageKey]];
   }
 
-  int code = -1;
-  NSString *message = nil;
-  for (NSXMLNode *node in [[xml rootElement] children]) {
-    if ([[node name] isEqualToString:@"error_code"]) {
-      code = [[node stringValue] intValue];
-    } else if ([[node name] isEqualToString:@"error_msg"]) {
-      message = [node stringValue];
-    }
-  }
-
+  int code = [[json objectForKey:@"error_code"] intValue];
+  NSString *message = [json objectForKey:@"error_msg"];
   return [NSError errorWithDomain:kFBErrorDomainKey
                              code:code
                          userInfo:[NSDictionary dictionaryWithObject:message
                                                               forKey:kFBErrorMessageKey]];
+}
+
+- (NSError *)errorForException:(NSException *)exception
+{
+  NSString* message = [NSString stringWithFormat:@"%@: %@", [exception name], [exception reason]];
+  NSLog(@"Caught %@", message);
+  NSError* e = [NSError errorWithDomain:kFBErrorDomainKey
+                                   code:FBAPIUnknownError
+                               userInfo:[NSDictionary dictionaryWithObject:message forKey:kFBErrorMessageKey]];
+  return e;
+}
+
+- (NSString *)description {
+  return request;
 }
 
 @end

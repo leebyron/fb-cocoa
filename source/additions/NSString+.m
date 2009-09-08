@@ -19,9 +19,8 @@
     if ([result length] > 0) {
       [result appendString:@"&"];
     }
-    NSString *encodedKey = [key stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-    NSString *encodedValue =
-    [[[dict objectForKey:key] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"+" withString:@"%2B"];
+    NSString *encodedKey = [key urlEncode];
+    NSString *encodedValue = [[dict objectForKey:key] urlEncode];
     if (encodedKey != nil && encodedValue != nil) {
       [result appendString:encodedKey];
       [result appendString:@"="];
@@ -31,27 +30,13 @@
   return result;
 }
 
-- (NSString *)stringByEscapingQuotesAndBackslashes
+- (NSString *)urlEncode
 {
-  NSString *s = self;
-  s = [s stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
-  s = [s stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
-  return s;
-}
-
-- (NSDictionary *)simpleJSONDecode
-{
-  NSCharacterSet *quot = [NSCharacterSet characterSetWithCharactersInString:@"\""];
-  NSCharacterSet *brak = [NSCharacterSet characterSetWithCharactersInString:@"{}"];
-  NSArray *rawList = [[self stringByTrimmingCharactersInSet:brak] componentsSeparatedByString:@","];
-  NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-  for (NSString *pair in rawList) {
-    NSArray *kv = [pair componentsSeparatedByString:@":"];
-    NSString *key = [[kv objectAtIndex:0] stringByTrimmingCharactersInSet:quot];
-    NSString *value = [[kv objectAtIndex:1] stringByTrimmingCharactersInSet:quot];
-    [dict setValue:value forKey:key];
-  }
-  return dict;
+  return (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
+                                                             (CFStringRef)self,
+                                                             NULL,
+                                                             (CFStringRef)@"!*'();:@&=+$,/?%#[]",
+                                                             kCFStringEncodingUTF8);
 }
 
 - (NSString *)hexMD5

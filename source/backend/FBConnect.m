@@ -6,33 +6,26 @@
 //
 
 #import "FBConnect.h"
+#import "FBCocoa.h"
 #import "FBRequest.h"
+#import "FBBatchRequest.h"
+#import "FBMultiqueryRequest.h"
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
 #import "NSString+.h"
-#import "FBCocoa.h"
 
-#define kRESTServerURL @"http://api.facebook.com/restserver.php?"
-#define kAPIVersion @"1.0"
-#define kRequestTimeout 60
 
-/*
- * These are shortcuts for calling delegate methods. They check to see if there
- * is a delegate and if the delegate responds to the selector passed as the
- * first argument. DELEGATEn is the call you use when there are n additional
- * arguments beyond "self" (since delegate methods should have the delegating
- * object as the first parameter).
- */
 #define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
 [delegate performSelector:(sel) withObject:self];}}
 
 
 @interface FBConnect (Private)
 
-- (NSString *)sigForArguments:(NSDictionary *)dict;
-
+- (void)promptLogin;
 - (void)validateSession;
 - (void)refreshSession;
+- (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict;
+- (NSString *)sigForArguments:(NSDictionary *)dict;
 
 @end
 
@@ -52,19 +45,19 @@
     return nil;
   }
 
-  APIKey     = [key retain];
-  sessionState    = [[FBSessionState alloc] init];
-  delegate   = obj;
-  isLoggedIn = NO;
+  APIKey        = [key retain];
+  sessionState  = [[FBSessionState alloc] init];
+  delegate      = obj;
+  isLoggedIn    = NO;
 
   return self;
 }
 
 - (void)dealloc
 {
-  [APIKey      release];
-  [appSecret   release];
-  [sessionState     release];
+  [APIKey       release];
+  [appSecret    release];
+  [sessionState release];
   [super dealloc];
 }
 
@@ -92,54 +85,51 @@
   return [sessionState uid];
 }
 
-- (void)login
-{
-  [self loginWithPermissions:nil];
-}
-
 - (void)loginWithPermissions:(NSArray *)permissions
 {
-  BOOL needsNewPermissions = NO;
-  for (NSString *perm in permissions) {
-    if (![self hasPermission:perm]) {
-      needsNewPermissions = YES;
-      break;
-    }
-  }
-  if ([sessionState isValid] && !needsNewPermissions) {
+  // remember what permissions we asked for
+  [permissions retain];
+  [requestedPermissions release];
+  requestedPermissions = permissions;
+
+  if ([sessionState isValid]) {
     [self validateSession];
   } else {
-    NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
-    if (permissions) {
-      [sessionState setPermissions:permissions];
-      NSString *permissionsString = [permissions componentsJoinedByString:@","];
-      [loginParams setObject:permissionsString forKey:@"req_perms"];
-    }
-    [loginParams setObject:APIKey      forKey:@"api_key"];
-    [loginParams setObject:kAPIVersion forKey:@"v"];
+    [self promptLogin];
+  }
+}
 
-    if (![sessionState exists]) {
-      // adding this parameter keeps us from reading Safari's cookie when
-      // performing a login for the first time. Sessions are still cached and
-      // persistant so subsequent application launches will use their own
-      // session cookie and not Safari's
-      [loginParams setObject:@"true" forKey:@"skipcookie"];
-    }
+- (void)promptLogin
+{
+  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+  if (requestedPermissions) {
+    NSString *permissionsString = [requestedPermissions componentsJoinedByString:@","];
+    [loginParams setObject:permissionsString forKey:@"req_perms"];
+  }
+  [loginParams setObject:APIKey      forKey:@"api_key"];
+  [loginParams setObject:kAPIVersion forKey:@"v"];
 
-    if (windowController) {
-      [[windowController window] makeKeyAndOrderFront:self];
-    } else {
-      windowController =
-      [[FBWebViewWindowController alloc] initWithCloseTarget:self
-                                                    selector:@selector(webViewWindowClosed)];
-      [windowController showWithParams:loginParams];
-    }
+  if (![sessionState exists]) {
+    // adding this parameter keeps us from reading Safari's cookie when
+    // performing a login for the first time. Sessions are still cached and
+    // persistant so subsequent application launches will use their own
+    // session cookie and not Safari's
+    [loginParams setObject:@"true" forKey:@"skipcookie"];
+  }
+
+  if (windowController) {
+    [[windowController window] makeKeyAndOrderFront:self];
+  } else {
+    windowController =
+    [[FBWebViewWindowController alloc] initWithCloseTarget:self
+                                                  selector:@selector(webViewWindowClosed)];
+    [windowController showWithParams:loginParams];
   }
 }
 
 - (void)logout
 {
-  [self callMethod:@"Auth.expireSession"
+  [self callMethod:@"auth.expireSession"
      withArguments:nil
             target:self
           selector:@selector(expireSessionResponseComplete:)
@@ -148,21 +138,26 @@
 
 - (void)validateSession
 {
+  [self startBatch];
+  [self fqlQuery:[NSString stringWithFormat:@"SELECT %@ FROM permissions WHERE uid = %@",
+                      [requestedPermissions componentsJoinedByString:@","], [self uid]]
+              target:self
+            selector:@selector(gotGrantedPermissions:)
+               error:nil];
   [self callMethod:@"users.getLoggedInUser"
      withArguments:nil
             target:self
           selector:@selector(gotLoggedInUser:)
              error:@selector(failedValidateSession:)];
+  [self sendBatch];
 }
 
 - (void)refreshSession
 {
-  NSLog(@"asking for refreshed session");
+  NSLog(@"refreshing session");
   isLoggedIn = NO;
-  NSArray *permissions = [[sessionState permissions] retain];
   [sessionState invalidate];
-  [self loginWithPermissions:permissions];
-  [permissions release];
+  [self loginWithPermissions:requestedPermissions];
 }
 
 - (BOOL)hasPermission:(NSString *)perm
@@ -181,97 +176,107 @@
           selector:(SEL)selector
              error:(SEL)error
 {
-  @try {
-    NSMutableDictionary *args;
-
-    if (dict) {
-      args = [NSMutableDictionary dictionaryWithDictionary:dict];
-    } else {
-      args = [NSMutableDictionary dictionary];
-    }
-    [args setObject:method forKey:@"method"];
-    [args setObject:APIKey forKey:@"api_key"];
-    [args setObject:kAPIVersion forKey:@"v"];
-    [args setObject:@"XML" forKey:@"format"];
-    [args setObject:@"true" forKey:@"ss"];
-    [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
-             forKey:@"call_id"];
-    if ([sessionState isValid]) {
-      [args setObject:[sessionState key] forKey:@"session_key"];
-    }
-
-    NSString *sig = [self sigForArguments:args];
-    [args setObject:sig forKey:@"sig"];
-
-    NSString *server = kRESTServerURL;
-    NSURL *url = [NSURL URLWithString:[server stringByAppendingString:[NSString urlEncodeArguments:args]]];
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
-                                                       cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                   timeoutInterval:kRequestTimeout];
-    [req setHTTPMethod:@"GET"];
-    [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-    [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
-
-    FBRequest *currentConnection = [[FBRequest alloc] initWithRequest:req
-                                                               parent:self
-                                                               target:target
-                                                             selector:selector
-                                                                error:error];
-    [currentConnection start];
-  }
-  @catch (NSException *exception) {
-    NSString* message = [NSString stringWithFormat:@"%@: %@", [exception name], [exception reason]];
-    NSLog(@"Caught %@", message);
-    NSError* e = [NSError errorWithDomain:kFBErrorDomainKey
-                                     code:FBAPIUnknownError
-                                 userInfo:[NSDictionary dictionaryWithObject:message forKey:kFBErrorMessageKey]];
-    [target performSelector:error withObject:e];
+  NSString *requestString = [self getRequestStringForMethod:method arguments:dict];
+  FBRequest *request = [[FBRequest alloc] initWithRequest:requestString
+                                                   parent:self
+                                                   target:target
+                                                 selector:selector
+                                                    error:error];
+  if ([self pendingBatch]) {
+    [pendingBatchRequests addObject:request];
+  } else {
+    [request start];
   }
 }
 
-- (void)sendFQLQuery:(NSString *)query
+- (void)fqlQuery:(NSString *)query
               target:(id)target
             selector:(SEL)selector
                error:(SEL)error
 {
-  NSDictionary *dict = [NSDictionary dictionaryWithObject:query forKey:@"query"];
-  [self callMethod:@"Fql.query"
-     withArguments:dict
+  [self callMethod:@"fql.query"
+     withArguments:[NSDictionary dictionaryWithObject:query forKey:@"query"]
             target:target
           selector:selector
              error:error];
 }
 
-- (void)sendFQLMultiquery:(NSDictionary *)queries
-                   target:(id)target
-                 selector:(SEL)selector
-                    error:(SEL)error
+- (void)fqlMultiquery:(NSDictionary *)queries
+               target:(id)target
+             selector:(SEL)selector
+                error:(SEL)error
 {
-  // Encode the NSDictionary in JSON.
-  NSString *entryFormat = @"\"%@\" : \"%@\"";
-  NSMutableArray *entries = [NSMutableArray array];
-  for (NSString *key in queries) {
-    NSString *escapedKey = [key stringByEscapingQuotesAndBackslashes];
-    NSString *escapedVal = [[queries objectForKey:key] stringByEscapingQuotesAndBackslashes];
-    [entries addObject:[NSString stringWithFormat:entryFormat, escapedKey,
-                        escapedVal]];
+  NSDictionary* arguments = [NSDictionary dictionaryWithObject:[queries JSONRepresentation] forKey:@"queries"];
+  NSString* requestString = [self getRequestStringForMethod:@"fql.multiquery" arguments:arguments];
+  FBRequest* request = [[FBMultiqueryRequest alloc] initWithRequest:requestString
+                                                             parent:self
+                                                             target:target
+                                                           selector:selector
+                                                              error:error];
+  if ([self pendingBatch]) {
+    [pendingBatchRequests addObject:request];
+  } else {
+    [request start];
+  }
+}
+
+
+- (void)startBatch
+{
+  if (isBatch) {
+    [NSException raise:@"Batch Request exception"
+                format:@"Cannot startBatch while there is a pendingBatch"];
+    return;
+  }
+  isBatch = YES;
+  pendingBatchRequests = [[NSMutableArray alloc] init];
+}
+
+- (BOOL)pendingBatch
+{
+  // if start has been called and send hasnt yet
+  return isBatch;
+}
+
+- (void)cancelBatch
+{
+  isBatch = NO;
+  [pendingBatchRequests release];
+  pendingBatchRequests = nil;
+}
+
+- (void)sendBatch
+{
+  if (!isBatch) {
+    [NSException raise:@"Batch Request exception"
+                format:@"Cannot sendBatch if there is no pendingBatch"];
+    return;
+  }
+  isBatch = NO;
+
+  // call batch.run with the results of all the queued methods, using fbbatchrequest
+  if ([pendingBatchRequests count] > 0) {
+    NSDictionary* arguments = [NSDictionary dictionaryWithObject:[pendingBatchRequests JSONRepresentation] forKey:@"method_feed"];
+    NSString *requestString = [self getRequestStringForMethod:@"batch.run" arguments:arguments];
+    FBRequest *request = [[FBBatchRequest alloc] initWithRequest:requestString
+                                                        requests:pendingBatchRequests
+                                                          parent:self];
+    [request start];
   }
 
-  NSString *finalString = [NSString stringWithFormat:@"{%@}",
-                           [entries componentsJoinedByString:@","]];
-
-  NSDictionary *dict = [NSDictionary dictionaryWithObject:finalString forKey:@"queries"];
-  [self callMethod:@"Fql.multiquery"
-     withArguments:dict
-            target:target
-          selector:selector
-             error:error];
+  [pendingBatchRequests release];
+  pendingBatchRequests = nil;
 }
 
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+#pragma mark Callbacks
 - (void)failedQuery:(FBRequest *)query withError:(NSError *)err
 {
   int errorCode = [err code];
-  if ([sessionState exists] &&
+  if ([sessionState exists] && isLoggedIn &&
       (errorCode == FBParamSessionKeyError ||
        errorCode == FBPermissionError ||
        errorCode == FBSessionExpiredError ||
@@ -283,17 +288,33 @@
     // data and start a login from scratch.
     [self refreshSession];
   }
-
 }
 
-//==============================================================================
-//==============================================================================
-//==============================================================================
-
-#pragma mark Callbacks
-- (void)gotLoggedInUser:(NSXMLDocument *)xml
+- (void)gotGrantedPermissions:(id)response
 {
-  if ([[[xml rootElement] stringValue] isEqual:[self uid]]) {
+  response = [response objectAtIndex:0];
+  for (NSString* perm in response) {
+    if ([[response objectForKey:perm] intValue] != 0) {
+      [sessionState addPermission:perm];
+    }
+  }
+}
+
+- (void)gotLoggedInUser:(id)response
+{
+  // check for granted permissions
+  BOOL needsNewPermissions = NO;
+  for (NSString *perm in requestedPermissions) {
+    if (![self hasPermission:perm]) {
+      needsNewPermissions = YES;
+      break;
+    }
+  }
+
+  // if needs a permission, prompt. if session is valid, notify. else refresh.
+  if (needsNewPermissions) {
+    [self promptLogin];
+  } else if ([[response stringValue] isEqualToString:[self uid]]) {
     isLoggedIn = YES;
     DELEGATE(@selector(FBConnectLoggedIn:));
   } else {
@@ -309,7 +330,7 @@
              afterDelay:60.0];
 }
 
-- (void)expireSessionResponseComplete:(NSXMLDocument *)xml
+- (void)expireSessionResponseComplete:(id)json
 {
   [sessionState clear];
   DELEGATE(@selector(FBConnectLoggedOut:));
@@ -329,8 +350,9 @@
     NSRange startSession = [url rangeOfString:@"session="];
     if (startSession.location != NSNotFound) {
       NSString *rawSession = [url substringFromIndex:(startSession.location + startSession.length)];
-      NSDictionary *sessDict = [[rawSession stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] simpleJSONDecode];
+      NSDictionary *sessDict = [[rawSession stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] JSONValue];
       [sessionState setWithDictionary:sessDict];
+      [sessionState setPermissions:requestedPermissions];
     } else {
       isLoggedIn = NO;
     }
@@ -352,6 +374,31 @@
 //==============================================================================
 
 #pragma mark Private Methods
+- (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict
+{
+  NSMutableDictionary *args;
+  if (dict) {
+    args = [NSMutableDictionary dictionaryWithDictionary:dict];
+  } else {
+    args = [NSMutableDictionary dictionary];
+  }
+  [args setObject:method forKey:@"method"];
+  [args setObject:APIKey forKey:@"api_key"];
+  [args setObject:kAPIVersion forKey:@"v"];
+  [args setObject:@"json" forKey:@"format"];
+  [args setObject:@"true" forKey:@"ss"];
+  [args setObject:[[NSNumber numberWithLong:time(NULL)] stringValue]
+           forKey:@"call_id"];
+  if ([sessionState isValid]) {
+    [args setObject:[sessionState key] forKey:@"session_key"];
+  }
+
+  NSString *sig = [self sigForArguments:args];
+  [args setObject:sig forKey:@"sig"];
+
+  return [NSString urlEncodeArguments:args];
+}
+
 - (NSString *)sigForArguments:(NSDictionary *)dict
 {
   NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];

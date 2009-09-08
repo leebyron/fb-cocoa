@@ -9,18 +9,28 @@
 #import <Cocoa/Cocoa.h>
 #import "FBConnect.h"
 
-@interface FBRequest : NSURLConnection {
+@interface FBRequest : NSObject {
+  NSString* request;
   id  target;
   SEL method;
   SEL errorMethod;
   NSMutableData *responseBuffer;
   FBConnect *parentConnect;
+  NSURLConnection *connection;
 }
 
--(id)initWithRequest:(NSURLRequest *)req
+-(id)initWithRequest:(NSString *)requestString
               parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
                error:(SEL)err;
+
+- (void)start;
+
+- (void)evaluateResponse:(id)json;
+
+- (void)requestSuccess:(id)json;
+
+- (void)requestFailure:(NSError *)err;
 
 @end

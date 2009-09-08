@@ -13,9 +13,7 @@
 
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict;
 
-- (NSString *)stringByEscapingQuotesAndBackslashes;
-
-- (NSDictionary *)simpleJSONDecode;
+- (NSString *)urlEncode;
 
 - (NSString *)hexMD5;
 
