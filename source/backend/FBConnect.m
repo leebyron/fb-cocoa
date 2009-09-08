@@ -324,10 +324,15 @@
 
 - (void)failedValidateSession:(NSError *)error
 {
-  // if we fail, get back up and try again
-  [self performSelector:@selector(validateSession)
-             withObject:nil
-             afterDelay:60.0];
+  if ([error code] > 0) {
+    // fb error, bad login
+    [self promptLogin];
+  } else {
+    // net error, retry
+    [self performSelector:@selector(validateSession)
+               withObject:nil
+               afterDelay:60.0];
+  }
 }
 
 - (void)expireSessionResponseComplete:(id)json
