@@ -41,6 +41,11 @@
 {
   [[[webView mainFrame] frameView] setAllowsScrolling:NO];
 
+  // keep the window on top (modal) and make it the key.
+  if ([[self window] respondsToSelector:@selector(setCollectionBehavior:)]) {
+    [[self window] setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
+  }
+  [[self window] setLevel:NSFloatingWindowLevel];
   [[self window] makeKeyAndOrderFront:self];
   [NSApp activateIgnoringOtherApps:YES];
 }
@@ -58,10 +63,8 @@
   [allParams setObject:@"true"          forKey:@"return_session"];
 
   NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [NSString urlEncodeArguments:allParams]];
-  NSURLRequest *req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
-  [[webView mainFrame] loadRequest:req];
-  [[self window] center];
-  [self showWindow:self];
+  req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+  [self attemptLoad];
 }
 
 - (void)keyDown:(NSEvent *)event
@@ -81,14 +84,49 @@
   }
 }
 
+- (void)attemptLoad
+{
+  if (req == nil) {
+    NSLog(@"No request was provided");
+    success = NO;
+    [[self window] close];
+    return;
+  }
+
+  [[webView mainFrame] loadRequest:req];
+  [[self window] center];
+  [self showWindow:self];
+}
+
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
   [[self window] setTitle:@"Facebook Connect — Loading\u2026"];
   [progressIndicator startAnimation:self];
+
+  // reset timer before retry
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+  [self performSelector:@selector(attemptLoad) withObject:nil afterDelay:10.0];
+}
+
+- (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
+{
+  // reset timer before retry
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+  [self performSelector:@selector(attemptLoad) withObject:nil afterDelay:20.0];
+}
+
+- (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
+{
+  // stop timer for retry and retry immediately!
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+  [self attemptLoad];
 }
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
+  // stop timer for retry
+  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+
   [[self window] setTitle:@"Facebook Connect"];
   [progressIndicator stopAnimation:self];
 }
