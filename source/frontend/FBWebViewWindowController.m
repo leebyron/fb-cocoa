@@ -127,15 +127,15 @@
     [[self window] close];
     return;
   }
-
-  [[webView mainFrame] loadRequest:req];
-  [[self window] center];
-  [self showWindow:self];
+  if (webView) {
+    [[webView mainFrame] loadRequest:req];
+    [[self window] center];
+    [self showWindow:self];
+  }
 }
 
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
-  NSLog(@"start load");
   [[self window] setTitle:@"Facebook Connect — Loading\u2026"];
   [progressIndicator startAnimation:self];
 
@@ -145,14 +145,12 @@
 
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
 {
-  NSLog(@"commit load");
   // reset timer before retry
   [self queueRetryWithDelay:20.0];
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
-  NSLog(@"fail load");
   // stop timer for retry and retry immediately!
   [self cancelRetry];
   [self attemptLoad];
@@ -160,7 +158,6 @@
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
-  NSLog(@"finish load");
   // stop timer for retry
   [self cancelRetry];
 
