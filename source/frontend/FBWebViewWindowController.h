@@ -16,9 +16,10 @@
   id target;
   SEL selector;
 
-  NSURLRequest *req;
+  NSURLRequest* req;
   BOOL success;
-  NSURL *lastURL;
+  NSTimer* retryTimer;
+  NSURL* lastURL;
 }
 
 @property(retain) NSURL *lastURL;

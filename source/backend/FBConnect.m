@@ -14,7 +14,6 @@
 #import "FBSessionState.h"
 #import "NSString+.h"
 
-
 #define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
 [delegate performSelector:(sel) withObject:self];}}
 

@@ -8,10 +8,18 @@
 #import "FBWebViewWindowController.h"
 #import "NSString+.h"
 
-//#define kLoginURL @"http://www.facebook.com/login.php?api_key=%@&v=1.0&auth_token=%@&popup"
 #define kLoginURL @"http://www.facebook.com/login.php?"
 #define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
 #define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
+
+
+@interface FBWebViewWindowController (Private)
+
+- (void)queueRetryWithDelay:(NSTimeInterval)delay;
+- (void)cancelRetry;
+
+@end
+
 
 @implementation FBWebViewWindowController
 
@@ -30,6 +38,12 @@
   }
 
   return self;
+}
+
+- (void)dealloc
+{
+  [retryTimer release];
+  [super dealloc];
 }
 
 -(BOOL)success
@@ -53,8 +67,8 @@
 - (void)showWithParams:(NSDictionary *)params
 {
   NSMutableDictionary *allParams = [[NSMutableDictionary alloc] initWithDictionary:params];
-  [allParams setObject:@"true" forKey:@"fbconnect"];
-  [allParams setObject:@"true" forKey:@"nochome"];
+  [allParams setObject:@"true"  forKey:@"fbconnect"];
+  [allParams setObject:@"true"  forKey:@"nochome"];
   [allParams setObject:@"popup" forKey:@"connect_display"];
   [allParams setObject:@"popup" forKey:@"display"];
 
@@ -69,9 +83,9 @@
 
 - (void)keyDown:(NSEvent *)event
 {
-  if (([event modifierFlags] & NSCommandKeyMask) &&
+  if ((([event modifierFlags] & NSDeviceIndependentModifierFlagsMask) == NSCommandKeyMask) &&
       [[event charactersIgnoringModifiers] isEqualToString:@"w"]) {
-    [[self window] performClose:self];
+    [[self window] close];
   } else {
     [super keyDown:event];
   }
@@ -79,9 +93,30 @@
 
 - (void)windowWillClose:(NSNotification *)notification
 {
+  [self cancelRetry];
   if (target && selector && [target respondsToSelector:selector]) {
     [target performSelector:selector withObject:nil];
   }
+}
+    
+- (void)queueRetryWithDelay:(NSTimeInterval)delay
+{
+  if (retryTimer) {
+    [self cancelRetry];
+  }
+  retryTimer = [NSTimer scheduledTimerWithTimeInterval:delay
+                                                target:self 
+                                              selector:@selector(attemptLoad)
+                                              userInfo:nil
+                                               repeats:NO];
+}
+
+- (void)cancelRetry
+{
+  if (retryTimer) {
+    [retryTimer invalidate];
+  }
+  retryTimer = nil;
 }
 
 - (void)attemptLoad
@@ -100,32 +135,34 @@
 
 - (void)webView:(WebView *)sender didStartProvisionalLoadForFrame:(WebFrame *)frame
 {
+  NSLog(@"start load");
   [[self window] setTitle:@"Facebook Connect — Loading\u2026"];
   [progressIndicator startAnimation:self];
 
   // reset timer before retry
-  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
-  [self performSelector:@selector(attemptLoad) withObject:nil afterDelay:10.0];
+  [self queueRetryWithDelay:10.0];
 }
 
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
 {
+  NSLog(@"commit load");
   // reset timer before retry
-  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
-  [self performSelector:@selector(attemptLoad) withObject:nil afterDelay:20.0];
+  [self queueRetryWithDelay:20.0];
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
 {
+  NSLog(@"fail load");
   // stop timer for retry and retry immediately!
-  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+  [self cancelRetry];
   [self attemptLoad];
 }
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame
 {
+  NSLog(@"finish load");
   // stop timer for retry
-  [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(attemptLoad) object:nil];
+  [self cancelRetry];
 
   [[self window] setTitle:@"Facebook Connect"];
   [progressIndicator stopAnimation:self];
