@@ -11,6 +11,8 @@
 #define kLoginURL @"http://www.facebook.com/login.php?"
 #define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
 #define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
+#define kBrowserMinHeight 180
+#define kBrowserMaxHeight 600
 
 
 @interface FBWebViewWindowController (Private)
@@ -98,14 +100,14 @@
     [target performSelector:selector withObject:nil];
   }
 }
-    
+
 - (void)queueRetryWithDelay:(NSTimeInterval)delay
 {
   if (retryTimer) {
     [self cancelRetry];
   }
   retryTimer = [NSTimer scheduledTimerWithTimeInterval:delay
-                                                target:self 
+                                                target:self
                                               selector:@selector(attemptLoad)
                                               userInfo:nil
                                                repeats:NO];
@@ -163,6 +165,16 @@
 
   [[self window] setTitle:@"Facebook Connect"];
   [progressIndicator stopAnimation:self];
+
+  // resize window to fit
+  NSRect currentRect = [[self window] frame];
+  int height = [[sender stringByEvaluatingJavaScriptFromString:@"document.body.offsetHeight;"] intValue];
+  height = MAX(kBrowserMinHeight, MIN(kBrowserMaxHeight, height));
+  height += currentRect.size.height - [webView bounds].size.height;
+  [[self window] setFrame:NSMakeRect(currentRect.origin.x,
+                                     currentRect.origin.y + 0.5 * (currentRect.size.height - height),
+                                     currentRect.size.width,
+                                     height) display:YES animate:YES];
 }
 
 -                (void)webView:(WebView *)webView

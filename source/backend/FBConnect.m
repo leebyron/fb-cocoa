@@ -131,6 +131,7 @@
             target:self
           selector:@selector(expireSessionResponseComplete:)
              error:@selector(failedLogout:)];
+  [sessionState clear];
 }
 
 - (void)validateSession
@@ -334,7 +335,6 @@
 
 - (void)expireSessionResponseComplete:(id)json
 {
-  [sessionState clear];
   DELEGATE(@selector(FBConnectLoggedOut:));
 }
 
