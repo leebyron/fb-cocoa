@@ -27,7 +27,7 @@
     return nil;
   }
 
-  permissions = [[NSMutableArray alloc] init];
+  permissions = [[NSMutableSet alloc] init];
   // read in stored session if it exists
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   if ([ud dictionaryForKey:kFBSavedSessionKey]) {
@@ -86,30 +86,39 @@
   secret = aString;
 }
 
-- (NSArray *)permissions
+- (NSSet *)permissions
 {
   return permissions;
 }
 
--(void)setPermissions:(NSArray *)perms
+- (void)setPermissions:(id)perms
 {
-  NSMutableArray* newPerms = [[perms mutableCopy] retain];
-  [permissions release];
-  permissions = newPerms;
+  if ([perms isKindOfClass:[NSArray class]]) {
+    [permissions removeAllObjects];
+    [permissions addObjectsFromArray:perms];
+  } else if ([perms isKindOfClass:[NSSet class]]) {
+    [permissions removeAllObjects];
+    [permissions unionSet:perms];
+  }
 }
 
 - (void)addPermission:(NSString *)perm
 {
-  if (![permissions containsObject:perm]) {
-    [permissions addObject:perm];
+  [permissions addObject:perm];
+}
+
+- (void)addPermissions:(id)perms
+{
+  if ([perms isKindOfClass:[NSArray class]]) {
+    [permissions addObjectsFromArray:perms];
+  } else if ([perms isKindOfClass:[NSSet class]]) {
+    [permissions unionSet:perms];
   }
 }
 
-- (void)addPermissions:(NSArray *)perms
+- (BOOL)hasPermission:(NSString*)perm
 {
-  for (NSString* perm in perms) {
-    [self addPermission:perm];
-  }
+  return [permissions containsObject:perm];
 }
 
 -(void) setWithDictionary:(NSDictionary *)dict

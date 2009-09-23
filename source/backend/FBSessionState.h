@@ -10,12 +10,12 @@
 
 
 @interface FBSessionState : NSObject {
-  NSString        *secret;
-  NSString        *key;
-  NSString        *signature;
-  NSString        *uid;
-  NSDate          *expires;
-  NSMutableArray  *permissions;
+  NSString      *secret;
+  NSString      *key;
+  NSString      *signature;
+  NSString      *uid;
+  NSDate        *expires;
+  NSMutableSet  *permissions;
 }
 
 - (NSString *)uid;
@@ -24,10 +24,12 @@
 - (void)setKey:(NSString *)aString;
 - (NSString *)secret;
 - (void)setSecret:(NSString *)aString;
-- (NSArray *)permissions;
-- (void)setPermissions:(NSArray *)perms;
+
+- (NSSet *)permissions;
+- (void)setPermissions:(id)perms;
 - (void)addPermission:(NSString *)perm;
-- (void)addPermissions:(NSArray *)perms;
+- (void)addPermissions:(id)perms;
+- (BOOL)hasPermission:(NSString*)perm;
 
 -(void)setWithDictionary:(NSDictionary *)dict;
 

@@ -11,9 +11,26 @@
 
 @implementation NSString (Additions)
 
-+ (BOOL)exists:(NSString *)string
++ (BOOL)exists:(id)string
 {
-  return string != nil && [string isKindOfClass:[NSString class]] && [string length] > 0;
+  return string != nil && [string isKindOfClass:[NSString class]] && [string respondsToSelector:@selector(length)] && [string length] > 0;
+}
+
+- (NSDictionary*)urlDecodeArguments
+{
+  NSArray* pairs = [self componentsSeparatedByString:@"&"];
+  NSMutableDictionary* decoded = [[[NSMutableDictionary alloc] initWithCapacity:[pairs count]] autorelease];
+  for (NSString* pair in pairs) {
+    NSRange pairSplit = [pair rangeOfString:@"="];
+    if (pairSplit.location == NSNotFound) {
+      [decoded setValue:@"1" forKey:[pair urlDecode]];
+    } else {
+      NSString* key   = [[pair substringToIndex:pairSplit.location] urlDecode];
+      NSString* value = [[pair substringFromIndex:(pairSplit.location + pairSplit.length)] urlDecode];
+      [decoded setValue:value forKey:key];
+    }
+  }
+  return decoded;
 }
 
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict
@@ -33,6 +50,11 @@
     }
   }
   return result;
+}
+
+- (NSString*)urlDecode
+{
+  return [self stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSString *)urlEncode

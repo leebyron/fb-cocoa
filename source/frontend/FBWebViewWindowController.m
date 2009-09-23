@@ -9,8 +9,8 @@
 #import "NSString+.h"
 
 #define kLoginURL @"http://www.facebook.com/login.php?"
-#define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
-#define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
+#define kLoginFailureURL @"http://www.leebyron.devrs004.facebook.com/connect/login_failure.html"
+#define kLoginSuccessURL @"http://www.leebyron.devrs004.facebook.com/connect/login_success.html"
 #define kBrowserMinHeight 180
 #define kBrowserMaxHeight 600
 
@@ -70,10 +70,7 @@
 {
   NSMutableDictionary *allParams = [[NSMutableDictionary alloc] initWithDictionary:params];
   [allParams setObject:@"true"  forKey:@"fbconnect"];
-  [allParams setObject:@"true"  forKey:@"nochome"];
-  [allParams setObject:@"popup" forKey:@"connect_display"];
   [allParams setObject:@"popup" forKey:@"display"];
-
   [allParams setObject:kLoginFailureURL forKey:@"cancel_url"];
   [allParams setObject:kLoginSuccessURL forKey:@"next"];
   [allParams setObject:@"true"          forKey:@"return_session"];

@@ -23,6 +23,7 @@
 - (void)promptLogin;
 - (void)validateSession;
 - (void)refreshSession;
+- (NSString *)getPreferedFBLocale;
 - (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict;
 - (NSString *)sigForArguments:(NSDictionary *)dict;
 
@@ -107,6 +108,7 @@
   }
   [loginParams setObject:APIKey      forKey:@"api_key"];
   [loginParams setObject:kAPIVersion forKey:@"v"];
+  [loginParams setObject:[self getPreferedFBLocale] forKey:@"locale"];
 
   // adding this parameter keeps us from reading Safari's cookie when
   // performing a login for the first time. Sessions are still cached and
@@ -160,7 +162,7 @@
 
 - (BOOL)hasPermission:(NSString *)perm
 {
-  return [[sessionState permissions] containsObject:perm];
+  return [sessionState hasPermission:perm];
 }
 
 //==============================================================================
@@ -348,13 +350,16 @@
   if ([windowController success]) {
     isLoggedIn = YES;
 
-    NSString *url = [[windowController lastURL] absoluteString];
-    NSRange startSession = [url rangeOfString:@"session="];
-    if (startSession.location != NSNotFound) {
-      NSString *rawSession = [url substringFromIndex:(startSession.location + startSession.length)];
-      NSDictionary *sessDict = [[rawSession stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] JSONValue];
-      [sessionState setWithDictionary:sessDict];
-      [sessionState setPermissions:requestedPermissions];
+    NSDictionary* args = [[[windowController lastURL] query] urlDecodeArguments];
+    if ([args valueForKey:@"session"] != nil) {
+      [sessionState setWithDictionary:[[args valueForKey:@"session"] JSONValue]];
+
+      // support for new permissions append, but if it doesn't exist, assume all were accepted
+      if ([args valueForKey:@"permissions"] != nil) {
+        [sessionState setPermissions:[[args valueForKey:@"permissions"] JSONValue]];
+      } else {
+        [sessionState setPermissions:requestedPermissions];
+      }
     } else {
       isLoggedIn = NO;
     }
@@ -376,6 +381,93 @@
 //==============================================================================
 
 #pragma mark Private Methods
+- (NSString *)getPreferedFBLocale
+{
+  NSString* preferredLang = @"en_US"; // start with default language
+  // commented out locales do not have an OS X equivalent
+  NSDictionary* fbLocales = [NSDictionary dictionaryWithObjectsAndKeys:
+    @"af_ZA", @"af", // Afrikaans - Afrikaans
+    @"sq_AL", @"sq", // Albanian - Shqip
+    @"ar_AR", @"ar", // Arabic - العربية
+    @"eu_ES", @"eu", // Basque - Euskara
+    @"bn_IN", @"bn", // Bengali - বাংলা
+    @"bs_BA", @"bs", // Bosnian - Bosanski
+    @"bg_BG", @"bg", // Bulgarian - Български
+    @"ca_ES", @"ca", // Catalan - Català
+    @"zh_HK", @"zh-Hant", // Chinese (Hong Kong) - 中文(香港)
+    //@"zh_TW", @"???", // Chinese (Taiwan) - 中文(台灣)
+    @"zh_CN", @"zh-Hans", // Chinese (Simplified) - 中文(简体)
+    @"hr_HR", @"hr", // Croatian - Hrvatski
+    @"cs_CZ", @"cs", // Czech - Čeština
+    @"kw_GB", @"kw", // Cornish - Kernewek
+    @"da_DK", @"da", // Danish - Dansk
+    @"nl_NL", @"nl", // Dutch - Nederlands
+    //@"en_PI", @"???", // English (Pirate) - English (Pirate)
+    @"en_US", @"en", // English (US) - English (US)
+    @"en_GB", @"en-GB", // English (UK) - English (UK)
+    @"en_US", @"en-US", // English (US) - English (US)
+    @"en_US", @"en-CA", // English (US) - English (US)
+    @"eo_EO", @"eo", // Esperanto - Esperanto
+    @"et_EE", @"et", // Estonian - Eesti
+    //@"tl_PH", @"???", // Filipino - Filipino
+    @"fi_FI", @"fi", // Finnish - Suomi
+    @"fr_CA", @"fr-CA", // French (Canada) - Français (Canada)
+    @"fr_FR", @"fr", // French (France) - Français (France)
+    @"fr_FR", @"fr-CH", // French (France) - Français (France)
+    @"gl_ES", @"gl", // Galician - Galego
+    @"de_DE", @"de", // German - Deutsch
+    @"de_DE", @"de-CH", // German - Deutsch
+    @"el_GR", @"el", // Greek - Ελληνικά
+    @"he_IL", @"he", // Hebrew - עברית
+    //@"hi_IN", @"???", // Hindi - हिन्दी
+    @"hu_HU", @"hu", // Hungarian - Magyar
+    @"is_IS", @"is", // Icelandic - Íslenska
+    @"id_ID", @"id", // Indonesian - Bahasa Indonesia
+    @"ga_IE", @"ga", // Irish - Gaeilge
+    @"it_IT", @"it", // Italian - Italiano
+    @"ja_JP", @"ja", // Japanese - 日本語
+    @"ko_KR", @"ko", // Korean - 한국어
+    @"lv_LV", @"lv", // Latvian - Latviešu
+    @"lt_LT", @"lt", // Lithuanian - Lietuvių
+    @"mk_MK", @"mk", // Macedonian - Македонски
+    @"ms_MY", @"ms", // Malay - Bahasa Melayu
+    //@"ml_IN", @"???", // Malayalam - മലയാളം
+    @"nb_NO", @"nb", // Norwegian (bokmal) - Norsk (bokmål)
+    @"nn_NO", @"nn", // Norwegian (nynorsk) - Norsk (nynorsk)
+    @"fa_IR", @"fa", // Persian - فارسی
+    @"pl_PL", @"pl", // Polish - Polski
+    @"pt_BR", @"pt-BR", // Portuguese (Brazil) - Português (Brasil)
+    @"pt_PT", @"pt-PT", // Portuguese (Portugal) - Português (Portugal)
+    @"pt_PT", @"pt", // Portuguese (Portugal) - Português (Portugal)
+    //@"pa_IN", @"???", // Punjabi - ਪੰਜਾਬੀ
+    @"ro_RO", @"ro", // Romanian - Română
+    @"ru_RU", @"ru", // Russian - Русский
+    @"sr_RS", @"sr", // Serbian - Српски
+    @"sk_SK", @"sk", // Slovak - Slovenčina
+    @"sl_SI", @"sl", // Slovenian - Slovenščina
+    @"es_LA", @"es", // Spanish - Español
+    @"es_ES", @"es-ES", // Spanish (Spain) - Español (España)
+    @"es_LA", @"es-419", // Spanish - Español
+    @"sw_KE", @"sw", // Swahili - Kiswahili
+    @"sv_SE", @"sv", // Swedish - Svenska
+    //@"ta_IN", @"???", // Tamil - தமிழ்
+    //@"te_IN", @"???", // Telugu - తెలుగు
+    @"th_TH", @"th", // Thai - ภาษาไทย
+    @"tr_TR", @"tr", // Turkish - Türkçe
+    @"uk_UA", @"uk", // Ukrainian - Українська
+    @"vi_VN", @"vi", // Vietnamese - Tiếng Việt
+    @"cy_GB", @"cy", // Welsh - Cymraeg
+    nil];
+  NSArray* languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
+  for (NSString* language in languages) {
+    if ([fbLocales objectForKey:language]) {
+      preferredLang = [fbLocales objectForKey:language];
+      break;
+    }
+  }
+  return preferredLang;
+}
+
 - (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict
 {
   NSMutableDictionary *args;

@@ -11,10 +11,13 @@
 
 @interface NSString (Additions)
 
-+ (BOOL)exists:(NSString *)string;
++ (BOOL)exists:(id)string;
+
+- (NSDictionary*)urlDecodeArguments;
 
 + (NSString *)urlEncodeArguments:(NSDictionary *)dict;
 
+- (NSString *)urlDecode;
 - (NSString *)urlEncode;
 
 - (NSString *)hexMD5;
