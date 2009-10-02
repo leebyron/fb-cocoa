@@ -9,8 +9,8 @@
 #import "NSString+.h"
 
 #define kLoginURL @"http://www.facebook.com/login.php?"
-#define kLoginFailureURL @"http://www.leebyron.devrs004.facebook.com/connect/login_failure.html"
-#define kLoginSuccessURL @"http://www.leebyron.devrs004.facebook.com/connect/login_success.html"
+#define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
+#define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
 #define kBrowserMinHeight 180
 #define kBrowserMaxHeight 600
 
