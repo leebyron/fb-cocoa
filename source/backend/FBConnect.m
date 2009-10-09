@@ -134,6 +134,7 @@
           selector:@selector(expireSessionResponseComplete:)
              error:@selector(failedLogout:)];
   [sessionState clear];
+  isLoggedIn = NO;
 }
 
 - (void)validateSession
@@ -385,6 +386,7 @@
 {
   NSString* preferredLang = @"en_US"; // start with default language
   // commented out locales do not have an OS X equivalent
+  // TODO: facebook supports even more languages!
   NSDictionary* fbLocales = [NSDictionary dictionaryWithObjectsAndKeys:
     @"af_ZA", @"af", // Afrikaans - Afrikaans
     @"sq_AL", @"sq", // Albanian - Shqip

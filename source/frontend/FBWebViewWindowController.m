@@ -19,6 +19,7 @@
 
 - (void)queueRetryWithDelay:(NSTimeInterval)delay;
 - (void)cancelRetry;
+- (void)attemptLoad;
 
 @end
 
@@ -44,6 +45,8 @@
 
 - (void)dealloc
 {
+  [req release];
+  [lastURL release];
   [retryTimer release];
   [super dealloc];
 }
@@ -76,7 +79,7 @@
   [allParams setObject:@"true"          forKey:@"return_session"];
 
   NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [NSString urlEncodeArguments:allParams]];
-  req = [NSURLRequest requestWithURL:[NSURL URLWithString:url]];
+  req = [[NSURLRequest requestWithURL:[NSURL URLWithString:url]] retain];
   [self attemptLoad];
 }
 
@@ -128,7 +131,6 @@
   }
   if (webView) {
     [[webView mainFrame] loadRequest:req];
-    [[self window] center];
     [self showWindow:self];
   }
 }
@@ -145,7 +147,7 @@
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
 {
   // reset timer before retry
-  [self queueRetryWithDelay:20.0];
+  [self queueRetryWithDelay:10.0];
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
@@ -210,6 +212,7 @@ decidePolicyForNavigationAction:(NSDictionary *)actionInformation
     return;
   }
 
+  // capture new url.
   [lastURL release];
   lastURL = [[[request URL] copy] retain];
 

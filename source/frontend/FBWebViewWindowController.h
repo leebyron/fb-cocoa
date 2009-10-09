@@ -16,9 +16,9 @@
   id target;
   SEL selector;
 
-  NSURLRequest* req;
   BOOL success;
   NSTimer* retryTimer;
+  NSURLRequest* req;
   NSURL* lastURL;
 }
 
@@ -28,6 +28,5 @@
 
 - (id)initWithCloseTarget:(id)obj selector:(SEL)sel;
 - (void)showWithParams:(NSDictionary *)params;
-- (void)attemptLoad;
 
 @end
