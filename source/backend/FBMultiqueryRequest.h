@@ -12,4 +12,10 @@
 
 @interface FBMultiqueryRequest : FBRequest
 
++(FBMultiqueryRequest*) requestWithRequest:(NSString *)requestString
+                                    parent:(FBConnect *)parent
+                                    target:(id)tar
+                                  selector:(SEL)sel
+                                     error:(SEL)err;
+
 @end

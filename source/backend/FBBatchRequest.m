@@ -10,8 +10,36 @@
 #import "FBCocoa.h"
 #import "JSON.h"
 
+@interface FBRequest (Internal)
+
+-(id)initWithRequest:(NSString *)requestString
+              parent:(FBConnect *)parent
+              target:(id)tar
+            selector:(SEL)sel
+               error:(SEL)err;
+
+@end
+
+
+@interface FBBatchRequest (Private)
+
+-(id)initWithRequest:(NSString *)requestString
+            requests:(NSArray *)requests
+              parent:(FBConnect *)parent;
+
+@end
+
 
 @implementation FBBatchRequest
+
++(FBBatchRequest*)requestWithRequest:(NSString *)requestString
+                            requests:(NSArray *)requests
+                              parent:(FBConnect *)parent
+{
+  return [[[FBBatchRequest alloc] initWithRequest:requestString
+                                         requests:requests
+                                           parent:parent] autorelease];
+}
 
 -(id)initWithRequest:(NSString *)requestString
             requests:(NSArray *)reqs
@@ -31,7 +59,7 @@
 
 - (void)dealloc
 {
-  [requests dealloc];
+  [requests release];
   [super dealloc];
 }
 

@@ -178,11 +178,11 @@
              error:(SEL)error
 {
   NSString *requestString = [self getRequestStringForMethod:method arguments:dict];
-  FBRequest *request = [[FBRequest alloc] initWithRequest:requestString
-                                                   parent:self
-                                                   target:target
-                                                 selector:selector
-                                                    error:error];
+  FBRequest *request = [FBRequest requestWithRequest:requestString
+                                              parent:self
+                                              target:target
+                                            selector:selector
+                                               error:error];
   if ([self pendingBatch]) {
     [pendingBatchRequests addObject:request];
   } else {
@@ -209,11 +209,11 @@
 {
   NSDictionary* arguments = [NSDictionary dictionaryWithObject:[queries JSONRepresentation] forKey:@"queries"];
   NSString* requestString = [self getRequestStringForMethod:@"fql.multiquery" arguments:arguments];
-  FBRequest* request = [[FBMultiqueryRequest alloc] initWithRequest:requestString
-                                                             parent:self
-                                                             target:target
-                                                           selector:selector
-                                                              error:error];
+  FBRequest* request = [FBMultiqueryRequest requestWithRequest:requestString
+                                                        parent:self
+                                                        target:target
+                                                      selector:selector
+                                                         error:error];
   if ([self pendingBatch]) {
     [pendingBatchRequests addObject:request];
   } else {
@@ -259,9 +259,9 @@
   if ([pendingBatchRequests count] > 0) {
     NSDictionary* arguments = [NSDictionary dictionaryWithObject:[pendingBatchRequests JSONRepresentation] forKey:@"method_feed"];
     NSString *requestString = [self getRequestStringForMethod:@"batch.run" arguments:arguments];
-    FBRequest *request = [[FBBatchRequest alloc] initWithRequest:requestString
-                                                        requests:pendingBatchRequests
-                                                          parent:self];
+    FBRequest *request = [FBBatchRequest requestWithRequest:requestString
+                                                   requests:pendingBatchRequests
+                                                     parent:self];
     [request start];
   }
 

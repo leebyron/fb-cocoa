@@ -48,6 +48,8 @@
       [result appendString:@"="];
       [result appendString:encodedValue];
     }
+    [encodedKey release];
+    [encodedValue release];
   }
   return result;
 }

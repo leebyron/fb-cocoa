@@ -10,20 +10,22 @@
 #import "FBConnect.h"
 
 @interface FBRequest : NSObject {
-  NSString* request;
+  BOOL requestStarted;
   id  target;
   SEL method;
   SEL errorMethod;
+
+  NSString* request;
   NSMutableData *responseBuffer;
   FBConnect *parentConnect;
   NSURLConnection *connection;
 }
 
--(id)initWithRequest:(NSString *)requestString
-              parent:(FBConnect *)parent
-              target:(id)tar
-            selector:(SEL)sel
-               error:(SEL)err;
++(FBRequest*) requestWithRequest:(NSString *)requestString
+                          parent:(FBConnect *)parent
+                          target:(id)tar
+                        selector:(SEL)sel
+                           error:(SEL)err;
 
 - (void)start;
 

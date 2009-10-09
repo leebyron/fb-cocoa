@@ -9,7 +9,36 @@
 #import "FBMultiqueryRequest.h"
 
 
+@interface FBMultiqueryRequest (Private)
+
+-(id)initWithRequest:(NSString *)requestString
+              parent:(FBConnect *)parent
+              target:(id)tar
+            selector:(SEL)sel
+               error:(SEL)err;
+
+@end
+
+
 @implementation FBMultiqueryRequest
+
++(FBMultiqueryRequest*) requestWithRequest:(NSString *)requestString
+                                    parent:(FBConnect *)parent
+                                    target:(id)tar
+                                  selector:(SEL)sel
+                                     error:(SEL)err
+{
+  return [[[FBMultiqueryRequest alloc] initWithRequest:requestString
+                                                parent:parent
+                                                target:tar
+                                              selector:sel
+                                                 error:err] autorelease];
+}
+
+- (void)dealloc
+{
+  [super dealloc];
+}
 
 - (void)requestSuccess:(id)json
 {
@@ -23,6 +52,8 @@
   if (target && method && [target respondsToSelector:method]) {
     [target performSelector:method withObject:multiqueryResponse];
   }
+
+  [multiqueryResponse release];
 }
 
 @end

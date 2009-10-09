@@ -11,6 +11,16 @@
 #import "JSON.h"
 
 
+@interface FBRequest (Internal)
+
+-(id)initWithRequest:(NSString *)requestString
+              parent:(FBConnect *)parent
+              target:(id)tar
+            selector:(SEL)sel
+               error:(SEL)err;
+
+@end
+
 @interface FBRequest (Private)
 
 - (NSError *)errorForResponse:(id)json;
@@ -28,37 +38,59 @@
 
 @implementation FBRequest
 
++(FBRequest*) requestWithRequest:(NSString *)requestString
+                          parent:(FBConnect *)parent
+                          target:(id)tar
+                        selector:(SEL)sel
+                           error:(SEL)err
+{
+  return [[[FBRequest alloc] initWithRequest:requestString
+                                      parent:parent
+                                      target:tar
+                                    selector:sel
+                                       error:err] autorelease];
+}
+
 -(id)initWithRequest:(NSString *)requestString
               parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
                error:(SEL)err
 {
-  if (!(self = [super init])) {
-    return nil;
+  if (self = [super init]) {
+    requestStarted = false;
+
+    target = [tar retain];
+    method = sel;
+    errorMethod = err;
+
+    parentConnect = [parent retain];
+    request = [requestString retain];
+    responseBuffer = [[NSMutableData alloc] init];
   }
-
-  request = [requestString retain];
-  target = [tar retain];
-  method = sel;
-  parentConnect = parent;
-  errorMethod = err;
-  responseBuffer = [[NSMutableData alloc] init];
-
   return self;
 }
 
 -(void)dealloc
 {
-  [request release];
   [target release];
+
+  [request release];
   [responseBuffer release];
+  [parentConnect release];
   [connection release];
+
   [super dealloc];
 }
 
 - (void)start
 {
+  if (requestStarted) {
+    NSLog(@"can't start the same request twice");
+    return;
+  }
+  requestStarted = true;
+  [self retain];
   @try {
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", kRESTServerURL, request]];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
@@ -71,6 +103,9 @@
     connection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
   } @catch (NSException *exception) {
     [self requestFailure:[self errorForException:exception]];
+
+    // peace!
+    [self release];
   }
 }
 
@@ -81,19 +116,20 @@
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection
 {
-  NSString* jsonString = [[[NSString alloc] initWithData:responseBuffer encoding:NSUTF8StringEncoding] autorelease];
+  NSString* jsonString = [[NSString alloc] initWithData:responseBuffer encoding:NSUTF8StringEncoding];
   SBJsonParser* jsonParser = [SBJsonParser new];
   id json = [jsonParser fragmentWithString:jsonString];
+  [jsonString release];
   if (!json) {
     NSError* jsonError = [NSString stringWithFormat:@"JSON Parsing error: %@", [jsonParser errorTrace]];
     [self requestFailure:[NSError errorWithDomain:kFBErrorDomainKey
                                              code:FBAPIUnknownError
                                          userInfo:[NSDictionary dictionaryWithObject:jsonError
                                                                               forKey:kFBErrorMessageKey]]];
+  } else {
+    [self evaluateResponse:json];
   }
   [jsonParser release];
-
-  [self evaluateResponse:json];
 
   // peace!
   [self release];
@@ -113,7 +149,7 @@
 {
   [self requestFailure:err];
 
-  // laaater!
+  // peace!
   [self release];
 }
 
