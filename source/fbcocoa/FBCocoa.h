@@ -95,4 +95,4 @@ enum { // Facebook Connect Error Codes
 
 
 #import <FBCocoa/FBConnect.h>
-#import <FBCocoa/JSON.h>
+#import <FBCocoa/FBRequest.h>

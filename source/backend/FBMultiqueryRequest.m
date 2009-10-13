@@ -35,12 +35,7 @@
                                                  error:err] autorelease];
 }
 
-- (void)dealloc
-{
-  [super dealloc];
-}
-
-- (void)requestSuccess:(id)json
+- (void)success:(id)json
 {
   // convert the json response into a dictionary
   NSMutableDictionary* multiqueryResponse = [[NSMutableDictionary alloc] init];

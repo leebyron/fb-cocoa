@@ -2,37 +2,23 @@
 //  FBRequest.h
 //  FBCocoa
 //
-//  Created by Lee Byron on 7/30/09.
+//  Created by Lee Byron on 10/13/09.
 //  Copyright 2009 Facebook. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FBConnect.h"
 
-@interface FBRequest : NSObject {
-  BOOL requestStarted;
-  id  target;
-  SEL method;
-  SEL errorMethod;
 
-  NSString* request;
-  NSMutableData *responseBuffer;
-  FBConnect *parentConnect;
-  NSURLConnection *connection;
-}
+@protocol FBRequest <NSObject>
 
-+(FBRequest*) requestWithRequest:(NSString *)requestString
-                          parent:(FBConnect *)parent
-                          target:(id)tar
-                        selector:(SEL)sel
-                           error:(SEL)err;
+/*!
+ * Calling this will cancel the in progress request and reattempt
+ */
+- (void)retry;
 
-- (void)start;
-
-- (void)evaluateResponse:(id)json;
-
-- (void)requestSuccess:(id)json;
-
-- (void)requestFailure:(NSError *)err;
+/*!
+ * Cancel the in progress request
+ */
+- (void)cancel;
 
 @end

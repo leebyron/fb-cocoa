@@ -7,10 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FBRequest.h"
+#import "FBMethodRequest.h"
 
 
-@interface FBBatchRequest : FBRequest {
+@interface FBBatchRequest : FBMethodRequest {
   NSArray* requests;
 }
 

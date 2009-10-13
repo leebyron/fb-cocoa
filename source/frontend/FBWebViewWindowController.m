@@ -6,13 +6,14 @@
 //
 
 #import "FBWebViewWindowController.h"
+#import "FBCocoa.h"
 #import "NSString+.h"
 
-#define kLoginURL @"http://www.facebook.com/login.php?"
 #define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
 #define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
 #define kBrowserMinHeight 180
 #define kBrowserMaxHeight 600
+#define kBrowserLoadTimeout 15.0
 
 
 @interface FBWebViewWindowController (Private)
@@ -26,16 +27,19 @@
 
 @implementation FBWebViewWindowController
 
-- (id)initWithCloseTarget:(id)obj selector:(SEL)sel
+- (id)initWithRootURL:(NSString*)url
+               target:(id)obj
+             selector:(SEL)sel
 {
   self = [super initWithWindowNibName:@"FBWebViewWindow"];
   if (self) {
+    rootURL = url;
     target = obj;
     selector = sel;
     success = NO;
 
     // force the window to be loaded
-    [[self window] center];
+    [self focus];
   }
 
   return self;
@@ -47,6 +51,13 @@
   [lastURL release];
   [retryTimer release];
   [super dealloc];
+}
+
+- (void)focus
+{
+  [[self window] center];
+  [NSApp activateIgnoringOtherApps:YES];
+  [[self window] makeKeyAndOrderFront:self];
 }
 
 - (NSURL*)lastURL
@@ -78,21 +89,25 @@
   if ([[self window] respondsToSelector:@selector(setCollectionBehavior:)]) {
     [[self window] setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
   }
+  [NSApp activateIgnoringOtherApps:YES];
   [[self window] setLevel:NSFloatingWindowLevel];
   [[self window] makeKeyAndOrderFront:self];
-  [NSApp activateIgnoringOtherApps:YES];
 }
 
 - (void)showWithParams:(NSDictionary *)params
 {
   NSMutableDictionary *allParams = [[NSMutableDictionary alloc] initWithDictionary:params];
-  [allParams setObject:@"true"  forKey:@"fbconnect"];
-  [allParams setObject:@"popup" forKey:@"display"];
+  NSString* successURL =
+  [NSString stringWithFormat:@"%@?accepted_permissions=xxRESULTTOKENxx", kLoginSuccessURL];
+  [allParams setObject:kAPIVersion      forKey:@"v"];
+  [allParams setObject:@"1"             forKey:@"fbconnect"];
+  [allParams setObject:@"popup"         forKey:@"display"];
   [allParams setObject:kLoginFailureURL forKey:@"cancel_url"];
-  [allParams setObject:kLoginSuccessURL forKey:@"next"];
-  [allParams setObject:@"true"          forKey:@"return_session"];
+  [allParams setObject:successURL       forKey:@"next"];
+  [allParams setObject:@"1"             forKey:@"return_session"];
+  [allParams setObject:@"1"             forKey:@"extern"];
 
-  NSString *url = [NSString stringWithFormat:@"%@%@", kLoginURL, [NSString urlEncodeArguments:allParams]];
+  NSString *url = [NSString stringWithFormat:@"%@?%@", rootURL, [NSString urlEncodeArguments:allParams]];
   req = [[NSURLRequest requestWithURL:[NSURL URLWithString:url]] retain];
   [self attemptLoad];
 }
@@ -155,13 +170,13 @@
   [progressIndicator startAnimation:self];
 
   // reset timer before retry
-  [self queueRetryWithDelay:10.0];
+  [self queueRetryWithDelay:kBrowserLoadTimeout];
 }
 
 - (void)webView:(WebView *)sender didCommitLoadForFrame:(WebFrame *)frame
 {
   // reset timer before retry
-  [self queueRetryWithDelay:10.0];
+  [self queueRetryWithDelay:kBrowserLoadTimeout];
 }
 
 - (void)webView:(WebView *)sender didFailLoadWithError:(NSError *)error forFrame:(WebFrame *)frame
@@ -190,11 +205,11 @@
                                      height) display:YES animate:YES];
 }
 
--                (void)webView:(WebView *)webView
-decidePolicyForNewWindowAction:(NSDictionary *)actionInformation
-                       request:(NSURLRequest *)request
-                  newFrameName:(NSString *)frameName
-              decisionListener:(id < WebPolicyDecisionListener >)listener
+-                (void)webView:(WebView*)webView
+decidePolicyForNewWindowAction:(NSDictionary*)actionInformation
+                       request:(NSURLRequest*)request
+                  newFrameName:(NSString*)frameName
+              decisionListener:(id<WebPolicyDecisionListener>)listener
 {
   // This is a delegate method where we decide what to do when the WebView
   // wants to open a new window, such as when a link that wants a new window
@@ -209,11 +224,11 @@ decidePolicyForNewWindowAction:(NSDictionary *)actionInformation
   }
 }
 
--                 (void)webView:(WebView *)webView
-decidePolicyForNavigationAction:(NSDictionary *)actionInformation
-                        request:(NSURLRequest *)request
-                          frame:(WebFrame *)frame
-               decisionListener:(id < WebPolicyDecisionListener >)listener
+-                 (void)webView:(WebView*)webView
+decidePolicyForNavigationAction:(NSDictionary*)actionInformation
+                        request:(NSURLRequest*)request
+                          frame:(WebFrame*)frame
+               decisionListener:(id<WebPolicyDecisionListener>)listener
 {
   // This is a delegate method where we decide what to do when a navigation
   // action occurs. The only reason the WebView should be going to another
@@ -232,7 +247,7 @@ decidePolicyForNavigationAction:(NSDictionary *)actionInformation
 
   // We want to detect when we've come across the success or failure URLs and act
   // accordingly
-  if ([[[request URL] absoluteString] containsString:kLoginURL]) {
+  if ([[[request URL] absoluteString] containsString:rootURL]) {
     [listener use];
   } else if ([[[request URL] absoluteString] containsString:kLoginSuccessURL]) {
     success = YES;

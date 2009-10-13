@@ -10,13 +10,15 @@
 #import "FBCocoa.h"
 #import "JSON.h"
 
-@interface FBRequest (Internal)
+@interface FBMethodRequest (Internal)
 
 -(id)initWithRequest:(NSString *)requestString
               parent:(FBConnect *)parent
               target:(id)tar
             selector:(SEL)sel
                error:(SEL)err;
+
+- (void)evaluateResponse:(id)json;
 
 @end
 
@@ -63,7 +65,7 @@
   [super dealloc];
 }
 
-- (void)requestSuccess:(id)json
+- (void)success:(id)json
 {
   SBJsonParser* jsonParser = [SBJsonParser new];
   int index = 0;
@@ -73,10 +75,10 @@
     id subJson = [jsonParser fragmentWithString:subJsonString];
     if (!subJson) {
       NSError* jsonError = [NSString stringWithFormat:@"JSON Parsing error: %@", [jsonParser errorTrace]];
-      [[requests objectAtIndex:index] requestFailure:[NSError errorWithDomain:kFBErrorDomainKey
-                                                                         code:FBAPIUnknownError
-                                                                     userInfo:[NSDictionary dictionaryWithObject:jsonError
-                                                                                                          forKey:kFBErrorMessageKey]]];
+      [[requests objectAtIndex:index] failure:[NSError errorWithDomain:kFBErrorDomainKey
+                                                                  code:FBAPIUnknownError
+                                                              userInfo:[NSDictionary dictionaryWithObject:jsonError
+                                                                                                   forKey:kFBErrorMessageKey]]];
     }
     [[requests objectAtIndex:index] evaluateResponse:subJson];
     index++;
@@ -84,12 +86,12 @@
   [jsonParser release];
 }
 
-- (void)requestFailure:(NSError *)err
+- (void)failure:(NSError *)err
 {
-  FBRequest* req;
+  FBMethodRequest* req;
   for (int i = 0; i < [requests count]; i++) {
     req = [requests objectAtIndex:i];
-    [req requestFailure:err];
+    [req failure:err];
   }
 }
 

@@ -18,15 +18,19 @@
 
   BOOL success;
   NSTimer* retryTimer;
+  NSString* rootURL;
   NSURLRequest* req;
   NSURL* lastURL;
 }
 
+- (id)initWithRootURL:(NSString*)url
+               target:(id)obj
+             selector:(SEL)sel;
+
+- (void)focus;
 - (NSURL*)lastURL;
 - (void)setLastURL:(NSURL*)url;
 - (BOOL)success;
-
-- (id)initWithCloseTarget:(id)obj selector:(SEL)sel;
 - (void)showWithParams:(NSDictionary *)params;
 
 @end

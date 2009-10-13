@@ -7,10 +7,10 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "FBRequest.h"
+#import "FBMethodRequest.h"
 
 
-@interface FBMultiqueryRequest : FBRequest
+@interface FBMultiqueryRequest : FBMethodRequest
 
 +(FBMultiqueryRequest*) requestWithRequest:(NSString *)requestString
                                     parent:(FBConnect *)parent

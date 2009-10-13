@@ -7,12 +7,17 @@
 
 #import "FBConnect.h"
 #import "FBCocoa.h"
-#import "FBRequest.h"
+#import "FBCallback.h"
+#import "FBMethodRequest.h"
 #import "FBBatchRequest.h"
 #import "FBMultiqueryRequest.h"
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
+#import "JSON.h"
 #import "NSString+.h"
+
+#define kLoginURL @"http://www.facebook.com/login.php"
+#define kPermissionsURL @"http://www.facebook.com/connect/prompt_permissions.php"
 
 #define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
 [delegate performSelector:(sel) withObject:self];}}
@@ -20,12 +25,14 @@
 
 @interface FBConnect (Private)
 
+- (id)initWithAPIKey:(NSString *)key delegate:(id)obj;
 - (void)promptLogin;
 - (void)validateSession;
 - (void)refreshSession;
 - (NSString *)getPreferedFBLocale;
 - (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict;
 - (NSString *)sigForArguments:(NSDictionary *)dict;
+- (void)complainAboutRequiredPermissions:(NSSet *)lackingPermissions;
 
 @end
 
@@ -35,7 +42,7 @@
 + (FBConnect *)sessionWithAPIKey:(NSString *)key
                         delegate:(id)obj
 {
-  return [[self alloc] initWithAPIKey:key delegate:obj];
+  return [[[self alloc] initWithAPIKey:key delegate:obj] autorelease];
 }
 
 - (id)initWithAPIKey:(NSString *)key
@@ -50,6 +57,8 @@
   delegate      = obj;
   isLoggedIn    = NO;
 
+  requestedPermissions = [[NSMutableSet alloc] init];
+
   return self;
 }
 
@@ -58,6 +67,13 @@
   [APIKey       release];
   [appSecret    release];
   [sessionState release];
+
+  [requiredPermissions release];
+  [optionalPermissions release];
+  [requestedPermissions release];
+
+  [permissionCallback release];
+
   [super dealloc];
 }
 
@@ -85,12 +101,27 @@
   return [sessionState uid];
 }
 
-- (void)loginWithPermissions:(NSArray *)permissions
+- (void)loginWithRequiredPermissions:(NSSet *)req
+                 optionalPermissions:(NSSet *)opt
 {
   // remember what permissions we asked for
-  [permissions retain];
-  [requestedPermissions release];
-  requestedPermissions = permissions;
+  [req retain];
+  [requiredPermissions release];
+  requiredPermissions = req;
+
+  [opt retain];
+  [optionalPermissions release];
+  optionalPermissions = opt;
+
+  [requestedPermissions removeAllObjects];
+  if (requiredPermissions) {
+    [requestedPermissions unionSet:requiredPermissions];
+  }
+  if (optionalPermissions) {
+    [requestedPermissions unionSet:optionalPermissions];
+  }
+  // always request offline access, since we live on the desktop.
+  [requestedPermissions addObject:@"offline_access"];
 
   if ([sessionState isValid]) {
     [self validateSession];
@@ -101,13 +132,16 @@
 
 - (void)promptLogin
 {
-  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
-  if (requestedPermissions) {
-    NSString *permissionsString = [requestedPermissions componentsJoinedByString:@","];
-    [loginParams setObject:permissionsString forKey:@"req_perms"];
+  // if a window exists, focus it.
+  if (windowController) {
+    [windowController focus];
+    return;
   }
-  [loginParams setObject:APIKey      forKey:@"api_key"];
-  [loginParams setObject:kAPIVersion forKey:@"v"];
+
+  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+  NSString* permissionsString = [[requestedPermissions allObjects] componentsJoinedByString:@","];
+  [loginParams setObject:permissionsString          forKey:@"req_perms"];
+  [loginParams setObject:APIKey                     forKey:@"api_key"];
   [loginParams setObject:[self getPreferedFBLocale] forKey:@"locale"];
 
   // adding this parameter keeps us from reading Safari's cookie when
@@ -116,14 +150,49 @@
   // session cookie and not Safari's
   [loginParams setObject:@"true" forKey:@"skipcookie"];
 
+  windowController =
+  [[FBWebViewWindowController alloc] initWithRootURL:kLoginURL
+                                              target:self
+                                            selector:@selector(loginWindowClosed)];
+  [windowController showWithParams:loginParams];
+}
+
+- (void)requestPermissions:(NSSet*)perms
+                    target:(id)target
+                  selector:(SEL)selector
+{
+  // if a window exists, focus it.
   if (windowController) {
-    [[windowController window] makeKeyAndOrderFront:self];
-  } else {
-    windowController =
-    [[FBWebViewWindowController alloc] initWithCloseTarget:self
-                                                  selector:@selector(webViewWindowClosed)];
-    [windowController showWithParams:loginParams];
+    [windowController focus];
+    return;
   }
+
+  // store the callback
+  if (permissionCallback) {
+    [permissionCallback release];
+  }
+  permissionCallback = [[FBCallback alloc] initWithTarget:target
+                                                 selector:selector
+                                                    error:nil];
+
+  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+  NSString* permissionsString = [[perms allObjects] componentsJoinedByString:@","];
+  [loginParams setObject:permissionsString          forKey:@"ext_perm"];
+  [loginParams setObject:APIKey                     forKey:@"api_key"];
+  [loginParams setObject:[sessionState key]         forKey:@"session_key"];
+  [loginParams setObject:[self getPreferedFBLocale] forKey:@"locale"];
+
+  // adding this parameter keeps us from reading Safari's cookie when
+  // performing a login for the first time. Sessions are still cached and
+  // persistant so subsequent application launches will use their own
+  // session cookie and not Safari's
+  [loginParams setObject:@"true" forKey:@"skipcookie"];
+
+  windowController =
+  [[FBWebViewWindowController alloc] initWithRootURL:kPermissionsURL
+                                              target:self
+                                            selector:@selector(permissionWindowClosed)];
+  [windowController showWithParams:loginParams];
 }
 
 - (void)logout
@@ -141,7 +210,7 @@
 {
   [self startBatch];
   [self fqlQuery:[NSString stringWithFormat:@"SELECT %@ FROM permissions WHERE uid = %@",
-                      [requestedPermissions componentsJoinedByString:@","], [self uid]]
+                      [[requestedPermissions allObjects] componentsJoinedByString:@","], [self uid]]
               target:self
             selector:@selector(gotGrantedPermissions:)
                error:nil];
@@ -158,7 +227,8 @@
   NSLog(@"refreshing session");
   isLoggedIn = NO;
   [sessionState invalidate];
-  [self loginWithPermissions:requestedPermissions];
+  [self loginWithRequiredPermissions:requiredPermissions
+                 optionalPermissions:optionalPermissions];
 }
 
 - (BOOL)hasPermission:(NSString *)perm
@@ -171,14 +241,14 @@
 //==============================================================================
 
 #pragma mark Connect Methods
-- (void)callMethod:(NSString *)method
-     withArguments:(NSDictionary *)dict
-            target:(id)target
-          selector:(SEL)selector
-             error:(SEL)error
+- (id<FBRequest>)callMethod:(NSString *)method
+           withArguments:(NSDictionary *)dict
+                  target:(id)target
+                selector:(SEL)selector
+                   error:(SEL)error
 {
   NSString *requestString = [self getRequestStringForMethod:method arguments:dict];
-  FBRequest *request = [FBRequest requestWithRequest:requestString
+  FBMethodRequest *request = [FBMethodRequest requestWithRequest:requestString
                                               parent:self
                                               target:target
                                             selector:selector
@@ -188,37 +258,39 @@
   } else {
     [request start];
   }
+  return request;
 }
 
-- (void)fqlQuery:(NSString *)query
-              target:(id)target
-            selector:(SEL)selector
-               error:(SEL)error
+- (id<FBRequest>)fqlQuery:(NSString *)query
+                target:(id)target
+              selector:(SEL)selector
+                 error:(SEL)error
 {
-  [self callMethod:@"fql.query"
-     withArguments:[NSDictionary dictionaryWithObject:query forKey:@"query"]
-            target:target
-          selector:selector
-             error:error];
+  return [self callMethod:@"fql.query"
+            withArguments:[NSDictionary dictionaryWithObject:query forKey:@"query"]
+                   target:target
+                 selector:selector
+                    error:error];
 }
 
-- (void)fqlMultiquery:(NSDictionary *)queries
-               target:(id)target
-             selector:(SEL)selector
-                error:(SEL)error
+- (id<FBRequest>)fqlMultiquery:(NSDictionary *)queries
+                     target:(id)target
+                   selector:(SEL)selector
+                      error:(SEL)error
 {
   NSDictionary* arguments = [NSDictionary dictionaryWithObject:[queries JSONRepresentation] forKey:@"queries"];
   NSString* requestString = [self getRequestStringForMethod:@"fql.multiquery" arguments:arguments];
-  FBRequest* request = [FBMultiqueryRequest requestWithRequest:requestString
-                                                        parent:self
-                                                        target:target
-                                                      selector:selector
-                                                         error:error];
+  FBMethodRequest* request = [FBMultiqueryRequest requestWithRequest:requestString
+                                                              parent:self
+                                                              target:target
+                                                            selector:selector
+                                                               error:error];
   if ([self pendingBatch]) {
     [pendingBatchRequests addObject:request];
   } else {
     [request start];
   }
+  return request;
 }
 
 
@@ -246,27 +318,30 @@
   pendingBatchRequests = nil;
 }
 
-- (void)sendBatch
+- (id<FBRequest>)sendBatch
 {
   if (!isBatch) {
     [NSException raise:@"Batch Request exception"
                 format:@"Cannot sendBatch if there is no pendingBatch"];
-    return;
+    return nil;
   }
   isBatch = NO;
 
   // call batch.run with the results of all the queued methods, using fbbatchrequest
+  FBMethodRequest* request;
   if ([pendingBatchRequests count] > 0) {
     NSDictionary* arguments = [NSDictionary dictionaryWithObject:[pendingBatchRequests JSONRepresentation] forKey:@"method_feed"];
-    NSString *requestString = [self getRequestStringForMethod:@"batch.run" arguments:arguments];
-    FBRequest *request = [FBBatchRequest requestWithRequest:requestString
-                                                   requests:pendingBatchRequests
-                                                     parent:self];
+    NSString* requestString = [self getRequestStringForMethod:@"batch.run" arguments:arguments];
+    request = [FBBatchRequest requestWithRequest:requestString
+                                        requests:pendingBatchRequests
+                                          parent:self];
     [request start];
   }
 
   [pendingBatchRequests release];
   pendingBatchRequests = nil;
+
+  return request;
 }
 
 //==============================================================================
@@ -274,7 +349,7 @@
 //==============================================================================
 
 #pragma mark Callbacks
-- (void)failedQuery:(FBRequest *)query withError:(NSError *)err
+- (void)failedQuery:(FBMethodRequest *)query withError:(NSError *)err
 {
   int errorCode = [err code];
   if ([sessionState exists] && isLoggedIn &&
@@ -308,9 +383,9 @@
 {
   // check for granted permissions
   BOOL needsNewPermissions = NO;
+  NSEnumerator* enumerator = [requiredPermissions objectEnumerator];
   NSString* perm;
-  for (int i = 0; i < [requestedPermissions count]; i++) {
-    perm = [requestedPermissions objectAtIndex:i];
+  while (perm = [enumerator nextObject]) {
     if (![self hasPermission:perm]) {
       needsNewPermissions = YES;
       break;
@@ -351,7 +426,7 @@
   DELEGATE(@selector(FBConnectErrorLoggingOut:));
 }
 
-- (void)webViewWindowClosed
+- (void)loginWindowClosed
 {
   if ([windowController success]) {
     isLoggedIn = YES;
@@ -366,12 +441,26 @@
       } else {
         [sessionState setPermissions:requestedPermissions];
       }
+
+      // check permissions against required permissions
+      if (![requiredPermissions isSubsetOfSet:[sessionState permissions]]) {
+        isLoggedIn = NO;
+
+        NSMutableSet* lackingPermissions = [requiredPermissions mutableCopy];
+        [lackingPermissions minusSet:[sessionState permissions]];
+
+        [self performSelector:@selector(complainAboutRequiredPermissions:)
+                   withObject:lackingPermissions
+                   afterDelay:0.0];
+      }
     } else {
       isLoggedIn = NO;
     }
   } else {
     isLoggedIn = NO;
   }
+
+  // release the web window
   [windowController release];
   windowController = nil;
 
@@ -380,6 +469,40 @@
   } else {
     DELEGATE(@selector(FBConnectErrorLoggingIn:));
   }
+}
+
+- (void)complainAboutRequiredPermissions:(NSSet *)lackingPermissions
+{
+  // TODO: this language should be cleaned up, permissions are not referred to by description
+
+  NSString* appName = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleDisplayName"];
+
+  NSAlert* alert = [[NSAlert alloc] init];
+  [alert addButtonWithTitle:@"OK"];
+  [alert setAlertStyle:NSCriticalAlertStyle];
+  [alert setMessageText:NSLocalizedString(@"Need more permissions", nil)];
+  [alert setInformativeText:[NSString stringWithFormat:
+                             NSLocalizedString(@"%@ requires you allow the %@ permissions to be useful.\n\nYou are not logged in.", nil),
+                             appName,
+                             [[lackingPermissions allObjects] componentsJoinedByString:@", "]]];
+  [alert runModal];
+  [alert release];
+}
+
+- (void)permissionWindowClosed
+{
+  NSDictionary* args = [[[windowController lastURL] query] urlDecodeArguments];
+  NSArray* acceptedPerms = [[args valueForKey:@"accepted_permissions"] componentsSeparatedByString:@","];
+  [sessionState addPermissions:acceptedPerms];
+
+  // release the web window
+  [windowController release];
+  windowController = nil;
+
+  // fire and release the callback
+  [permissionCallback success:acceptedPerms];
+  [permissionCallback release];
+  permissionCallback = nil;
 }
 
 //==============================================================================
