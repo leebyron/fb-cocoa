@@ -35,7 +35,6 @@
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		5306F945103B8E010061C722 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
 		5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = FBWebViewWindow.xib; path = resources/FBWebViewWindow.xib; sourceTree = "<group>"; };
 		5306F967103B8F210061C722 /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBWebViewWindowController.m; path = source/frontend/FBWebViewWindowController.m; sourceTree = "<group>"; };
 		5306F968103B8F210061C722 /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBWebViewWindowController.h; path = source/frontend/FBWebViewWindowController.h; sourceTree = "<group>"; };
@@ -123,7 +122,6 @@
 			children = (
 				5306FB7C103B90D10061C722 /* InfoPlist.strings */,
 				5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */,
-				5306F945103B8E010061C722 /* Info.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";

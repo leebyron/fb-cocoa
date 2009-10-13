@@ -92,7 +92,6 @@
   [self retain];
   @try {
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", kRESTServerURL, request]];
-
     #ifdef NSURLRequestReloadIgnoringLocalCacheData
       NSURLRequestCachePolicy policy = NSURLRequestReloadIgnoringLocalCacheData;
     #else
@@ -180,7 +179,10 @@
 
 - (void)evaluateResponse:(id)json
 {
-  if (json == nil || ([json isKindOfClass:[NSDictionary class]] && [json objectForKey:@"error_code"] != nil)) {
+  if (json == nil ||
+      ([json isKindOfClass:[NSDictionary class]] && [json objectForKey:@"error_code"] != nil) ||
+      json == 0
+    ) {
     NSError *err = [self errorForResponse:json];
     [self failure:err];
   } else {
