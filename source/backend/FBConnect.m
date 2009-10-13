@@ -476,6 +476,8 @@
   // TODO: this language should be cleaned up, permissions are not referred to by description
 
   NSString* appName = [[[NSBundle mainBundle] infoDictionary] valueForKey:@"CFBundleDisplayName"];
+  NSString* permissions = [[lackingPermissions allObjects] componentsJoinedByString:@", "];
+  NSLog(@"Need the required permissions: %@ to be useful. Refusing to log in.", permissions);
 
   NSAlert* alert = [[NSAlert alloc] init];
   [alert addButtonWithTitle:@"OK"];
@@ -483,8 +485,7 @@
   [alert setMessageText:NSLocalizedString(@"Need more permissions", nil)];
   [alert setInformativeText:[NSString stringWithFormat:
                              NSLocalizedString(@"%@ requires you allow the %@ permissions to be useful.\n\nYou are not logged in.", nil),
-                             appName,
-                             [[lackingPermissions allObjects] componentsJoinedByString:@", "]]];
+                             appName, permissions]];
   [alert runModal];
   [alert release];
 }
