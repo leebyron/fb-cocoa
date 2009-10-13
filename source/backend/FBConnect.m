@@ -287,7 +287,7 @@
     // We were using a session key that we'd saved as permanent, and got
     // back an error saying it was invalid. Throw away the saved session
     // data and start a login from scratch.
-    [self refreshSession];
+    [self performSelector:@selector(refreshSession) withObject:nil afterDelay:0.0];
   }
 }
 
