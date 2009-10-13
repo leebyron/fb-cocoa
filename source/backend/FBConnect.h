@@ -115,6 +115,9 @@
  * Optional Permissions is a set of permissions which the user is not required
  * to grant for the application to function.
  *
+ * It's highly recommended to add "offline_access" to your optionalPermissions
+ * to allow infinite sessions.
+ *
  * http://wiki.developers.facebook.com/index.php/Extended_application_permission
  */
 - (void)loginWithRequiredPermissions:(NSSet*)req

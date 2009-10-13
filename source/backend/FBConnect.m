@@ -120,8 +120,6 @@
   if (optionalPermissions) {
     [requestedPermissions unionSet:optionalPermissions];
   }
-  // always request offline access, since we live on the desktop.
-  [requestedPermissions addObject:@"offline_access"];
 
   if ([sessionState isValid]) {
     [self validateSession];
