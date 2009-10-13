@@ -67,7 +67,9 @@
 {
   SBJsonParser* jsonParser = [SBJsonParser new];
   int index = 0;
-  for (NSString* subJsonString in json) {
+  NSString* subJsonString;
+  for (int i = 0; i < [json count]; i++) {
+    subJsonString = [json objectAtIndex:i];
     id subJson = [jsonParser fragmentWithString:subJsonString];
     if (!subJson) {
       NSError* jsonError = [NSString stringWithFormat:@"JSON Parsing error: %@", [jsonParser errorTrace]];
@@ -84,7 +86,9 @@
 
 - (void)requestFailure:(NSError *)err
 {
-  for (FBRequest* req in requests) {
+  FBRequest* req;
+  for (int i = 0; i < [requests count]; i++) {
+    req = [requests objectAtIndex:i];
     [req requestFailure:err];
   }
 }

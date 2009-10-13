@@ -42,8 +42,25 @@
 
 @implementation SBJsonWriter
 
-@synthesize sortKeys;
-@synthesize humanReadable;
+- (BOOL)humanReadable
+{
+  return humanReadable;
+}
+
+- (void)setHumanReadable:(BOOL)to
+{
+  humanReadable = to;
+}
+
+- (BOOL)sortKeys
+{
+  return sortKeys;
+}
+
+- (void)setSortKeys:(BOOL)to
+{
+  sortKeys = to;
+}
 
 /**
  @deprecated This exists in order to provide fragment support in older APIs in one more version.
@@ -118,7 +135,9 @@
     [json appendString:@"["];
 
     BOOL addComma = NO;
-    for (id value in fragment) {
+    id value;
+    for (int i = 0; i < [fragment count]; i++) {
+      value = [fragment objectAtIndex:i];
         if (addComma)
             [json appendString:@","];
         else
@@ -152,7 +171,9 @@
     if (self.sortKeys)
         keys = [keys sortedArrayUsingSelector:@selector(compare:)];
 
-    for (id value in keys) {
+    id value;
+    for (int i = 0; i < [keys count]; i++) {
+      value = [keys objectAtIndex:i];
         if (addComma)
             [json appendString:@","];
         else
@@ -199,8 +220,8 @@
         [json appendString:fragment];
 
     } else {
-        NSUInteger length = [fragment length];
-        for (NSUInteger i = 0; i < length; i++) {
+        unsigned int length = [fragment length];
+        for (unsigned int i = 0; i < length; i++) {
             unichar uc = [fragment characterAtIndex:i];
             switch (uc) {
                 case '"':   [json appendString:@"\\\""];       break;

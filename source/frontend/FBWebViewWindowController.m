@@ -26,8 +26,6 @@
 
 @implementation FBWebViewWindowController
 
-@synthesize lastURL;
-
 - (id)initWithCloseTarget:(id)obj selector:(SEL)sel
 {
   self = [super initWithWindowNibName:@"FBWebViewWindow"];
@@ -36,7 +34,7 @@
     selector = sel;
     success = NO;
 
-    // Force the window to be loaded
+    // force the window to be loaded
     [[self window] center];
   }
 
@@ -51,6 +49,18 @@
   [super dealloc];
 }
 
+- (NSURL*)lastURL
+{
+  return lastURL;
+}
+
+- (void)setLastURL:(NSURL*)url
+{
+  [url retain];
+  [lastURL release];
+  lastURL = url;
+}
+
 -(BOOL)success
 {
   return success;
@@ -59,6 +69,10 @@
 - (void)windowDidLoad
 {
   [[[webView mainFrame] frameView] setAllowsScrolling:NO];
+
+  #ifndef NSWindowCollectionBehaviorCanJoinAllSpaces
+    #define NSWindowCollectionBehaviorCanJoinAllSpaces 1 << 0
+  #endif
 
   // keep the window on top (modal) and make it the key.
   if ([[self window] respondsToSelector:@selector(setCollectionBehavior:)]) {

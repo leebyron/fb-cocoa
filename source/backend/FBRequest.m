@@ -93,9 +93,14 @@
   [self retain];
   @try {
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", kRESTServerURL, request]];
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
-                                                       cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                   timeoutInterval:kRequestTimeout];
+
+    #ifdef NSURLRequestReloadIgnoringLocalCacheData
+      NSURLRequestCachePolicy policy = NSURLRequestReloadIgnoringLocalCacheData;
+    #else
+      NSURLRequestCachePolicy policy = NSURLRequestUseProtocolCachePolicy;
+    #endif
+
+    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url cachePolicy:policy timeoutInterval:kRequestTimeout];
     [req setHTTPMethod:@"GET"];
     [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
     [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];

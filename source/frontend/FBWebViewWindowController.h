@@ -22,9 +22,9 @@
   NSURL* lastURL;
 }
 
-@property(retain) NSURL *lastURL;
-
--(BOOL)success;
+- (NSURL*)lastURL;
+- (void)setLastURL:(NSURL*)url;
+- (BOOL)success;
 
 - (id)initWithCloseTarget:(id)obj selector:(SEL)sel;
 - (void)showWithParams:(NSDictionary *)params;

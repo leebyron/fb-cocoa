@@ -56,7 +56,7 @@ enum {
     NSMutableArray *errorTrace;
 
 @protected
-    NSUInteger depth, maxDepth;
+    unsigned int depth, maxDepth;
 }
 
 /**
@@ -66,7 +66,8 @@ enum {
  malicious and the parser returns nil, signalling an error. ("Nested too deep".) You can
  turn off this security feature by setting the maxDepth value to 0.
  */
-@property NSUInteger maxDepth;
+- (unsigned int)maxDepth;
+- (void)setMaxDepth:(unsigned int)d;
 
 /**
  @brief Return an error trace, or nil if there was no errors.
@@ -75,10 +76,10 @@ enum {
  You need to check the return value of the call you're making to figure out
  if the call actually failed, before you know call this method.
  */
- @property(copy,readonly) NSArray* errorTrace;
+- (NSArray*)errorTrace;
 
 /// @internal for use in subclasses to add errors to the stack trace
-- (void)addErrorWithCode:(NSUInteger)code description:(NSString*)str;
+- (void)addErrorWithCode:(unsigned int)code description:(NSString*)str;
 
 /// @internal for use in subclasess to clear the error before a new parsing attempt
 - (void)clearErrorTrace;

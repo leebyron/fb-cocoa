@@ -44,7 +44,9 @@
 {
   // convert the json response into a dictionary
   NSMutableDictionary* multiqueryResponse = [[NSMutableDictionary alloc] init];
-  for (NSDictionary* result in json) {
+  NSDictionary* result;
+  for (int i = 0; i < [json count]; i++) {
+    result = [json objectAtIndex:i];
     [multiqueryResponse setObject:[result objectForKey:@"fql_result_set"]
                            forKey:[result objectForKey:@"name"]];
   }

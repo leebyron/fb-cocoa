@@ -20,7 +20,9 @@
 {
   NSArray* pairs = [self componentsSeparatedByString:@"&"];
   NSMutableDictionary* decoded = [[[NSMutableDictionary alloc] initWithCapacity:[pairs count]] autorelease];
-  for (NSString* pair in pairs) {
+  NSString* pair;
+  for (int i = 0; i < [pairs count]; i++) {
+    pair = [pairs objectAtIndex:i];
     NSRange pairSplit = [pair rangeOfString:@"="];
     if (pairSplit.location == NSNotFound) {
       [decoded setValue:@"1" forKey:[pair urlDecode]];
@@ -37,7 +39,9 @@
 {
   NSMutableString *result = [NSMutableString string];
 
-  for (NSString *key in dict) {
+  NSEnumerator *enumerator = [dict keyEnumerator];
+  NSString* key;
+  while ((key = [enumerator nextObject])) {
     if ([result length] > 0) {
       [result appendString:@"&"];
     }

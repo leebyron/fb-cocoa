@@ -294,7 +294,10 @@
 - (void)gotGrantedPermissions:(id)response
 {
   response = [response objectAtIndex:0];
-  for (NSString* perm in response) {
+
+  NSEnumerator *enumerator = [response keyEnumerator];
+  NSString* perm;
+  while ((perm = [enumerator nextObject])) {
     if ([[response objectForKey:perm] intValue] != 0) {
       [sessionState addPermission:perm];
     }
@@ -305,7 +308,9 @@
 {
   // check for granted permissions
   BOOL needsNewPermissions = NO;
-  for (NSString *perm in requestedPermissions) {
+  NSString* perm;
+  for (int i = 0; i < [requestedPermissions count]; i++) {
+    perm = [requestedPermissions objectAtIndex:i];
     if (![self hasPermission:perm]) {
       needsNewPermissions = YES;
       break;
@@ -461,7 +466,9 @@
     @"cy_GB", @"cy", // Welsh - Cymraeg
     nil];
   NSArray* languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
-  for (NSString* language in languages) {
+  NSString* language;
+  for (int i = 0; i < [languages count]; i++) {
+    language = [languages objectAtIndex:i];
     if ([fbLocales objectForKey:language]) {
       preferredLang = [fbLocales objectForKey:language];
       break;
@@ -499,7 +506,9 @@
 {
   NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
   NSMutableString *args = [NSMutableString string];
-  for (NSString *key in sortedKeys) {
+  NSString* key;
+  for (int i = 0; i < [sortedKeys count]; i++) {
+    key = [sortedKeys objectAtIndex:i];
     NSString *value = [dict objectForKey:key];
     if (key != nil && value != nil) {
       [args appendString:key];
