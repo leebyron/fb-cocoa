@@ -18,6 +18,8 @@
 #import "NSImage+.h"
 #import "NSString+.h"
 
+#define kSessionKey @"FBUser"
+
 @interface FBConnect (Private)
 
 - (id)initWithAPIKey:(NSString*)key delegate:(id)obj;
@@ -63,7 +65,7 @@
   }
 
   APIKey        = [key retain];
-  sessionState  = [[FBSessionState alloc] init];
+  sessionState  = [[FBSessionState alloc] initWithKey:kSessionKey];
   delegate      = obj;
   isLoggedIn    = NO;
 

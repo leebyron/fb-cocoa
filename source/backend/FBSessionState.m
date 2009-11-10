@@ -7,8 +7,12 @@
 //
 
 #import "FBSessionState.h"
+#import "JSON.h"
+#import "EMKeychainItem.h"
+#import "EMKeychainProxy.h"
 
 #define kFBSavedSessionKey @"FBSavedSession"
+#define kFacebookDesktopService @"FBDesktopNotificationsService"
 
 
 @interface FBSessionState (Private)
@@ -20,25 +24,31 @@
 
 @implementation FBSessionState
 
-- (id)init
+- (id)initWithKey:(NSString*)aKey
 {
-  if (!(self = [super init])) {
-    return nil;
-  }
+  if (self = [super init])
+  {
+    keychainKey = [aKey retain];
+    permissions = [[NSMutableSet alloc] init];
 
-  permissions = [[NSMutableSet alloc] init];
-  // read in stored session if it exists
-  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-  if ([ud dictionaryForKey:kFBSavedSessionKey]) {
-    NSDictionary *dict = [ud dictionaryForKey:kFBSavedSessionKey];
-    [self setDictionary:dict];
+    // read in stored session if it exists
+    EMKeychainItem* keychain =
+      [[EMKeychainProxy sharedProxy] genericKeychainItemForService:kFacebookDesktopService
+                                                      withUsername:keychainKey];
+    if (keychain && [[keychain password] length] > 0) {
+      NSDictionary* dict = [[keychain password] JSONValue];
+      if (dict) {
+        [self setDictionary:dict];
+      }
+    }
   }
-
   return self;
 }
 
 - (void)dealloc
 {
+  [keychainKey release];
+
   [secret      release];
   [key         release];
   [signature   release];
@@ -125,10 +135,19 @@
   [self setDictionary:dict];
 
   // save session forever
-  NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
-  [ud removeObjectForKey:kFBSavedSessionKey];
-  [ud setObject:dict forKey:kFBSavedSessionKey];
-  [ud synchronize];
+  NSString* pass = [dict JSONRepresentation];
+
+  EMKeychainItem* keychain = [[EMKeychainProxy sharedProxy]
+                              genericKeychainItemForService:kFacebookDesktopService
+                                               withUsername:keychainKey];
+  if (keychain) {
+    [keychain setPassword:pass];
+  } else {
+    [[EMKeychainProxy sharedProxy]
+     addGenericKeychainItemForService:kFacebookDesktopService
+                         withUsername:keychainKey
+                             password:pass];
+  }
 }
 
 - (void)setDictionary:(NSDictionary*)dict
@@ -142,7 +161,8 @@
   secret    = [[dict valueForKey:@"secret"] retain];
   key       = [[dict valueForKey:@"session_key"] retain];
   signature = [[dict valueForKey:@"sig"] retain];
-  expires   = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
+  expires   = [[NSDate dateWithTimeIntervalSince1970:
+                [[dict valueForKey:@"expires"] doubleValue]] retain];
   uid       = [dict valueForKey:@"uid"];
   if (![uid isKindOfClass:[NSString class]]) {
     uid = [(id)uid stringValue];
@@ -170,9 +190,13 @@
 
 - (void)clear
 {
-  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-  [ud removeObjectForKey:kFBSavedSessionKey];
-  [ud synchronize];
+  EMKeychainItem* keychain = [[EMKeychainProxy sharedProxy]
+                              genericKeychainItemForService:kFacebookDesktopService
+                              withUsername:keychainKey];
+  if (keychain) {
+    [keychain setPassword:@""];
+  }
+
   [uid release];
   uid = nil;
 }

@@ -28,6 +28,12 @@
 		5381AA0F1084842D005441A3 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5381AA0D1084842D005441A3 /* FBRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53A2ABCE10A927D5008079FB /* NSImage+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABCC10A927D5008079FB /* NSImage+.m */; };
 		53A2ABD210A92973008079FB /* NSData+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABD010A92973008079FB /* NSData+.m */; };
+		53A2ADB210A98511008079FB /* NSString+.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB110A98511008079FB /* NSString+.h */; };
+		53A2ADBA10A9876D008079FB /* EMKeychainItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB610A9876D008079FB /* EMKeychainItem.h */; };
+		53A2ADBB10A9876D008079FB /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ADB710A9876D008079FB /* EMKeychainItem.m */; };
+		53A2ADBC10A9876D008079FB /* EMKeychainProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB810A9876D008079FB /* EMKeychainProxy.h */; };
+		53A2ADBD10A9876D008079FB /* EMKeychainProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ADB910A9876D008079FB /* EMKeychainProxy.m */; };
+		53A2ADE510A99154008079FB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2ADE410A99154008079FB /* Security.framework */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
 		93207B3210164075006D15BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207B3110164075006D15BB /* WebKit.framework */; };
@@ -37,44 +43,49 @@
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = FBWebViewWindow.xib; path = resources/FBWebViewWindow.xib; sourceTree = "<group>"; };
-		5306F967103B8F210061C722 /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBWebViewWindowController.m; path = source/frontend/FBWebViewWindowController.m; sourceTree = "<group>"; };
-		5306F968103B8F210061C722 /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBWebViewWindowController.h; path = source/frontend/FBWebViewWindowController.h; sourceTree = "<group>"; };
-		5306F96C103B8FB40061C722 /* NSString+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+.m"; path = "source/additions/NSString+.m"; sourceTree = "<group>"; };
-		5306F96E103B8FB40061C722 /* NSString+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+.h"; path = "source/additions/NSString+.h"; sourceTree = "<group>"; };
-		5306FB65103B90270061C722 /* FBCocoa_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCocoa_Prefix.pch; path = source/fbcocoa/FBCocoa_Prefix.pch; sourceTree = "<group>"; };
-		5306FB66103B90270061C722 /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCocoa.h; path = source/fbcocoa/FBCocoa.h; sourceTree = "<group>"; };
-		5306FB6D103B906A0061C722 /* FBMethodRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBMethodRequest.m; path = source/backend/FBMethodRequest.m; sourceTree = "<group>"; };
-		5306FB6E103B906A0061C722 /* FBSessionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBSessionState.h; path = source/backend/FBSessionState.h; sourceTree = "<group>"; };
-		5306FB6F103B906A0061C722 /* FBSessionState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBSessionState.m; path = source/backend/FBSessionState.m; sourceTree = "<group>"; };
-		5306FB70103B906A0061C722 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBConnect.h; path = source/backend/FBConnect.h; sourceTree = "<group>"; };
-		5306FB71103B906A0061C722 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBConnect.m; path = source/backend/FBConnect.m; sourceTree = "<group>"; };
-		5306FB72103B906A0061C722 /* FBMethodRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBMethodRequest.h; path = source/backend/FBMethodRequest.h; sourceTree = "<group>"; };
+		5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FBWebViewWindow.xib; sourceTree = "<group>"; };
+		5306F967103B8F210061C722 /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBWebViewWindowController.m; sourceTree = "<group>"; };
+		5306F968103B8F210061C722 /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBWebViewWindowController.h; sourceTree = "<group>"; };
+		5306F96C103B8FB40061C722 /* NSString+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+.m"; sourceTree = "<group>"; };
+		5306FB65103B90270061C722 /* FBCocoa_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa_Prefix.pch; sourceTree = "<group>"; };
+		5306FB66103B90270061C722 /* FBCocoa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCocoa.h; sourceTree = "<group>"; };
+		5306FB6D103B906A0061C722 /* FBMethodRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBMethodRequest.m; sourceTree = "<group>"; };
+		5306FB6E103B906A0061C722 /* FBSessionState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBSessionState.h; sourceTree = "<group>"; };
+		5306FB6F103B906A0061C722 /* FBSessionState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBSessionState.m; sourceTree = "<group>"; };
+		5306FB70103B906A0061C722 /* FBConnect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBConnect.h; sourceTree = "<group>"; };
+		5306FB71103B906A0061C722 /* FBConnect.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBConnect.m; sourceTree = "<group>"; };
+		5306FB72103B906A0061C722 /* FBMethodRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBMethodRequest.h; sourceTree = "<group>"; };
 		5306FB7D103B90D10061C722 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = English; path = InfoPlist.strings; sourceTree = "<group>"; };
-		534EBB381052F76D003EF297 /* NSString+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+SBJSON.m"; path = "source/additions/JSON/NSString+SBJSON.m"; sourceTree = "<group>"; };
-		534EBB391052F76D003EF297 /* NSString+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+SBJSON.h"; path = "source/additions/JSON/NSString+SBJSON.h"; sourceTree = "<group>"; };
-		534EBB3A1052F76D003EF297 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJSON.h; path = source/additions/JSON/SBJSON.h; sourceTree = "<group>"; };
-		534EBB3B1052F76D003EF297 /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJsonParser.h; path = source/additions/JSON/SBJsonParser.h; sourceTree = "<group>"; };
-		534EBB3C1052F76D003EF297 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJsonWriter.h; path = source/additions/JSON/SBJsonWriter.h; sourceTree = "<group>"; };
-		534EBB3D1052F76D003EF297 /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJsonParser.m; path = source/additions/JSON/SBJsonParser.m; sourceTree = "<group>"; };
-		534EBB3E1052F76D003EF297 /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SBJsonBase.h; path = source/additions/JSON/SBJsonBase.h; sourceTree = "<group>"; };
-		534EBB3F1052F76D003EF297 /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJSON.m; path = source/additions/JSON/SBJSON.m; sourceTree = "<group>"; };
-		534EBB401052F76D003EF297 /* NSObject+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSObject+SBJSON.h"; path = "source/additions/JSON/NSObject+SBJSON.h"; sourceTree = "<group>"; };
-		534EBB411052F76E003EF297 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJsonWriter.m; path = source/additions/JSON/SBJsonWriter.m; sourceTree = "<group>"; };
-		534EBB421052F76E003EF297 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSON.h; path = source/additions/JSON/JSON.h; sourceTree = "<group>"; };
-		534EBB431052F76E003EF297 /* NSObject+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSObject+SBJSON.m"; path = "source/additions/JSON/NSObject+SBJSON.m"; sourceTree = "<group>"; };
-		534EBB441052F76E003EF297 /* SBJsonBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SBJsonBase.m; path = source/additions/JSON/SBJsonBase.m; sourceTree = "<group>"; };
-		534EBC0B10535740003EF297 /* FBBatchRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBBatchRequest.h; path = source/backend/FBBatchRequest.h; sourceTree = "<group>"; };
-		534EBC0C10535740003EF297 /* FBBatchRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBBatchRequest.m; path = source/backend/FBBatchRequest.m; sourceTree = "<group>"; };
-		534EBFBC1055E191003EF297 /* FBMultiqueryRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBMultiqueryRequest.h; path = source/backend/FBMultiqueryRequest.h; sourceTree = "<group>"; };
-		534EBFBD1055E191003EF297 /* FBMultiqueryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBMultiqueryRequest.m; path = source/backend/FBMultiqueryRequest.m; sourceTree = "<group>"; };
-		5381A8711084651F005441A3 /* FBCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCallback.h; path = source/backend/FBCallback.h; sourceTree = "<group>"; };
-		5381A8721084651F005441A3 /* FBCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBCallback.m; path = source/backend/FBCallback.m; sourceTree = "<group>"; };
-		5381AA0D1084842D005441A3 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = source/backend/FBRequest.h; sourceTree = "<group>"; };
+		534EBB381052F76D003EF297 /* NSString+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SBJSON.m"; sourceTree = "<group>"; };
+		534EBB391052F76D003EF297 /* NSString+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SBJSON.h"; sourceTree = "<group>"; };
+		534EBB3A1052F76D003EF297 /* SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJSON.h; sourceTree = "<group>"; };
+		534EBB3B1052F76D003EF297 /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
+		534EBB3C1052F76D003EF297 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
+		534EBB3D1052F76D003EF297 /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
+		534EBB3E1052F76D003EF297 /* SBJsonBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonBase.h; sourceTree = "<group>"; };
+		534EBB3F1052F76D003EF297 /* SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJSON.m; sourceTree = "<group>"; };
+		534EBB401052F76D003EF297 /* NSObject+SBJSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJSON.h"; sourceTree = "<group>"; };
+		534EBB411052F76E003EF297 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		534EBB421052F76E003EF297 /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
+		534EBB431052F76E003EF297 /* NSObject+SBJSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJSON.m"; sourceTree = "<group>"; };
+		534EBB441052F76E003EF297 /* SBJsonBase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonBase.m; sourceTree = "<group>"; };
+		534EBC0B10535740003EF297 /* FBBatchRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBBatchRequest.h; sourceTree = "<group>"; };
+		534EBC0C10535740003EF297 /* FBBatchRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBBatchRequest.m; sourceTree = "<group>"; };
+		534EBFBC1055E191003EF297 /* FBMultiqueryRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBMultiqueryRequest.h; sourceTree = "<group>"; };
+		534EBFBD1055E191003EF297 /* FBMultiqueryRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBMultiqueryRequest.m; sourceTree = "<group>"; };
+		5381A8711084651F005441A3 /* FBCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBCallback.h; sourceTree = "<group>"; };
+		5381A8721084651F005441A3 /* FBCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBCallback.m; sourceTree = "<group>"; };
+		5381AA0D1084842D005441A3 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBRequest.h; sourceTree = "<group>"; };
 		53A2ABCB10A927D5008079FB /* NSImage+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+.h"; sourceTree = "<group>"; };
 		53A2ABCC10A927D5008079FB /* NSImage+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+.m"; sourceTree = "<group>"; };
 		53A2ABCF10A92973008079FB /* NSData+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+.h"; sourceTree = "<group>"; };
 		53A2ABD010A92973008079FB /* NSData+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+.m"; sourceTree = "<group>"; };
+		53A2ADB110A98511008079FB /* NSString+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+.h"; sourceTree = "<group>"; };
+		53A2ADB610A9876D008079FB /* EMKeychainItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMKeychainItem.h; sourceTree = "<group>"; };
+		53A2ADB710A9876D008079FB /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainItem.m; sourceTree = "<group>"; };
+		53A2ADB810A9876D008079FB /* EMKeychainProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMKeychainProxy.h; sourceTree = "<group>"; };
+		53A2ADB910A9876D008079FB /* EMKeychainProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainProxy.m; sourceTree = "<group>"; };
+		53A2ADE410A99154008079FB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = usr/lib/libcrypto.0.9.7.dylib; sourceTree = SDKROOT; };
 		93207B3110164075006D15BB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -89,6 +100,7 @@
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
 				93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */,
 				93207B3210164075006D15BB /* WebKit.framework in Frameworks */,
+				53A2ADE510A99154008079FB /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -106,8 +118,8 @@
 		0867D691FE84028FC02AAC07 /* FBCocoa */ = {
 			isa = PBXGroup;
 			children = (
-				5306F955103B8E820061C722 /* Source */,
-				089C1665FE841158C02AAC07 /* Resources */,
+				5306F955103B8E820061C722 /* source */,
+				089C1665FE841158C02AAC07 /* resources */,
 				0867D69AFE84028FC02AAC07 /* External Frameworks and Libraries */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
@@ -123,13 +135,13 @@
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";
 		};
-		089C1665FE841158C02AAC07 /* Resources */ = {
+		089C1665FE841158C02AAC07 /* resources */ = {
 			isa = PBXGroup;
 			children = (
 				5306FB7C103B90D10061C722 /* InfoPlist.strings */,
 				5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */,
 			);
-			name = Resources;
+			path = resources;
 			sourceTree = "<group>";
 		};
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
@@ -138,6 +150,7 @@
 				93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */,
 				93207B3110164075006D15BB /* WebKit.framework */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
+				53A2ADE410A99154008079FB /* Security.framework */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -152,32 +165,33 @@
 			name = "Other Frameworks";
 			sourceTree = "<group>";
 		};
-		5306F955103B8E820061C722 /* Source */ = {
+		5306F955103B8E820061C722 /* source */ = {
 			isa = PBXGroup;
 			children = (
-				5306F95A103B8EA50061C722 /* FBCocoa */,
-				5306F957103B8E8A0061C722 /* Additions */,
-				5306F958103B8E900061C722 /* Backend */,
-				5306F959103B8E980061C722 /* Frontend */,
+				5306F95A103B8EA50061C722 /* fbcocoa */,
+				5306F957103B8E8A0061C722 /* additions */,
+				5306F958103B8E900061C722 /* backend */,
+				5306F959103B8E980061C722 /* frontend */,
 			);
-			name = Source;
+			path = source;
 			sourceTree = "<group>";
 		};
-		5306F957103B8E8A0061C722 /* Additions */ = {
+		5306F957103B8E8A0061C722 /* additions */ = {
 			isa = PBXGroup;
 			children = (
-				534EBB2C1052F748003EF297 /* JSON */,
-				5306F96E103B8FB40061C722 /* NSString+.h */,
+				53A2ADA110A98467008079FB /* keychain */,
+				534EBB2C1052F748003EF297 /* json */,
+				53A2ADB110A98511008079FB /* NSString+.h */,
 				5306F96C103B8FB40061C722 /* NSString+.m */,
 				53A2ABCB10A927D5008079FB /* NSImage+.h */,
 				53A2ABCC10A927D5008079FB /* NSImage+.m */,
 				53A2ABCF10A92973008079FB /* NSData+.h */,
 				53A2ABD010A92973008079FB /* NSData+.m */,
 			);
-			name = Additions;
+			path = additions;
 			sourceTree = "<group>";
 		};
-		5306F958103B8E900061C722 /* Backend */ = {
+		5306F958103B8E900061C722 /* backend */ = {
 			isa = PBXGroup;
 			children = (
 				5306FB6E103B906A0061C722 /* FBSessionState.h */,
@@ -194,28 +208,28 @@
 				534EBFBC1055E191003EF297 /* FBMultiqueryRequest.h */,
 				534EBFBD1055E191003EF297 /* FBMultiqueryRequest.m */,
 			);
-			name = Backend;
+			path = backend;
 			sourceTree = "<group>";
 		};
-		5306F959103B8E980061C722 /* Frontend */ = {
+		5306F959103B8E980061C722 /* frontend */ = {
 			isa = PBXGroup;
 			children = (
 				5306F968103B8F210061C722 /* FBWebViewWindowController.h */,
 				5306F967103B8F210061C722 /* FBWebViewWindowController.m */,
 			);
-			name = Frontend;
+			path = frontend;
 			sourceTree = "<group>";
 		};
-		5306F95A103B8EA50061C722 /* FBCocoa */ = {
+		5306F95A103B8EA50061C722 /* fbcocoa */ = {
 			isa = PBXGroup;
 			children = (
 				5306FB65103B90270061C722 /* FBCocoa_Prefix.pch */,
 				5306FB66103B90270061C722 /* FBCocoa.h */,
 			);
-			name = FBCocoa;
+			path = fbcocoa;
 			sourceTree = "<group>";
 		};
-		534EBB2C1052F748003EF297 /* JSON */ = {
+		534EBB2C1052F748003EF297 /* json */ = {
 			isa = PBXGroup;
 			children = (
 				534EBB421052F76E003EF297 /* JSON.h */,
@@ -232,7 +246,18 @@
 				534EBB3C1052F76D003EF297 /* SBJsonWriter.h */,
 				534EBB411052F76E003EF297 /* SBJsonWriter.m */,
 			);
-			name = JSON;
+			path = json;
+			sourceTree = "<group>";
+		};
+		53A2ADA110A98467008079FB /* keychain */ = {
+			isa = PBXGroup;
+			children = (
+				53A2ADB610A9876D008079FB /* EMKeychainItem.h */,
+				53A2ADB710A9876D008079FB /* EMKeychainItem.m */,
+				53A2ADB810A9876D008079FB /* EMKeychainProxy.h */,
+				53A2ADB910A9876D008079FB /* EMKeychainProxy.m */,
+			);
+			path = keychain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,6 +270,9 @@
 				5306FB68103B90270061C722 /* FBCocoa.h in Headers */,
 				5306FB76103B906A0061C722 /* FBConnect.h in Headers */,
 				5381AA0F1084842D005441A3 /* FBRequest.h in Headers */,
+				53A2ADB210A98511008079FB /* NSString+.h in Headers */,
+				53A2ADBA10A9876D008079FB /* EMKeychainItem.h in Headers */,
+				53A2ADBC10A9876D008079FB /* EMKeychainProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -321,6 +349,8 @@
 				5381A8741084651F005441A3 /* FBCallback.m in Sources */,
 				53A2ABCE10A927D5008079FB /* NSImage+.m in Sources */,
 				53A2ABD210A92973008079FB /* NSData+.m in Sources */,
+				53A2ADBB10A9876D008079FB /* EMKeychainItem.m in Sources */,
+				53A2ADBD10A9876D008079FB /* EMKeychainProxy.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -333,7 +363,7 @@
 				5306FB7D103B90D10061C722 /* English */,
 			);
 			name = InfoPlist.strings;
-			path = resources/English.lproj;
+			path = English.lproj;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -10,6 +10,8 @@
 
 
 @interface FBSessionState : NSObject {
+  NSString*     keychainKey;
+
   NSString*     secret;
   NSString*     key;
   NSString*     signature;
@@ -17,6 +19,8 @@
   NSDate*       expires;
   NSMutableSet* permissions;
 }
+
+- (id)initWithKey:(NSString*)aKey;
 
 - (NSString*)uid;
 - (void)setUID:(NSString*)aString;
