@@ -138,7 +138,6 @@
       [req setHTTPBody:data];
       [req setHTTPMethod:@"POST"];
       [req addValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", kPostFormDataBoundary] forHTTPHeaderField:@"Content-Type"];
-      NSLog(@"post the data!");
     } else {
       [req setHTTPMethod:@"GET"];
       [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
