@@ -6,9 +6,7 @@
  *
  */
 
-#define kRESTServerURL @"http://api.facebook.com/restserver.php?"
 #define kAPIVersion @"1.0"
-#define kRequestTimeout 60
 
 enum { // Facebook Connect Error Codes
 
@@ -92,6 +90,7 @@ enum { // Facebook Connect Error Codes
   FBBatchNotStartedError           = 952,
   FBBatchMethodNotAllowedError     = 953
 };
+typedef NSUInteger FBErrorCode;
 
 
 #import <FBCocoa/FBConnect.h>

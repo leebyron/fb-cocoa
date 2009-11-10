@@ -17,16 +17,21 @@
   BOOL requestFinished;
 
   NSString* request;
-  NSMutableData *responseBuffer;
-  FBConnect *parentConnect;
-  NSURLConnection *connection;
+  NSData* data;
+  NSMutableData* responseBuffer;
+  FBConnect* parentConnect;
+  NSURLConnection* connection;
 }
 
-+(FBMethodRequest*) requestWithRequest:(NSString *)requestString
-                          parent:(FBConnect *)parent
-                          target:(id)tar
-                        selector:(SEL)sel
-                           error:(SEL)err;
++ (FBMethodRequest*)requestWithRequest:(NSString*)requestString
+                                parent:(FBConnect*)parent
+                                target:(id)tar
+                              selector:(SEL)sel;
+
++ (FBMethodRequest*)requestWithData:(NSData*)postData
+                             parent:(FBConnect*)parent
+                             target:(id)tar
+                           selector:(SEL)sel;
 
 - (void)start;
 

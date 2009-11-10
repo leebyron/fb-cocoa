@@ -12,11 +12,10 @@
 
 @interface FBMethodRequest (Internal)
 
--(id)initWithRequest:(NSString *)requestString
-              parent:(FBConnect *)parent
-              target:(id)tar
-            selector:(SEL)sel
-               error:(SEL)err;
+- (id)initWithRequest:(NSString*)requestString
+               parent:(FBConnect*)parent
+               target:(id)tar
+             selector:(SEL)sel;
 
 - (void)evaluateResponse:(id)json;
 
@@ -25,33 +24,32 @@
 
 @interface FBBatchRequest (Private)
 
--(id)initWithRequest:(NSString *)requestString
-            requests:(NSArray *)requests
-              parent:(FBConnect *)parent;
+- (id)initWithRequest:(NSString*)requestString
+             requests:(NSArray*)requests
+               parent:(FBConnect*)parent;
 
 @end
 
 
 @implementation FBBatchRequest
 
-+(FBBatchRequest*)requestWithRequest:(NSString *)requestString
-                            requests:(NSArray *)requests
-                              parent:(FBConnect *)parent
++ (FBBatchRequest*)requestWithRequest:(NSString*)requestString
+                             requests:(NSArray*)requests
+                               parent:(FBConnect*)parent
 {
   return [[[FBBatchRequest alloc] initWithRequest:requestString
                                          requests:requests
                                            parent:parent] autorelease];
 }
 
--(id)initWithRequest:(NSString *)requestString
-            requests:(NSArray *)reqs
-              parent:(FBConnect *)parent
+- (id)initWithRequest:(NSString*)requestString
+             requests:(NSArray*)reqs
+               parent:(FBConnect*)parent
 {
   self = [super initWithRequest:requestString
                          parent:parent
                          target:nil
-                       selector:nil
-                          error:nil];
+                       selector:nil];
   if (!self) {
     return nil;
   }
@@ -86,7 +84,7 @@
   [jsonParser release];
 }
 
-- (void)failure:(NSError *)err
+- (void)failure:(NSError*)err
 {
   FBMethodRequest* req;
   for (int i = 0; i < [requests count]; i++) {

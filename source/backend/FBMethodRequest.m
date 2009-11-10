@@ -13,11 +13,15 @@
 
 @interface FBMethodRequest (Internal)
 
--(id)initWithRequest:(NSString *)requestString
-              parent:(FBConnect *)parent
+-(id)initWithRequest:(NSString*)requestString
+              parent:(FBConnect*)parent
               target:(id)tar
-            selector:(SEL)sel
-               error:(SEL)err;
+            selector:(SEL)sel;
+
+- (id)initWithData:(NSData*)postData
+            parent:(FBConnect*)parent
+            target:(id)tar
+          selector:(SEL)sel;
 
 - (void)evaluateResponse:(id)json;
 
@@ -25,8 +29,8 @@
 
 @interface FBMethodRequest (Private)
 
-- (NSError *)errorForResponse:(id)json;
-- (NSError *)errorForException:(NSException *)exception;
+- (NSError*)errorForResponse:(id)json;
+- (NSError*)errorForException:(NSException*)exception;
 - (void)finished;
 
 @end
@@ -34,35 +38,42 @@
 
 @interface FBConnect (FBRequestResults)
 
-- (void)failedQuery:(FBMethodRequest *)query withError:(NSError *)err;
+- (void)failedQuery:(FBMethodRequest*)query
+          withError:(NSError*)err;
 
 @end
 
 
 @implementation FBMethodRequest
 
-+(FBMethodRequest*) requestWithRequest:(NSString *)requestString
-                          parent:(FBConnect *)parent
-                          target:(id)tar
-                        selector:(SEL)sel
-                           error:(SEL)err
++ (FBMethodRequest*) requestWithRequest:(NSString*)requestString
+                                 parent:(FBConnect*)parent
+                                 target:(id)tar
+                               selector:(SEL)sel
 {
   return [[[FBMethodRequest alloc] initWithRequest:requestString
-                                      parent:parent
-                                      target:tar
-                                    selector:sel
-                                       error:err] autorelease];
+                                            parent:parent
+                                            target:tar
+                                          selector:sel] autorelease];
 }
 
--(id)initWithRequest:(NSString *)requestString
-              parent:(FBConnect *)parent
-              target:(id)tar
-            selector:(SEL)sel
-               error:(SEL)err
++ (FBMethodRequest*)requestWithData:(NSData*)postData
+                             parent:(FBConnect*)parent
+                             target:(id)tar
+                           selector:(SEL)sel
 {
-  if (self = [super initWithTarget:tar
-                          selector:sel
-                             error:err]) {
+  return [[[FBMethodRequest alloc] initWithData:postData
+                                         parent:parent
+                                         target:tar
+                                       selector:sel] autorelease];
+}
+
+- (id)initWithRequest:(NSString*)requestString
+               parent:(FBConnect*)parent
+               target:(id)tar
+             selector:(SEL)sel
+{
+  if (self = [super initWithTarget:tar selector:sel]) {
     requestStarted  = NO;
     requestFinished = NO;
     parentConnect   = [parent retain];
@@ -72,9 +83,25 @@
   return self;
 }
 
--(void)dealloc
+- (id)initWithData:(NSData*)postData
+            parent:(FBConnect*)parent
+            target:(id)tar
+          selector:(SEL)sel
+{
+  if (self = [super initWithTarget:tar selector:sel]) {
+    requestStarted  = NO;
+    requestFinished = NO;
+    parentConnect   = [parent retain];
+    data            = [postData retain];
+    responseBuffer  = [[NSMutableData alloc] init];
+  }
+  return self;
+}
+
+- (void)dealloc
 {
   [request release];
+  [data release];
   [responseBuffer release];
   [parentConnect release];
   [connection release];
@@ -91,17 +118,32 @@
   requestStarted = YES;
   [self retain];
   @try {
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", kRESTServerURL, request]];
+    NSURL* url;
+    if (request) {
+      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", kRESTServerURL, request]];
+    } else {
+      url = [NSURL URLWithString:kRESTServerURL];
+    }
+
     #ifdef NSURLRequestReloadIgnoringLocalCacheData
       NSURLRequestCachePolicy policy = NSURLRequestReloadIgnoringLocalCacheData;
     #else
       NSURLRequestCachePolicy policy = NSURLRequestUseProtocolCachePolicy;
     #endif
 
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url cachePolicy:policy timeoutInterval:kRequestTimeout];
-    [req setHTTPMethod:@"GET"];
-    [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
-    [req setValue:@"FBConnect/0.2 (OS X)" forHTTPHeaderField:@"User-Agent"];
+    NSMutableURLRequest* req = [NSMutableURLRequest requestWithURL:url
+                                                       cachePolicy:policy
+                                                   timeoutInterval:kRequestTimeout];
+    if (data) {
+      [req setHTTPBody:data];
+      [req setHTTPMethod:@"POST"];
+      [req addValue:[NSString stringWithFormat:@"multipart/form-data; boundary=%@", kPostFormDataBoundary] forHTTPHeaderField:@"Content-Type"];
+      NSLog(@"post the data!");
+    } else {
+      [req setHTTPMethod:@"GET"];
+      [req addValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-type"];
+    }
+    [req setValue:@"FBConnect/0.3 (OS X)" forHTTPHeaderField:@"User-Agent"];
 
     if (connection) {
       [connection cancel];
@@ -109,7 +151,7 @@
       connection = nil;
     }
     connection = [[NSURLConnection alloc] initWithRequest:req delegate:self];
-  } @catch (NSException *exception) {
+  } @catch (NSException* exception) {
     [self failure:[self errorForException:exception]];
     [self finished];
   }
@@ -151,12 +193,12 @@
   [self finished];
 }
 
-- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data
+- (void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)aData
 {
-  [responseBuffer appendData:data];
+  [responseBuffer appendData:aData];
 }
 
-- (void)connectionDidFinishLoading:(NSURLConnection *)connection
+- (void)connectionDidFinishLoading:(NSURLConnection*)connection
 {
   NSString* jsonString = [[NSString alloc] initWithData:responseBuffer encoding:NSUTF8StringEncoding];
   SBJsonParser* jsonParser = [SBJsonParser new];
@@ -180,32 +222,34 @@
 - (void)evaluateResponse:(id)json
 {
   if (json == nil ||
-      ([json isKindOfClass:[NSDictionary class]] && [json objectForKey:@"error_code"] != nil) ||
+      ([json isKindOfClass:[NSDictionary class]] &&
+       [json objectForKey:@"error_code"] != nil) ||
       json == 0
     ) {
-    NSError *err = [self errorForResponse:json];
-    [self failure:err];
+    [self failure:[self errorForResponse:json]];
   } else {
     [self success:json];
   }
 }
 
-- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)err
+- (void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)err
 {
   [self failure:err];
   [self finished];
 }
 
-- (void)failure:(NSError *)err
+- (void)failure:(NSError*)err
 {
   [parentConnect failedQuery:self withError:err];
   [super failure:err];
 }
 
 #pragma mark Private Methods
-- (NSError *)errorForResponse:(id)json
+- (NSError*)errorForResponse:(id)json
 {
-  if (json == nil || ![json isKindOfClass:[NSDictionary class]] || [json objectForKey:@"error_code"] == nil) {
+  if (json == nil ||
+      ![json isKindOfClass:[NSDictionary class]] ||
+      [json objectForKey:@"error_code"] == nil) {
     return [NSError errorWithDomain:kFBErrorDomainKey
                                code:FBAPIUnknownError
                            userInfo:[NSDictionary dictionaryWithObject:@"nil response"
@@ -213,24 +257,23 @@
   }
 
   int code = [[json objectForKey:@"error_code"] intValue];
-  NSString *message = [json objectForKey:@"error_msg"];
+  NSString* message = [json objectForKey:@"error_msg"];
   return [NSError errorWithDomain:kFBErrorDomainKey
                              code:code
                          userInfo:[NSDictionary dictionaryWithObject:message
                                                               forKey:kFBErrorMessageKey]];
 }
 
-- (NSError *)errorForException:(NSException *)exception
+- (NSError*)errorForException:(NSException*)exception
 {
   NSString* message = [NSString stringWithFormat:@"%@: %@", [exception name], [exception reason]];
   NSLog(@"Caught %@", message);
-  NSError* e = [NSError errorWithDomain:kFBErrorDomainKey
-                                   code:FBAPIUnknownError
-                               userInfo:[NSDictionary dictionaryWithObject:message forKey:kFBErrorMessageKey]];
-  return e;
+  return [NSError errorWithDomain:kFBErrorDomainKey
+                             code:FBAPIUnknownError
+                         userInfo:[NSDictionary dictionaryWithObject:message forKey:kFBErrorMessageKey]];
 }
 
-- (NSString *)description {
+- (NSString*)description {
   return request;
 }
 

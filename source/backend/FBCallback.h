@@ -12,15 +12,25 @@
 @interface FBCallback : NSObject {
   id  target;
   SEL method;
-  SEL errorMethod;
+
+  id userData;
+  id response;
+  NSError* error;
 }
 
 - (id)initWithTarget:(id)tar
-            selector:(SEL)sel
-               error:(SEL)err;
+            selector:(SEL)sel;
 
 - (void)success:(id)json;
+- (void)failure:(NSError*)err;
 
-- (void)failure:(NSError *)err;
+- (id)userData;
+- (void)setUserData:(id)data;
+
+- (id)response;
+- (void)setResponse:(id)aResponse;
+
+- (NSError*)error;
+- (void)setError:(NSError*)aError;
 
 @end

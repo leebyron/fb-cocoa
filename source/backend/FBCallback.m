@@ -13,34 +13,68 @@
 
 - (id)initWithTarget:(id)tar
             selector:(SEL)sel
-               error:(SEL)err
 {
   if (self = [super init]) {
-    target = [tar retain];
+    target = tar;
     method = sel;
-    errorMethod = err;
   }
   return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
-  [target release];
+  [response release];
+  [error release];
+  [userData release];
   [super dealloc];
 }
 
 - (void)success:(id)json
 {
-  if (target && method && [target respondsToSelector:method]) {
-    [target performSelector:method withObject:json];
-  }
+  [self setResponse:json];
+  DELEGATE(target, method);
 }
 
-- (void)failure:(NSError *)err
+- (void)failure:(NSError*)err
 {
-  if (target && errorMethod && [target respondsToSelector:errorMethod]) {
-    [target performSelector:errorMethod withObject:err];
-  }
+  [self setError:err];
+  DELEGATE(target, method);
+}
+
+- (id)userData
+{
+  return userData;
+}
+
+- (void)setUserData:(id)data
+{
+  [data retain];
+  [userData release];
+  userData = data;
+}
+
+- (id)response
+{
+  return response;
+}
+
+- (void)setResponse:(id)aResponse
+{
+  [aResponse retain];
+  [response release];
+  response = aResponse;
+}
+
+- (NSError*)error
+{
+  return error;
+}
+
+- (void)setError:(NSError*)aError
+{
+  [aError retain];
+  [error release];
+  error = aError;
 }
 
 @end

@@ -14,8 +14,8 @@
   NSArray* requests;
 }
 
-+(FBBatchRequest*)requestWithRequest:(NSString *)requestString
-                            requests:(NSArray *)requests
-                              parent:(FBConnect *)parent;
++ (FBBatchRequest*)requestWithRequest:(NSString*)requestString
+                             requests:(NSArray*)requests
+                               parent:(FBConnect*)parent;
 
 @end

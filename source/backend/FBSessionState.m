@@ -8,20 +8,19 @@
 
 #import "FBSessionState.h"
 
-
 #define kFBSavedSessionKey @"FBSavedSession"
 
 
 @interface FBSessionState (Private)
 
-- (void)setDictionary:(NSDictionary *)dict;
+- (void)setDictionary:(NSDictionary*)dict;
 
 @end
 
 
 @implementation FBSessionState
 
--(id)init
+- (id)init
 {
   if (!(self = [super init])) {
     return nil;
@@ -38,7 +37,7 @@
   return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
   [secret      release];
   [key         release];
@@ -50,43 +49,43 @@
   [super dealloc];
 }
 
-- (NSString *)uid
+- (NSString*)uid
 {
   return uid;
 }
 
-- (void)setUID:(NSString *)aString
+- (void)setUID:(NSString*)aString
 {
   [aString retain];
   [uid release];
   uid = aString;
 }
 
-- (NSString *)key
+- (NSString*)key
 {
   return key;
 }
 
-- (void)setKey:(NSString *)aString
+- (void)setKey:(NSString*)aString
 {
   [aString retain];
   [key release];
   key = aString;
 }
 
-- (NSString *)secret
+- (NSString*)secret
 {
   return secret;
 }
 
-- (void)setSecret:(NSString *)aString
+- (void)setSecret:(NSString*)aString
 {
   [aString retain];
   [secret release];
   secret = aString;
 }
 
-- (NSSet *)permissions
+- (NSSet*)permissions
 {
   return permissions;
 }
@@ -102,7 +101,7 @@
   }
 }
 
-- (void)addPermission:(NSString *)perm
+- (void)addPermission:(NSString*)perm
 {
   [permissions addObject:perm];
 }
@@ -121,42 +120,42 @@
   return [permissions containsObject:perm];
 }
 
--(void) setWithDictionary:(NSDictionary *)dict
+- (void) setWithDictionary:(NSDictionary*)dict
 {
   [self setDictionary:dict];
 
   // save session forever
-  NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+  NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
   [ud removeObjectForKey:kFBSavedSessionKey];
   [ud setObject:dict forKey:kFBSavedSessionKey];
   [ud synchronize];
 }
 
--(void)setDictionary:(NSDictionary *)dict
+- (void)setDictionary:(NSDictionary*)dict
 {
-  [secret release];
-  [key release];
-  [signature release];
-  [uid release];
-  [expires release];
+  [secret     release];
+  [key        release];
+  [signature  release];
+  [uid        release];
+  [expires    release];
 
-  secret = [[dict valueForKey:@"secret"] retain];
-  key = [[dict valueForKey:@"session_key"] retain];
+  secret    = [[dict valueForKey:@"secret"] retain];
+  key       = [[dict valueForKey:@"session_key"] retain];
   signature = [[dict valueForKey:@"sig"] retain];
-  expires = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
-  uid = [dict valueForKey:@"uid"];
+  expires   = [[NSDate dateWithTimeIntervalSince1970:[[dict valueForKey:@"expires"] doubleValue]] retain];
+  uid       = [dict valueForKey:@"uid"];
   if (![uid isKindOfClass:[NSString class]]) {
     uid = [(id)uid stringValue];
   }
   [uid retain];
 }
 
--(BOOL)exists
+- (BOOL)exists
 {
   return uid != nil && uid != @"0";
 }
 
--(BOOL)isValid
+- (BOOL)isValid
 {
   // expires == 0 iff an infinite session has been granted
   return [self exists] && expires != nil &&
@@ -164,12 +163,12 @@
           [expires compare:[NSDate date]] == NSOrderedDescending);
 }
 
--(void)invalidate
+- (void)invalidate
 {
   expires = nil;
 }
 
--(void)clear
+- (void)clear
 {
   NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
   [ud removeObjectForKey:kFBSavedSessionKey];

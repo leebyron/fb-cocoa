@@ -26,6 +26,8 @@
 		534EBFBF1055E191003EF297 /* FBMultiqueryRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 534EBFBD1055E191003EF297 /* FBMultiqueryRequest.m */; };
 		5381A8741084651F005441A3 /* FBCallback.m in Sources */ = {isa = PBXBuildFile; fileRef = 5381A8721084651F005441A3 /* FBCallback.m */; };
 		5381AA0F1084842D005441A3 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5381AA0D1084842D005441A3 /* FBRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		53A2ABCE10A927D5008079FB /* NSImage+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABCC10A927D5008079FB /* NSImage+.m */; };
+		53A2ABD210A92973008079FB /* NSData+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABD010A92973008079FB /* NSData+.m */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
 		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
 		93207B3210164075006D15BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207B3110164075006D15BB /* WebKit.framework */; };
@@ -69,6 +71,10 @@
 		5381A8711084651F005441A3 /* FBCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBCallback.h; path = source/backend/FBCallback.h; sourceTree = "<group>"; };
 		5381A8721084651F005441A3 /* FBCallback.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FBCallback.m; path = source/backend/FBCallback.m; sourceTree = "<group>"; };
 		5381AA0D1084842D005441A3 /* FBRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FBRequest.h; path = source/backend/FBRequest.h; sourceTree = "<group>"; };
+		53A2ABCB10A927D5008079FB /* NSImage+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+.h"; sourceTree = "<group>"; };
+		53A2ABCC10A927D5008079FB /* NSImage+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+.m"; sourceTree = "<group>"; };
+		53A2ABCF10A92973008079FB /* NSData+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+.h"; sourceTree = "<group>"; };
+		53A2ABD010A92973008079FB /* NSData+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+.m"; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = usr/lib/libcrypto.0.9.7.dylib; sourceTree = SDKROOT; };
 		93207B3110164075006D15BB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
@@ -163,6 +169,10 @@
 				534EBB2C1052F748003EF297 /* JSON */,
 				5306F96E103B8FB40061C722 /* NSString+.h */,
 				5306F96C103B8FB40061C722 /* NSString+.m */,
+				53A2ABCB10A927D5008079FB /* NSImage+.h */,
+				53A2ABCC10A927D5008079FB /* NSImage+.m */,
+				53A2ABCF10A92973008079FB /* NSData+.h */,
+				53A2ABD010A92973008079FB /* NSData+.m */,
 			);
 			name = Additions;
 			sourceTree = "<group>";
@@ -309,6 +319,8 @@
 				534EBC0E10535740003EF297 /* FBBatchRequest.m in Sources */,
 				534EBFBF1055E191003EF297 /* FBMultiqueryRequest.m in Sources */,
 				5381A8741084651F005441A3 /* FBCallback.m in Sources */,
+				53A2ABCE10A927D5008079FB /* NSImage+.m in Sources */,
+				53A2ABD210A92973008079FB /* NSData+.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -376,7 +388,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx10.4;
+				SDKROOT = macosx10.5;
 			};
 			name = Debug;
 		};

@@ -21,4 +21,20 @@
  */
 - (void)cancel;
 
+/*!
+ * The API response to this request, given it is successful
+ */
+- (id)response;
+
+/*!
+ * The API response to this request, given it is unsuccessful
+ */
+- (NSError*)error;
+
+/*!
+ * User data to identify your request, can be anything your heart desires
+ */
+- (id)userData;
+- (void)setUserData:(id)data;
+
 @end

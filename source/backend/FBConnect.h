@@ -54,22 +54,22 @@
  * sending FQL queries.
  */
 @interface FBConnect : NSObject {
-  NSString *APIKey;
-  NSString *appSecret;
-  FBSessionState *sessionState;
+  NSString* APIKey;
+  NSString* appSecret;
+  FBSessionState* sessionState;
   id delegate;
   BOOL isLoggedIn;
 
-  NSSet *requiredPermissions;
-  NSSet *optionalPermissions;
-  NSMutableSet *requestedPermissions;
+  NSSet* requiredPermissions;
+  NSSet* optionalPermissions;
+  NSMutableSet* requestedPermissions;
 
   BOOL isBatch;
-  NSMutableArray *pendingBatchRequests;
+  NSMutableArray* pendingBatchRequests;
 
   FBCallback* permissionCallback;
 
-  FBWebViewWindowController *windowController;
+  FBWebViewWindowController* windowController;
 }
 
 
@@ -82,8 +82,8 @@
  * @param delegate An object that will receive delegate method calls when
  * certain events happen in the session. See FBConnectDelegate.
  */
-+ (FBConnect *)sessionWithAPIKey:(NSString *)key
-                        delegate:(id)obj;
++ (FBConnect*)sessionWithAPIKey:(NSString*)key
+                       delegate:(id)obj;
 
 /*!
  * If your application is going to call methods which require an application
@@ -92,7 +92,7 @@
  *
  * http://wiki.developers.facebook.com/index.php/Session_Secret_and_API_Methods
  */
-- (void)setSecret:(NSString *)secret;
+- (void)setSecret:(NSString*)secret;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -164,11 +164,20 @@
 /*!
  * Sends an API request with a particular method.
  */
-- (id<FBRequest>)callMethod:(NSString *)method
-           withArguments:(NSDictionary *)dict
-                  target:(id)target
-                selector:(SEL)selector
-                   error:(SEL)error;
+- (id<FBRequest>)callMethod:(NSString*)method
+              withArguments:(NSDictionary*)dict
+                     target:(id)target
+                   selector:(SEL)selector;
+
+/*!
+ * Sends an API request with a particular method using a POST request
+ * and attaching an array of files (usually NSImage instances)
+ */
+- (id<FBRequest>)callMethod:(NSString*)method
+              withArguments:(NSDictionary*)dict
+                  withFiles:(NSArray*)files
+                     target:(id)target
+                   selector:(SEL)selector;
 
 /*!
  * Sends an FQL query within the session. See the Facebook Developer Wiki for
@@ -176,10 +185,9 @@
  * will receive a -session:receivedResponse: message when the process completes.
  * See FBConnectDelegate.
  */
-- (id<FBRequest>)fqlQuery:(NSString *)query
-                target:(id)target
-              selector:(SEL)selector
-                 error:(SEL)error;
+- (id<FBRequest>)fqlQuery:(NSString*)query
+                   target:(id)target
+                 selector:(SEL)selector;
 
 /*!
  * Sends an FQL.multiquery request. See the Facebook Developer Wiki for
@@ -190,10 +198,9 @@
  * @param queries A dictionary mapping strings (query names) to strings
  * (FQL query strings).
  */
-- (id<FBRequest>)fqlMultiquery:(NSDictionary *)queries
-                     target:(id)target
-                   selector:(SEL)selector
-                      error:(SEL)error;
+- (id<FBRequest>)fqlMultiquery:(NSDictionary*)queries
+                        target:(id)target
+                      selector:(SEL)selector;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -207,6 +214,8 @@
  *
  * Note: there is limit of 20 individual operations that can be performed in a
  * single batch execution.
+ *
+ * Batched API calls can only be GET requests, no POST requests
  *
  * [connectSession startBatch];
  * [connectSession callMethod:@"Stream.publish" ...];

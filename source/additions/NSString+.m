@@ -7,13 +7,15 @@
 //
 
 #import "NSString+.h"
-#include <openssl/md5.h>
 
-@implementation NSString (Additions)
+@implementation NSString (FBCocoa)
 
 + (BOOL)exists:(id)string
 {
-  return string != nil && [string isKindOfClass:[NSString class]] && [string respondsToSelector:@selector(length)] && [string length] > 0;
+  return string != nil &&
+    [string isKindOfClass:[NSString class]] &&
+    [string respondsToSelector:@selector(length)] &&
+    [string length] > 0;
 }
 
 - (NSDictionary*)urlDecodeArguments
@@ -35,11 +37,11 @@
   return decoded;
 }
 
-+ (NSString *)urlEncodeArguments:(NSDictionary *)dict
++ (NSString*)urlEncodeArguments:(NSDictionary*)dict
 {
-  NSMutableString *result = [NSMutableString string];
+  NSMutableString* result = [NSMutableString string];
 
-  NSEnumerator *enumerator = [dict keyEnumerator];
+  NSEnumerator* enumerator = [dict keyEnumerator];
   NSString* key;
   while ((key = [enumerator nextObject])) {
     if ([result length] > 0) {
@@ -65,31 +67,11 @@
 
 - (NSString *)urlEncode
 {
-  return (NSString *)CFURLCreateStringByAddingPercentEscapes(NULL,
-                                                             (CFStringRef)self,
-                                                             NULL,
-                                                             (CFStringRef)@"!*'();:@&=+$,/?%#[]",
-                                                             kCFStringEncodingUTF8);
+  return (NSString*)CFURLCreateStringByAddingPercentEscapes(
+    NULL, (CFStringRef)self, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8);
 }
 
-- (NSString *)hexMD5
-{
-  NSData *digest = [self dataUsingEncoding:NSUTF8StringEncoding];
-  unsigned long length = [digest length];
-  unsigned char hash[MD5_DIGEST_LENGTH];
-
-  MD5([digest bytes], length, hash);
-
-  NSMutableString *result = [NSMutableString string];
-  int i;
-  for (i = 0; i < MD5_DIGEST_LENGTH; i++) {
-    [result appendFormat:@"%02x", hash[i]];
-  }
-
-  return result;
-}
-
-- (BOOL)containsString:(NSString *)string
+- (BOOL)containsString:(NSString*)string
 {
   return [self rangeOfString:string].location != NSNotFound;
 }

@@ -1,7 +1,21 @@
 //
-// Prefix header for all source files of the 'FBAPI' target in the 'FBAPI' project.
+// Prefix header for all source files of the 'FBCocoa' target in the 'FBCocoa' project.
 //
 
 #ifdef __OBJC__
     #import <Cocoa/Cocoa.h>
 #endif
+
+// end points
+#define kRESTServerURL @"http://api.facebook.com/restserver.php"
+#define kLoginURL @"http://www.facebook.com/login.php"
+#define kPermissionsURL @"http://www.facebook.com/connect/prompt_permissions.php"
+
+// required constants
+#define kPostFormDataBoundary @"xfAcEb0oKxFaCeBo0kxf4cEb0oKxFaCeBo0kxfAcEb0oKxFaCeBo0kx"
+#define kRequestTimeout 60
+#define kMaxPhotoSize 604
+
+// useful macros
+#define DELEGATE(tar, sel) {if (tar && [tar respondsToSelector:(sel)]) {\
+[tar performSelector:(sel) withObject:self];}}

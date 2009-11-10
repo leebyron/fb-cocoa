@@ -14,38 +14,48 @@
 #import "FBWebViewWindowController.h"
 #import "FBSessionState.h"
 #import "JSON.h"
+#import "NSData+.h"
+#import "NSImage+.h"
 #import "NSString+.h"
-
-#define kLoginURL @"http://www.facebook.com/login.php"
-#define kPermissionsURL @"http://www.facebook.com/connect/prompt_permissions.php"
-
-#define DELEGATE(sel) {if (delegate && [delegate respondsToSelector:(sel)]) {\
-[delegate performSelector:(sel) withObject:self];}}
-
 
 @interface FBConnect (Private)
 
-- (id)initWithAPIKey:(NSString *)key delegate:(id)obj;
+- (id)initWithAPIKey:(NSString*)key delegate:(id)obj;
+
 - (void)promptLogin;
+
 - (void)validateSession;
+
 - (void)refreshSession;
-- (NSString *)getPreferedFBLocale;
-- (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict;
-- (NSString *)sigForArguments:(NSDictionary *)dict;
-- (void)complainAboutRequiredPermissions:(NSSet *)lackingPermissions;
+
+- (NSString*)getPreferedFBLocale;
+
+- (NSDictionary*)completeArgumentsForMethod:(NSString*)method
+                                  arguments:(NSDictionary*)dict;
+
+- (NSString*)sigForArguments:(NSDictionary*)dict;
+
+- (NSString*)getRequestStringForMethod:(NSString*)method
+                             arguments:(NSDictionary*)dict;
+
+- (NSData*)postDataForMethod:(NSString*)method
+                   arguments:(NSDictionary*)dict
+                       files:(NSArray*)files;
+
+- (void)complainAboutRequiredPermissions:(NSSet*)lackingPermissions;
 
 @end
 
 
 @implementation FBConnect
 
-+ (FBConnect *)sessionWithAPIKey:(NSString *)key
-                        delegate:(id)obj
++ (FBConnect*)sessionWithAPIKey:(NSString*)key
+                       delegate:(id)obj
 {
   return [[[self alloc] initWithAPIKey:key delegate:obj] autorelease];
 }
 
-- (id)initWithAPIKey:(NSString *)key
+- (id)initWithAPIKey:(NSString*)key
             delegate:(id)obj
 {
   if (!(self = [super init])) {
@@ -68,8 +78,8 @@
   [appSecret    release];
   [sessionState release];
 
-  [requiredPermissions release];
-  [optionalPermissions release];
+  [requiredPermissions  release];
+  [optionalPermissions  release];
   [requestedPermissions release];
 
   [permissionCallback release];
@@ -81,7 +91,7 @@
 //==============================================================================
 //==============================================================================
 
-- (void)setSecret:(NSString *)secret
+- (void)setSecret:(NSString*)secret
 {
   [secret retain];
   [appSecret release];
@@ -93,7 +103,7 @@
   return isLoggedIn;
 }
 
-- (NSString *)uid
+- (NSString*)uid
 {
   if (![sessionState isValid]) {
     return nil;
@@ -101,8 +111,8 @@
   return [sessionState uid];
 }
 
-- (void)loginWithRequiredPermissions:(NSSet *)req
-                 optionalPermissions:(NSSet *)opt
+- (void)loginWithRequiredPermissions:(NSSet*)req
+                 optionalPermissions:(NSSet*)opt
 {
   // remember what permissions we asked for
   [req retain];
@@ -136,7 +146,7 @@
     return;
   }
 
-  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary* loginParams = [[NSMutableDictionary alloc] init];
   NSString* permissionsString = [[requestedPermissions allObjects] componentsJoinedByString:@","];
   [loginParams setObject:permissionsString          forKey:@"req_perms"];
   [loginParams setObject:APIKey                     forKey:@"api_key"];
@@ -170,10 +180,9 @@
     [permissionCallback release];
   }
   permissionCallback = [[FBCallback alloc] initWithTarget:target
-                                                 selector:selector
-                                                    error:nil];
+                                                 selector:selector];
 
-  NSMutableDictionary *loginParams = [[NSMutableDictionary alloc] init];
+  NSMutableDictionary* loginParams = [[NSMutableDictionary alloc] init];
   NSString* permissionsString = [[perms allObjects] componentsJoinedByString:@","];
   [loginParams setObject:permissionsString          forKey:@"ext_perm"];
   [loginParams setObject:APIKey                     forKey:@"api_key"];
@@ -198,8 +207,7 @@
   [self callMethod:@"auth.expireSession"
      withArguments:nil
             target:self
-          selector:@selector(expireSessionResponseComplete:)
-             error:@selector(failedLogout:)];
+          selector:@selector(expireSessionResponseComplete:)];
   [sessionState clear];
   isLoggedIn = NO;
 }
@@ -207,16 +215,17 @@
 - (void)validateSession
 {
   [self startBatch];
+
   [self fqlQuery:[NSString stringWithFormat:@"SELECT %@ FROM permissions WHERE uid = %@",
-                      [[requestedPermissions allObjects] componentsJoinedByString:@","], [self uid]]
-              target:self
-            selector:@selector(gotGrantedPermissions:)
-               error:nil];
+                  [[requestedPermissions allObjects] componentsJoinedByString:@","], [self uid]]
+          target:self
+        selector:@selector(gotGrantedPermissions:)];
+
   [self callMethod:@"users.getLoggedInUser"
      withArguments:nil
             target:self
-          selector:@selector(gotLoggedInUser:)
-             error:@selector(failedValidateSession:)];
+          selector:@selector(gotLoggedInUser:)];
+
   [self sendBatch];
 }
 
@@ -240,17 +249,15 @@
 
 #pragma mark Connect Methods
 - (id<FBRequest>)callMethod:(NSString *)method
-           withArguments:(NSDictionary *)dict
-                  target:(id)target
-                selector:(SEL)selector
-                   error:(SEL)error
+              withArguments:(NSDictionary *)dict
+                     target:(id)target
+                   selector:(SEL)selector
 {
   NSString *requestString = [self getRequestStringForMethod:method arguments:dict];
-  FBMethodRequest *request = [FBMethodRequest requestWithRequest:requestString
-                                              parent:self
-                                              target:target
-                                            selector:selector
-                                               error:error];
+  FBMethodRequest* request = [FBMethodRequest requestWithRequest:requestString
+                                                          parent:self
+                                                          target:target
+                                                        selector:selector];
   if ([self pendingBatch]) {
     [pendingBatchRequests addObject:request];
   } else {
@@ -259,30 +266,49 @@
   return request;
 }
 
-- (id<FBRequest>)fqlQuery:(NSString *)query
-                target:(id)target
-              selector:(SEL)selector
-                 error:(SEL)error
+- (id<FBRequest>)callMethod:(NSString*)method
+              withArguments:(NSDictionary*)dict
+                  withFiles:(NSArray*)files
+                     target:(id)target
+                   selector:(SEL)selector
+{
+  NSData* postData = [self postDataForMethod:method
+                                   arguments:dict
+                                       files:files];
+  FBMethodRequest* request = [FBMethodRequest requestWithData:postData
+                                                       parent:self
+                                                       target:target
+                                                     selector:selector];
+  if ([self pendingBatch]) {
+    [NSException raise:@"Post request during batch"
+                format:@"Cannot perform a facebook method request with files after startBatch"];
+  } else {
+    [request start];
+  }
+  return request;
+}
+
+- (id<FBRequest>)fqlQuery:(NSString*)query
+                   target:(id)target
+                 selector:(SEL)selector
 {
   return [self callMethod:@"fql.query"
             withArguments:[NSDictionary dictionaryWithObject:query forKey:@"query"]
                    target:target
-                 selector:selector
-                    error:error];
+                 selector:selector];
 }
 
-- (id<FBRequest>)fqlMultiquery:(NSDictionary *)queries
-                     target:(id)target
-                   selector:(SEL)selector
-                      error:(SEL)error
+- (id<FBRequest>)fqlMultiquery:(NSDictionary*)queries
+                        target:(id)target
+                      selector:(SEL)selector
 {
   NSDictionary* arguments = [NSDictionary dictionaryWithObject:[queries JSONRepresentation] forKey:@"queries"];
   NSString* requestString = [self getRequestStringForMethod:@"fql.multiquery" arguments:arguments];
+
   FBMethodRequest* request = [FBMultiqueryRequest requestWithRequest:requestString
                                                               parent:self
                                                               target:target
-                                                            selector:selector
-                                                               error:error];
+                                                            selector:selector];
   if ([self pendingBatch]) {
     [pendingBatchRequests addObject:request];
   } else {
@@ -364,9 +390,13 @@
   }
 }
 
-- (void)gotGrantedPermissions:(id)response
+- (void)gotGrantedPermissions:(id<FBRequest>)req
 {
-  response = [response objectAtIndex:0];
+  if ([req error]) {
+    NSLog(@"grant perms error: %@", [req error]);
+  }
+
+  NSDictionary* response = [[req response] objectAtIndex:0];
 
   NSEnumerator *enumerator = [response keyEnumerator];
   NSString* perm;
@@ -377,8 +407,21 @@
   }
 }
 
-- (void)gotLoggedInUser:(id)response
+- (void)gotLoggedInUser:(id<FBRequest>)req
 {
+  if ([req error]) {
+    if ([[req error] code] > 0) {
+      // fb error, bad login
+      [self promptLogin];
+    } else {
+      // net error, retry
+      [self performSelector:@selector(validateSession)
+                 withObject:nil
+                 afterDelay:60.0];
+    }
+    return;
+  }
+
   // check for granted permissions
   BOOL needsNewPermissions = NO;
   NSEnumerator* enumerator = [requiredPermissions objectEnumerator];
@@ -393,17 +436,17 @@
   // if needs a permission, prompt. if session is valid, notify. else refresh.
   if (needsNewPermissions) {
     [self promptLogin];
-  } else if ([[response stringValue] isEqualToString:[self uid]]) {
+  } else if ([[[req response] stringValue] isEqualToString:[self uid]]) {
     isLoggedIn = YES;
-    DELEGATE(@selector(FBConnectLoggedIn:));
+    DELEGATE(delegate, @selector(FBConnectLoggedIn:));
   } else {
     [self refreshSession];
   }
 }
 
-- (void)failedValidateSession:(NSError *)error
+- (void)failedValidateSession:(id<FBRequest>)req
 {
-  if ([error code] > 0) {
+  if ([[req error] code] > 0) {
     // fb error, bad login
     [self promptLogin];
   } else {
@@ -414,14 +457,14 @@
   }
 }
 
-- (void)expireSessionResponseComplete:(id)json
+- (void)expireSessionResponseComplete:(id<FBRequest>)req
 {
-  DELEGATE(@selector(FBConnectLoggedOut:));
-}
+  if ([req error]) {
+    DELEGATE(delegate, @selector(FBConnectErrorLoggingOut:));
+    return;
+  }
 
-- (void)failedLogout:(NSError *)error
-{
-  DELEGATE(@selector(FBConnectErrorLoggingOut:));
+  DELEGATE(delegate, @selector(FBConnectLoggedOut:));
 }
 
 - (void)loginWindowClosed
@@ -463,9 +506,9 @@
   windowController = nil;
 
   if (isLoggedIn) {
-    DELEGATE(@selector(FBConnectLoggedIn:));
+    DELEGATE(delegate, @selector(FBConnectLoggedIn:));
   } else {
-    DELEGATE(@selector(FBConnectErrorLoggingIn:));
+    DELEGATE(delegate, @selector(FBConnectErrorLoggingIn:));
   }
 }
 
@@ -509,9 +552,10 @@
 //==============================================================================
 
 #pragma mark Private Methods
-- (NSString *)getPreferedFBLocale
+- (NSString*)getPreferedFBLocale
 {
   NSString* preferredLang = @"en_US"; // start with default language
+
   // commented out locales do not have an OS X equivalent
   // TODO: facebook supports even more languages!
   NSDictionary* fbLocales = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -587,6 +631,7 @@
     @"vi_VN", @"vi", // Vietnamese - Tiếng Việt
     @"cy_GB", @"cy", // Welsh - Cymraeg
     nil];
+
   NSArray* languages = [[NSUserDefaults standardUserDefaults] objectForKey:@"AppleLanguages"];
   NSString* language;
   for (int i = 0; i < [languages count]; i++) {
@@ -599,9 +644,12 @@
   return preferredLang;
 }
 
-- (NSString *)getRequestStringForMethod:(NSString *)method arguments:(NSDictionary *)dict
+//////
+
+- (NSDictionary*)completeArgumentsForMethod:(NSString*)method
+                                  arguments:(NSDictionary*)dict
 {
-  NSMutableDictionary *args;
+  NSMutableDictionary* args;
   if (dict) {
     args = [NSMutableDictionary dictionaryWithDictionary:dict];
   } else {
@@ -618,16 +666,15 @@
     [args setObject:[sessionState key] forKey:@"session_key"];
   }
 
-  NSString *sig = [self sigForArguments:args];
-  [args setObject:sig forKey:@"sig"];
+  [args setObject:[self sigForArguments:args] forKey:@"sig"];
 
-  return [NSString urlEncodeArguments:args];
+  return args;
 }
 
-- (NSString *)sigForArguments:(NSDictionary *)dict
+- (NSString*)sigForArguments:(NSDictionary*)dict
 {
-  NSArray *sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
-  NSMutableString *args = [NSMutableString string];
+  NSArray* sortedKeys = [[dict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+  NSMutableString* args = [NSMutableString string];
   NSString* key;
   for (int i = 0; i < [sortedKeys count]; i++) {
     key = [sortedKeys objectAtIndex:i];
@@ -644,7 +691,62 @@
   } else if (appSecret != nil) {
     [args appendString:appSecret];
   }
-  return [args hexMD5];
+
+  return [[args dataUsingEncoding:NSUTF8StringEncoding] md5];
+}
+
+- (NSString*)getRequestStringForMethod:(NSString*)method
+                             arguments:(NSDictionary*)dict
+{
+  NSDictionary* args = [self completeArgumentsForMethod:method
+                                              arguments:dict];
+  return [NSString urlEncodeArguments:args];
+}
+
+- (NSData*)postDataForMethod:(NSString*)method
+                   arguments:(NSDictionary*)dict
+                       files:(NSArray*)files
+{
+  NSDictionary* args = [self completeArgumentsForMethod:method
+                                              arguments:dict];
+
+  // start data
+  NSMutableData* postBody = [NSMutableData data];
+  NSData* endLine = [[NSString stringWithFormat:@"\r\n--%@\r\n", kPostFormDataBoundary] dataUsingEncoding:NSUTF8StringEncoding];
+  [postBody appendData:[[NSString stringWithFormat:@"--%@\r\n", kPostFormDataBoundary] dataUsingEncoding:NSUTF8StringEncoding]];
+
+  // enumerate, adding to the post body
+  NSEnumerator* keyEnumerator = [args keyEnumerator];
+  NSString* key;
+  while (key = [keyEnumerator nextObject]) {
+    NSString* startLine = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n", key];
+    [postBody appendData:[startLine dataUsingEncoding:NSUTF8StringEncoding]];
+    [postBody appendData:[[args valueForKey:key] dataUsingEncoding:NSUTF8StringEncoding]];
+    [postBody appendData:endLine];
+  }
+
+  // add files
+  for (int i = 0; i < [files count]; i++) {
+
+    // image type
+    if ([[files objectAtIndex:i] isKindOfClass:[NSImage class]]) {
+      // get image data, sizing to fit
+      NSImage* image = [(NSImage*)[files objectAtIndex:i] copy];
+      [image resizeToFit:NSMakeSize(kMaxPhotoSize, kMaxPhotoSize) usingMode:0];
+      NSBitmapImageRep* bmp = [[NSBitmapImageRep alloc] initWithData:[image TIFFRepresentation]];
+      NSData* imageData = [bmp representationUsingType:NSPNGFileType properties:nil];
+
+      // write image to post body
+      NSString* md5 = [imageData md5];
+      NSString* startLine = [NSString stringWithFormat:@"Content-Disposition: form-data; filename=\"%@\"\r\n", md5];
+      [postBody appendData:[startLine dataUsingEncoding:NSUTF8StringEncoding]];
+      [postBody appendData:[@"Content-Type: image/png\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+      [postBody appendData:imageData];
+      [postBody appendData:endLine];
+    }
+  }
+
+  return postBody;
 }
 
 @end

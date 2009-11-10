@@ -9,19 +9,17 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface NSString (Additions)
+@interface NSString (FBCocoa)
 
 + (BOOL)exists:(id)string;
 
 - (NSDictionary*)urlDecodeArguments;
 
-+ (NSString *)urlEncodeArguments:(NSDictionary *)dict;
++ (NSString*)urlEncodeArguments:(NSDictionary*)dict;
 
-- (NSString *)urlDecode;
-- (NSString *)urlEncode;
+- (NSString*)urlDecode;
+- (NSString*)urlEncode;
 
-- (NSString *)hexMD5;
-
-- (BOOL)containsString:(NSString *)string;
+- (BOOL)containsString:(NSString*)string;
 
 @end
