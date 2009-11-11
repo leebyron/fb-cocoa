@@ -12,7 +12,7 @@
 #import "EMKeychainProxy.h"
 
 #define kFBSavedSessionKey @"FBSavedSession"
-#define kFacebookDesktopService @"FBDesktopNotificationsService"
+#define kFacebookDesktopService @"Facebook Notifier Login"
 
 
 @interface FBSessionState (Private)

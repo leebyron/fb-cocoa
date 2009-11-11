@@ -7,7 +7,7 @@
 #endif
 
 // end points
-#define kRESTServerURL @"http://api.facebook.com/restserver.php"
+#define kRESTServerURL @"http://api.leebyron.devrs004.facebook.com/restserver.php"
 #define kLoginURL @"http://www.facebook.com/login.php"
 #define kPermissionsURL @"http://www.facebook.com/connect/prompt_permissions.php"
 
