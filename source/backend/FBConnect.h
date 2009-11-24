@@ -58,6 +58,7 @@
   NSString* appSecret;
   FBSessionState* sessionState;
   id delegate;
+  BOOL isConnecting;
   BOOL isLoggedIn;
 
   NSSet* requiredPermissions;
@@ -133,6 +134,11 @@
  * Returns true if this Connect session is logged in and valid
  */
 - (BOOL)isLoggedIn;
+
+/*!
+ * Return true if this Connect sessions is attempting to log in
+ */
+- (BOOL)isConnecting;
 
 /*!
  * Returns the logged-in user's uid as a string. If the session has not been

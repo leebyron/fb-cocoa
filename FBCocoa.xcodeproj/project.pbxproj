@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5300C0CA10BBCB0400C42F60 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5300C0C910BBCB0400C42F60 /* WebKit.framework */; };
+		5300C0CF10BBCB4300C42F60 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5300C0CE10BBCB4300C42F60 /* Security.framework */; };
+		5300C0D310BBCB5500C42F60 /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5300C0D210BBCB5500C42F60 /* libcrypto.0.9.7.dylib */; };
 		5306F953103B8E6D0061C722 /* FBWebViewWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */; };
 		5306F969103B8F210061C722 /* FBWebViewWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F967103B8F210061C722 /* FBWebViewWindowController.m */; };
 		5306F970103B8FB40061C722 /* NSString+.m in Sources */ = {isa = PBXBuildFile; fileRef = 5306F96C103B8FB40061C722 /* NSString+.m */; };
@@ -28,21 +31,18 @@
 		5381AA0F1084842D005441A3 /* FBRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 5381AA0D1084842D005441A3 /* FBRequest.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		53A2ABCE10A927D5008079FB /* NSImage+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABCC10A927D5008079FB /* NSImage+.m */; };
 		53A2ABD210A92973008079FB /* NSData+.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ABD010A92973008079FB /* NSData+.m */; };
-		53A2ADB210A98511008079FB /* NSString+.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB110A98511008079FB /* NSString+.h */; };
-		53A2ADBA10A9876D008079FB /* EMKeychainItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB610A9876D008079FB /* EMKeychainItem.h */; };
 		53A2ADBB10A9876D008079FB /* EMKeychainItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ADB710A9876D008079FB /* EMKeychainItem.m */; };
-		53A2ADBC10A9876D008079FB /* EMKeychainProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 53A2ADB810A9876D008079FB /* EMKeychainProxy.h */; };
 		53A2ADBD10A9876D008079FB /* EMKeychainProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A2ADB910A9876D008079FB /* EMKeychainProxy.m */; };
-		53A2ADE510A99154008079FB /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53A2ADE410A99154008079FB /* Security.framework */; };
 		8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */; };
-		93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */; };
-		93207B3210164075006D15BB /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93207B3110164075006D15BB /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0867D69BFE84028FC02AAC07 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		0867D6A5FE840307C02AAC07 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		5300C0C910BBCB0400C42F60 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
+		5300C0CE10BBCB4300C42F60 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
+		5300C0D210BBCB5500C42F60 /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = /usr/lib/libcrypto.0.9.7.dylib; sourceTree = "<absolute>"; };
 		5306F952103B8E6D0061C722 /* FBWebViewWindow.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FBWebViewWindow.xib; sourceTree = "<group>"; };
 		5306F967103B8F210061C722 /* FBWebViewWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBWebViewWindowController.m; sourceTree = "<group>"; };
 		5306F968103B8F210061C722 /* FBWebViewWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBWebViewWindowController.h; sourceTree = "<group>"; };
@@ -85,10 +85,7 @@
 		53A2ADB710A9876D008079FB /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainItem.m; sourceTree = "<group>"; };
 		53A2ADB810A9876D008079FB /* EMKeychainProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMKeychainProxy.h; sourceTree = "<group>"; };
 		53A2ADB910A9876D008079FB /* EMKeychainProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainProxy.m; sourceTree = "<group>"; };
-		53A2ADE410A99154008079FB /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcrypto.0.9.7.dylib; path = usr/lib/libcrypto.0.9.7.dylib; sourceTree = SDKROOT; };
-		93207B3110164075006D15BB /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
@@ -98,9 +95,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8DC2EF570486A6940098B216 /* Cocoa.framework in Frameworks */,
-				93207A32101552F9006D15BB /* libcrypto.0.9.7.dylib in Frameworks */,
-				93207B3210164075006D15BB /* WebKit.framework in Frameworks */,
-				53A2ADE510A99154008079FB /* Security.framework in Frameworks */,
+				5300C0CA10BBCB0400C42F60 /* WebKit.framework in Frameworks */,
+				5300C0CF10BBCB4300C42F60 /* Security.framework in Frameworks */,
+				5300C0D310BBCB5500C42F60 /* libcrypto.0.9.7.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,10 +144,10 @@
 		1058C7B0FEA5585E11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				93207A31101552F9006D15BB /* libcrypto.0.9.7.dylib */,
-				93207B3110164075006D15BB /* WebKit.framework */,
 				1058C7B1FEA5585E11CA2CBB /* Cocoa.framework */,
-				53A2ADE410A99154008079FB /* Security.framework */,
+				5300C0C910BBCB0400C42F60 /* WebKit.framework */,
+				5300C0CE10BBCB4300C42F60 /* Security.framework */,
+				5300C0D210BBCB5500C42F60 /* libcrypto.0.9.7.dylib */,
 			);
 			name = "Linked Frameworks";
 			sourceTree = "<group>";
@@ -270,9 +267,6 @@
 				5306FB68103B90270061C722 /* FBCocoa.h in Headers */,
 				5306FB76103B906A0061C722 /* FBConnect.h in Headers */,
 				5381AA0F1084842D005441A3 /* FBRequest.h in Headers */,
-				53A2ADB210A98511008079FB /* NSString+.h in Headers */,
-				53A2ADBA10A9876D008079FB /* EMKeychainItem.h in Headers */,
-				53A2ADBC10A9876D008079FB /* EMKeychainProxy.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

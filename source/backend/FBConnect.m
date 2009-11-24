@@ -68,6 +68,7 @@
   sessionState  = [[FBSessionState alloc] initWithKey:kSessionKey];
   delegate      = obj;
   isLoggedIn    = NO;
+  isConnecting  = NO;
 
   requestedPermissions = [[NSMutableSet alloc] init];
 
@@ -103,6 +104,11 @@
 - (BOOL)isLoggedIn
 {
   return isLoggedIn;
+}
+
+- (BOOL)isConnecting
+{
+  return isConnecting;
 }
 
 - (NSString*)uid
@@ -147,6 +153,8 @@
     [windowController focus];
     return;
   }
+
+  isConnecting = YES;
 
   NSMutableDictionary* loginParams = [[NSMutableDictionary alloc] init];
   NSString* permissionsString = [[requestedPermissions allObjects] componentsJoinedByString:@","];
@@ -212,10 +220,13 @@
           selector:@selector(expireSessionResponseComplete:)];
   [sessionState clear];
   isLoggedIn = NO;
+  isConnecting = NO;
 }
 
 - (void)validateSession
 {
+  isConnecting = YES;
+
   [self startBatch];
 
   [self fqlQuery:[NSString stringWithFormat:@"SELECT %@ FROM permissions WHERE uid = %@",
@@ -235,6 +246,7 @@
 {
   NSLog(@"refreshing session");
   isLoggedIn = NO;
+  isConnecting = YES;
   [sessionState invalidate];
   [self loginWithRequiredPermissions:requiredPermissions
                  optionalPermissions:optionalPermissions];
@@ -435,6 +447,8 @@
     }
   }
 
+  isConnecting = NO;
+
   // if needs a permission, prompt. if session is valid, notify. else refresh.
   if (needsNewPermissions) {
     [self promptLogin];
@@ -471,6 +485,8 @@
 
 - (void)loginWindowClosed
 {
+  isConnecting = NO;
+
   if ([windowController success]) {
     isLoggedIn = YES;
 
