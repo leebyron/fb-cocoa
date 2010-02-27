@@ -6,6 +6,7 @@
 //
 
 #import "FBConnect.h"
+#import "FBConnect_Internal.h"
 #import "FBCocoa.h"
 #import "FBCallback.h"
 #import "FBMethodRequest.h"
@@ -18,7 +19,16 @@
 #import "NSImage+.h"
 #import "NSString+.h"
 
+// end points
+#define kRESTServerURL @"http://api.%@facebook.com/restserver.php"
+#define kLoginURL @"http://www.%@facebook.com/login.php"
+#define kPermissionsURL @"http://www.%@facebook.com/connect/prompt_permissions.php"
+#define kLoginFailureURL @"http://www.%@facebook.com/connect/login_failure.html"
+#define kLoginSuccessURL @"http://www.%@facebook.com/connect/login_success.html"
+
+// session key
 #define kSessionKey @"FBUser"
+
 
 @interface FBConnect (Private)
 
@@ -46,6 +56,15 @@
 
 - (void)complainAboutRequiredPermissions:(NSSet*)lackingPermissions;
 
+// url functions
+- (void)setSandbox:(NSString*)box;
+
+- (NSString*)loginURL;
+
+- (NSString*)restURL;
+
+- (NSString*)permissionsURL;
+
 @end
 
 
@@ -64,6 +83,8 @@
     return nil;
   }
 
+  [self setSandbox:@""];
+
   APIKey        = [key retain];
   sessionState  = [[FBSessionState alloc] initWithKey:kSessionKey];
   delegate      = obj;
@@ -77,6 +98,8 @@
 
 - (void)dealloc
 {
+  [sandbox release];
+
   [APIKey       release];
   [appSecret    release];
   [sessionState release];
@@ -89,6 +112,42 @@
 
   [super dealloc];
 }
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+- (void)setSandbox:(NSString*)box {
+  if (!box || [box length] == 0) {
+    sandbox = [[NSString stringWithString:@""] retain];
+  } else {
+    sandbox = [[NSString stringWithFormat:@"%@.", box] retain];
+  }
+}
+
+- (NSString*)loginURL {
+  return [NSString stringWithFormat:kLoginURL, sandbox];
+}
+
+- (NSString*)restURL
+{
+  return [NSString stringWithFormat:kRESTServerURL, sandbox];
+}
+
+- (NSString*)permissionsURL {
+  return [NSString stringWithFormat:kPermissionsURL, sandbox];
+}
+
+- (NSString*)loginFailureURL {
+  return [NSString stringWithFormat:kLoginFailureURL, sandbox];
+}
+
+- (NSString*)loginSuccessURL {
+  return [NSString stringWithFormat:kLoginSuccessURL, sandbox];
+}
+
+
+
 
 //==============================================================================
 //==============================================================================
@@ -169,7 +228,8 @@
   [loginParams setObject:@"true" forKey:@"skipcookie"];
 
   windowController =
-  [[FBWebViewWindowController alloc] initWithRootURL:kLoginURL
+  [[FBWebViewWindowController alloc] initWithConnect:self
+                                             rootURL:[self loginURL]
                                               target:self
                                             selector:@selector(loginWindowClosed)];
   [windowController showWithParams:loginParams];
@@ -206,7 +266,8 @@
   [loginParams setObject:@"true" forKey:@"skipcookie"];
 
   windowController =
-  [[FBWebViewWindowController alloc] initWithRootURL:kPermissionsURL
+  [[FBWebViewWindowController alloc] initWithConnect:self
+                                             rootURL:[self permissionsURL]
                                               target:self
                                             selector:@selector(permissionWindowClosed)];
   [windowController showWithParams:loginParams];

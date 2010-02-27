@@ -54,21 +54,23 @@
  * sending FQL queries.
  */
 @interface FBConnect : NSObject {
-  NSString* APIKey;
-  NSString* appSecret;
+  NSString*       sandbox; // for debugging only
+
+  NSString*       APIKey;
+  NSString*       appSecret;
   FBSessionState* sessionState;
-  id delegate;
-  BOOL isConnecting;
-  BOOL isLoggedIn;
+  id              delegate;
+  BOOL            isConnecting;
+  BOOL            isLoggedIn;
 
-  NSSet* requiredPermissions;
-  NSSet* optionalPermissions;
-  NSMutableSet* requestedPermissions;
+  NSSet*          requiredPermissions;
+  NSSet*          optionalPermissions;
+  NSMutableSet*   requestedPermissions;
 
-  BOOL isBatch;
+  BOOL            isBatch;
   NSMutableArray* pendingBatchRequests;
 
-  FBCallback* permissionCallback;
+  FBCallback*     permissionCallback;
 
   FBWebViewWindowController* windowController;
 }

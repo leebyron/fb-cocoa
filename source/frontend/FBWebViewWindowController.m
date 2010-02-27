@@ -7,10 +7,9 @@
 
 #import "FBWebViewWindowController.h"
 #import "FBCocoa.h"
+#import "FBConnect_Internal.h"
 #import "NSString+.h"
 
-#define kLoginFailureURL @"http://www.facebook.com/connect/login_failure.html"
-#define kLoginSuccessURL @"http://www.facebook.com/connect/login_success.html"
 #define kBrowserMinHeight 180
 #define kBrowserMaxHeight 600
 #define kBrowserLoadTimeout 15.0
@@ -27,16 +26,18 @@
 
 @implementation FBWebViewWindowController
 
-- (id)initWithRootURL:(NSString*)url
+- (id)initWithConnect:(FBConnect*)connect
+              rootURL:(NSString*)url
                target:(id)obj
              selector:(SEL)sel
 {
   self = [super initWithWindowNibName:@"FBWebViewWindow"];
   if (self) {
-    rootURL = url;
-    target = obj;
-    selector = sel;
-    success = NO;
+    parent    = connect;
+    rootURL   = [url retain];
+    target    = obj;
+    selector  = sel;
+    success   = NO;
 
     // force the window to be loaded
     [self focus];
@@ -47,9 +48,11 @@
 
 - (void)dealloc
 {
-  [req release];
-  [lastURL release];
+  [rootURL    release];
+  [req        release];
+  [lastURL    release];
   [retryTimer release];
+
   [super dealloc];
 }
 
@@ -97,15 +100,21 @@
 - (void)showWithParams:(NSDictionary *)params
 {
   NSMutableDictionary *allParams = [[NSMutableDictionary alloc] initWithDictionary:params];
+
   NSString* successURL =
-  [NSString stringWithFormat:@"%@?accepted_permissions=xxRESULTTOKENxx", kLoginSuccessURL];
-  [allParams setObject:kAPIVersion      forKey:@"v"];
-  [allParams setObject:@"1"             forKey:@"fbconnect"];
-  [allParams setObject:@"popup"         forKey:@"display"];
-  [allParams setObject:kLoginFailureURL forKey:@"cancel_url"];
-  [allParams setObject:successURL       forKey:@"next"];
-  [allParams setObject:@"1"             forKey:@"return_session"];
-  [allParams setObject:@"1"             forKey:@"extern"];
+    [NSString stringWithFormat:
+     @"%@?accepted_permissions=xxRESULTTOKENxx",
+     [parent loginSuccessURL]];
+  
+  NSString* failureURL = [parent loginFailureURL];
+
+  [allParams setObject:kAPIVersion  forKey:@"v"];
+  [allParams setObject:@"1"         forKey:@"fbconnect"];
+  [allParams setObject:@"popup"     forKey:@"display"];
+  [allParams setObject:failureURL   forKey:@"cancel_url"];
+  [allParams setObject:successURL   forKey:@"next"];
+  [allParams setObject:@"1"         forKey:@"return_session"];
+  [allParams setObject:@"1"         forKey:@"extern"];
 
   NSString *url = [NSString stringWithFormat:@"%@?%@", rootURL, [NSString urlEncodeArguments:allParams]];
   req = [[NSURLRequest requestWithURL:[NSURL URLWithString:url]] retain];
@@ -249,11 +258,11 @@ decidePolicyForNavigationAction:(NSDictionary*)actionInformation
   // accordingly
   if ([[[request URL] absoluteString] containsString:rootURL]) {
     [listener use];
-  } else if ([[[request URL] absoluteString] containsString:kLoginSuccessURL]) {
+  } else if ([[[request URL] absoluteString] containsString:[parent loginSuccessURL]]) {
     success = YES;
     [listener ignore];
     [[self window] close];
-  } else if ([[[request URL] absoluteString] containsString:kLoginFailureURL] ||
+  } else if ([[[request URL] absoluteString] containsString:[parent loginFailureURL]] ||
              [[[request URL] absoluteString] containsString:@"home.php"]) {
     // Sometimes we get kicked to home.php, which is basically failure
     success = NO;

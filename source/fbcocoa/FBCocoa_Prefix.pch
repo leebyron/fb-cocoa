@@ -6,15 +6,11 @@
     #import <Cocoa/Cocoa.h>
 #endif
 
-// end points
-#define kRESTServerURL @"http://api.facebook.com/restserver.php"
-#define kLoginURL @"http://www.facebook.com/login.php"
-#define kPermissionsURL @"http://www.facebook.com/connect/prompt_permissions.php"
 
 // required constants
 #define kPostFormDataBoundary @"xfAcEb0oKxFaCeBo0kxf4cEb0oKxFaCeBo0kxfAcEb0oKxFaCeBo0kx"
 #define kRequestTimeout 60
-#define kMaxPhotoSize 604
+#define kMaxPhotoSize 720
 
 // useful macros
 #define DELEGATE(tar, sel) {if (tar && [tar respondsToSelector:(sel)]) {\

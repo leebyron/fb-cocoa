@@ -9,9 +9,13 @@
 #import <WebKit/WebKit.h>
 
 
+@class FBConnect;
+
 @interface FBWebViewWindowController : NSWindowController {
   IBOutlet WebView *webView;
   IBOutlet NSProgressIndicator *progressIndicator;
+  
+  FBConnect* parent;
 
   id target;
   SEL selector;
@@ -23,7 +27,8 @@
   NSURL* lastURL;
 }
 
-- (id)initWithRootURL:(NSString*)url
+- (id)initWithConnect:(FBConnect*)connect
+              rootURL:(NSString*)url
                target:(id)obj
              selector:(SEL)sel;
 

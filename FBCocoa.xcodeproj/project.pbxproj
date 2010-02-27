@@ -85,6 +85,7 @@
 		53A2ADB710A9876D008079FB /* EMKeychainItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainItem.m; sourceTree = "<group>"; };
 		53A2ADB810A9876D008079FB /* EMKeychainProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EMKeychainProxy.h; sourceTree = "<group>"; };
 		53A2ADB910A9876D008079FB /* EMKeychainProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EMKeychainProxy.m; sourceTree = "<group>"; };
+		53CEACE01138E25A000212FB /* FBConnect_Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FBConnect_Internal.h; sourceTree = "<group>"; };
 		8DC2EF5B0486A6940098B216 /* FBCocoa.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = FBCocoa.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2F7E79907B2D74100F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
@@ -194,6 +195,7 @@
 				5306FB6E103B906A0061C722 /* FBSessionState.h */,
 				5306FB6F103B906A0061C722 /* FBSessionState.m */,
 				5306FB70103B906A0061C722 /* FBConnect.h */,
+				53CEACE01138E25A000212FB /* FBConnect_Internal.h */,
 				5306FB71103B906A0061C722 /* FBConnect.m */,
 				5381A8711084651F005441A3 /* FBCallback.h */,
 				5381A8721084651F005441A3 /* FBCallback.m */,

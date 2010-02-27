@@ -11,7 +11,6 @@
 
 @interface FBSessionState : NSObject {
   NSString*     keychainKey;
-
   NSString*     secret;
   NSString*     key;
   NSString*     signature;

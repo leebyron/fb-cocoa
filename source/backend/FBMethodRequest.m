@@ -8,6 +8,7 @@
 
 #import "FBMethodRequest.h"
 #import "FBCocoa.h"
+#import "FBConnect_Internal.h"
 #import "JSON.h"
 
 
@@ -120,9 +121,9 @@
   @try {
     NSURL* url;
     if (request) {
-      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", kRESTServerURL, request]];
+      url = [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", [parentConnect restURL], request]];
     } else {
-      url = [NSURL URLWithString:kRESTServerURL];
+      url = [NSURL URLWithString:[parentConnect restURL]];
     }
 
     #ifdef NSURLRequestReloadIgnoringLocalCacheData
