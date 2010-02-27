@@ -17,32 +17,17 @@
 @class FBWebViewWindowController;
 @class FBCallback;
 
-/*!
- * @category FBConnectDelegate(NSObject)
- * These are methods that FBConnect may call on its delegate. They are all
- * optional.
- */
-@interface NSObject (FBConnectDelegate)
 
 /*!
- * Called when the FBConnect has completed logging in to Facebook.
+ * @protocol FBConnectDelegate(NSObject)
+ * These are methods that FBConnect will call on its delegate during login and logout
  */
-- (void)FBConnectLoggedIn:(FBConnect *)fbc;
+@protocol FBConnectDelegate <NSObject>
 
-/*!
- * Called when a login request has failed.
- */
-- (void)FBConnectErrorLoggingIn:(FBConnect *)fbc;
+@required
 
-/*!
- * Called when the FBConnect has completed logging out of Facebook.
- */
-- (void)FBConnectLoggedOut:(FBConnect *)fbc;
-
-/*!
- * Called when a logout request has failed.
- */
-- (void)FBConnectErrorLoggingOut:(FBConnect *)fbc;
+- (void)facebookConnectLoggedIn:(FBConnect*)connect withError:(NSError*)err;
+- (void)facebookConnectLoggedOut:(FBConnect*)connect withError:(NSError*)err;
 
 @end
 

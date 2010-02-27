@@ -515,7 +515,7 @@
     [self promptLogin];
   } else if ([[[req response] stringValue] isEqualToString:[self uid]]) {
     isLoggedIn = YES;
-    DELEGATE(delegate, @selector(FBConnectLoggedIn:));
+    [delegate facebookConnectLoggedIn:self withError:nil];
   } else {
     [self refreshSession];
   }
@@ -536,12 +536,7 @@
 
 - (void)expireSessionResponseComplete:(id<FBRequest>)req
 {
-  if ([req error]) {
-    DELEGATE(delegate, @selector(FBConnectErrorLoggingOut:));
-    return;
-  }
-
-  DELEGATE(delegate, @selector(FBConnectLoggedOut:));
+  [delegate facebookConnectLoggedOut:self withError:[req error]];
 }
 
 - (void)loginWindowClosed
@@ -585,9 +580,10 @@
   windowController = nil;
 
   if (isLoggedIn) {
-    DELEGATE(delegate, @selector(FBConnectLoggedIn:));
+    [delegate facebookConnectLoggedIn:self withError:nil];
   } else {
-    DELEGATE(delegate, @selector(FBConnectErrorLoggingIn:));
+    NSError* err = [NSError errorWithDomain:kFBErrorDomainKey code:FBAPIUnknownError userInfo:nil];
+    [delegate facebookConnectLoggedIn:self withError:err];
   }
 }
 
