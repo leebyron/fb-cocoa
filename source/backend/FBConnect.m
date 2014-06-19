@@ -20,11 +20,11 @@
 #import "NSString+.h"
 
 // end points
-#define kRESTServerURL @"http://api.%@facebook.com/restserver.php"
-#define kLoginURL @"http://www.%@facebook.com/login.php"
-#define kPermissionsURL @"http://www.%@facebook.com/connect/prompt_permissions.php"
-#define kLoginFailureURL @"http://www.%@facebook.com/connect/login_failure.html"
-#define kLoginSuccessURL @"http://www.%@facebook.com/connect/login_success.html"
+#define kRESTServerURL    @"%@://api.%@facebook.com/restserver.php"
+#define kLoginURL         @"%@://www.%@facebook.com/login.php"
+#define kPermissionsURL   @"%@://www.%@facebook.com/connect/prompt_permissions.php"
+#define kLoginFailureURL  @"%@://www.%@facebook.com/connect/login_failure.html"
+#define kLoginSuccessURL  @"%@://www.%@facebook.com/connect/login_success.html"
 
 // session key
 #define kSessionKey @"FBUser"
@@ -90,6 +90,7 @@
   delegate      = obj;
   isLoggedIn    = NO;
   isConnecting  = NO;
+  scheme        = @"https";
 
   requestedPermissions = [[NSMutableSet alloc] init];
 
@@ -99,6 +100,7 @@
 - (void)dealloc
 {
   [sandbox release];
+  [scheme release];
 
   [APIKey       release];
   [appSecret    release];
@@ -126,24 +128,24 @@
 }
 
 - (NSString*)loginURL {
-  return [NSString stringWithFormat:kLoginURL, sandbox];
+  return [NSString stringWithFormat:kLoginURL, scheme, sandbox];
 }
 
 - (NSString*)restURL
 {
-  return [NSString stringWithFormat:kRESTServerURL, sandbox];
+  return [NSString stringWithFormat:kRESTServerURL, scheme, sandbox];
 }
 
 - (NSString*)permissionsURL {
-  return [NSString stringWithFormat:kPermissionsURL, sandbox];
+  return [NSString stringWithFormat:kPermissionsURL, scheme, sandbox];
 }
 
 - (NSString*)loginFailureURL {
-  return [NSString stringWithFormat:kLoginFailureURL, sandbox];
+  return [NSString stringWithFormat:kLoginFailureURL, scheme, sandbox];
 }
 
 - (NSString*)loginSuccessURL {
-  return [NSString stringWithFormat:kLoginSuccessURL, sandbox];
+  return [NSString stringWithFormat:kLoginSuccessURL, scheme, sandbox];
 }
 
 
@@ -152,6 +154,8 @@
 //==============================================================================
 //==============================================================================
 //==============================================================================
+
+@synthesize scheme;
 
 - (void)setSecret:(NSString*)secret
 {

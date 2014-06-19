@@ -40,6 +40,7 @@
  */
 @interface FBConnect : NSObject {
   NSString*       sandbox; // for debugging only
+  NSString*       scheme;
 
   NSString*       APIKey;
   NSString*       appSecret;
@@ -60,6 +61,7 @@
   FBWebViewWindowController* windowController;
 }
 
+@property(retain) NSString* scheme;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Creating an FBConnect instance
